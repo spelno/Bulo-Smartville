@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bulo Smartville v6.0 Pro</title>
+    <title>Bulo Smartville v6.1 Pro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
@@ -20,7 +20,7 @@
     <div class="col-md-4 text-center p-4">
         <img src="Lobo_Bulo.png" style="width:150px" class="mb-4">
         <div class="card card-custom p-4 shadow">
-            <h5 class="fw-bold mb-3">Bulo Smartville Login</h5>
+            <h5 class="fw-bold mb-3">Login Bulo Smartville</h5>
             <input type="text" id="nik" class="form-control mb-2 rounded-pill" placeholder="NIK">
             <input type="password" id="pass" class="form-control mb-3 rounded-pill" placeholder="Password">
             <button onclick="doLogin()" class="btn btn-primary w-100 rounded-pill fw-bold">MASUK</button>
@@ -29,7 +29,7 @@
 </div>
 
 <div id="app-content">
-    <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center no-print shadow-sm">
+    <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center no-print">
         <b class="text-primary">BULO SMARTVILLE PRO</b>
         <button onclick="doLogout()" class="btn btn-sm btn-link text-danger">Keluar</button>
     </div>
@@ -46,17 +46,15 @@
 </div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzmm89RHUGYdbrcRhy-vDJ8KcG1GgD0_EFDkfcWTBZV6H-Cz2vclAvAeosySJLXnW4SDQ/exec"; 
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyONp5Scm2Pewl0tdSKoGhMh-TsE7xIvM3cyDBSlLF0AYVxidID0cyjxKJtzffXdmGNIQ/exec"; // GANTI DENGAN URL GAS ANDA
 let USER = null, DATA = null, piring = [], selectedMember = null;
 
 async function doLogin() {
     const nik = document.getElementById('nik').value, pass = document.getElementById('pass').value;
-    Swal.fire({title: 'Memproses...', didOpen:()=>Swal.showLoading()});
-    try {
-        const res = await fetch(WEB_APP_URL, {method:'POST', body: JSON.stringify({action:'login', nik, password:pass})}).then(r=>r.json());
-        if(res.status==='success') { USER=res.user; localStorage.setItem('bulo_session', JSON.stringify(USER)); initApp(); Swal.close(); }
-        else { Swal.fire('Error', res.message, 'error'); }
-    } catch(e) { Swal.fire('Error', 'Gagal koneksi', 'error'); }
+    Swal.fire({title: 'Memuat...', didOpen:()=>Swal.showLoading()});
+    const res = await fetch(WEB_APP_URL, {method:'POST', body: JSON.stringify({action:'login', nik, password:pass})}).then(r=>r.json());
+    if(res.status==='success') { USER=res.user; localStorage.setItem('bulo_session', JSON.stringify(USER)); initApp(); Swal.close(); }
+    else { Swal.fire('Error', res.message, 'error'); }
 }
 
 function doLogout() { localStorage.removeItem('bulo_session'); location.reload(); }
@@ -101,13 +99,15 @@ function addPiring() {
     let f = DATA.master_gizi[document.getElementById('f-sel').value];
     let g = document.getElementById('f-gram').value;
     if(!g || g <= 0) return;
-    let r = parseFloat(g)/100;
+    let r = parseFloat(g) / 100;
+    
+    // Perbaikan: Paksa nilai menjadi angka (Number) dan gunakan 0 jika data kosong
     piring.push({ 
         nama: f[0], gram: g, 
-        kal: (Number(f[1])||0)*r, 
-        pro: (Number(f[2])||0)*r, 
-        lem: (Number(f[3])||0)*r, 
-        fe: (Number(f[5])||0)*r 
+        kal: (Number(f[1]) || 0) * r, 
+        pro: (Number(f[2]) || 0) * r, 
+        lem: (Number(f[3]) || 0) * r, 
+        fe: (Number(f[5]) || 0) * r 
     });
     document.getElementById('f-gram').value = ""; renderCalc();
 }
@@ -115,15 +115,18 @@ function addPiring() {
 function renderCalc() {
     let optFood = DATA.master_gizi.map((f, i) => `<option value="${i}">${f[0]}</option>`).join('');
     let total = { kal:0, pro:0, lem:0, fe:0 };
-    piring.forEach(p => { total.kal += p.kal; total.pro += p.pro; total.lem += p.lem; total.fe += p.fe; });
+    piring.forEach(p => { 
+        total.kal += p.kal; total.pro += p.pro; total.lem += p.lem; total.fe += p.fe; 
+    });
+
     let t = selectedMember.target;
-    let alertMsg = [];
-    if(total.lem > t.lem) alertMsg.push("🚫 <b>LEBIH LEMAK!</b>");
-    if(total.kal > t.kal + 200) alertMsg.push("🛑 <b>KALORI BERLEBIH!</b>");
-    if(total.fe < t.fe) alertMsg.push("🔴 <b>FE KURANG!</b>");
+    let alerts = [];
+    if(total.lem > t.lem) alerts.push("🚫 <b>LEBIH LEMAK!</b>");
+    if(total.kal > t.kal + 200) alerts.push("🛑 <b>KALORI BERLEBIH!</b>");
+    if(total.fe < t.fe) alerts.push("🔴 <b>FE KURANG!</b>");
 
     document.getElementById('detail-body').innerHTML = `
-        <div class="card card-custom p-4 mb-4 no-print bg-white shadow-sm">
+        <div class="card card-custom p-4 mb-4 no-print bg-white">
             <h5 class="fw-bold mb-0">${selectedMember.nama}</h5>
             <small class="text-muted mb-3 d-block">📏 ${selectedMember.tb}cm | ⚖️ ${selectedMember.bb}kg</small>
             <div class="row g-2 text-center mb-4">
@@ -132,25 +135,25 @@ function renderCalc() {
                 <div class="col-3 p-2 border rounded"><small>PRO</small><br><b>${total.pro.toFixed(1)}</b></div>
                 <div class="col-3 p-2 border rounded"><small>FE</small><br><b>${total.fe.toFixed(1)}</b></div>
             </div>
-            <div class="input-group mb-2">
-                <select id="f-sel" class="form-select rounded-start-pill border-0 bg-light">${optFood}</select>
-                <input type="number" id="f-gram" class="form-control bg-light border-0" placeholder="Gram">
+            <div class="input-group mb-2 shadow-sm">
+                <select id="f-sel" class="form-select border-0 bg-light rounded-start-pill">${optFood}</select>
+                <input type="number" id="f-gram" class="form-control border-0 bg-light" placeholder="Gram">
                 <button onclick="addPiring()" class="btn btn-primary rounded-end-pill px-4 fw-bold">TAMBAH</button>
             </div>
         </div>
-        <div class="print-area p-4 bg-white card-custom border shadow-sm">
+        <div class="print-area p-4 bg-white card-custom border">
             <div class="text-center mb-3">
                 <img src="Lobo_Bulo.png" style="width:60px">
                 <h6 class="fw-bold mt-2 m-0 text-uppercase">Laporan Gizi Harian</h6>
-                <small class="text-muted">Bulo Smartville v6.0</small>
+                <small class="text-muted">Bulo Smartville v6.1</small>
             </div>
-            <div class="alert alert-${alertMsg.length ? 'warning' : 'success'} small py-2">
-                ${alertMsg.length ? alertMsg.join('<br>') : '✅ Gizi Seimbang!'}
+            <div class="alert alert-${alerts.length ? 'warning' : 'success'} small py-2">
+                ${alerts.length ? alerts.join('<br>') : '✅ Gizi Seimbang!'}
             </div>
             <table class="table table-sm small">
                 <thead><tr class="table-light"><th>Bahan</th><th>Berat</th><th>Lemak</th><th>Fe</th></tr></thead>
                 <tbody>
-                    ${piring.map(p => `<tr><td>${p.nama}</td><td>${p.gram}g</td><td>${(Number(p.lem)||0).toFixed(1)}</td><td>${(Number(p.fe)||0).toFixed(1)}</td></tr>`).join('')}
+                    ${piring.map(p => `<tr><td>${p.nama}</td><td>${p.gram}g</td><td>${p.lem.toFixed(1)}</td><td>${p.fe.toFixed(1)}</td></tr>`).join('')}
                     <tr class="table-dark fw-bold"><td>TOTAL</td><td></td><td>${total.lem.toFixed(1)}g</td><td>${total.fe.toFixed(1)}mg</td></tr>
                 </tbody>
             </table>
