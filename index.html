@@ -7,10 +7,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { background: #f4f7f6; font-family: 'Segoe UI', sans-serif; }
-        .card-custom { border-radius: 20px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
-        .indicator-box { padding: 10px; border-radius: 12px; background: #fff; border: 1px solid #eee; text-align: center; }
-        .is-over { background: #dc3545 !important; color: white !important; border-color: #dc3545; }
+        body { background: #f8f9fa; font-family: sans-serif; }
+        .card-custom { border-radius: 20px; border: none; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        .is-over { background: #dc3545 !important; color: white !important; }
         #app-content, #view-detail { display: none; }
         @media print { .no-print { display: none !important; } .print-area { box-shadow: none !important; border: 1px solid #eee !important; } }
     </style>
@@ -19,12 +18,12 @@
 
 <div id="login-screen" class="vh-100 d-flex align-items-center justify-content-center bg-white">
     <div class="col-md-4 text-center p-4">
-        <img src="Lobo_Bulo.png" style="width:160px" class="mb-4">
-        <div class="card card-custom p-4 shadow-lg">
-            <h5 class="fw-bold mb-3">Login Warga</h5>
-            <input type="text" id="nik" class="form-control mb-2 rounded-pill" placeholder="Masukkan NIK">
+        <img src="Lobo_Bulo.png" style="width:150px" class="mb-4">
+        <div class="card card-custom p-4 shadow">
+            <h5 class="fw-bold mb-3">Bulo Smartville Login</h5>
+            <input type="text" id="nik" class="form-control mb-2 rounded-pill" placeholder="NIK">
             <input type="password" id="pass" class="form-control mb-3 rounded-pill" placeholder="Password">
-            <button onclick="doLogin()" class="btn btn-primary w-100 rounded-pill fw-bold py-2">MASUK</button>
+            <button onclick="doLogin()" class="btn btn-primary w-100 rounded-pill fw-bold">MASUK</button>
         </div>
     </div>
 </div>
@@ -32,15 +31,13 @@
 <div id="app-content">
     <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center no-print shadow-sm">
         <b class="text-primary">BULO SMARTVILLE PRO</b>
-        <button onclick="doLogout()" class="btn btn-sm btn-outline-danger rounded-pill">Keluar</button>
+        <button onclick="doLogout()" class="btn btn-sm btn-link text-danger">Keluar</button>
     </div>
-
     <div class="container py-4">
         <div id="view-dashboard" class="row g-3">
-            <div class="col-6"><div class="card card-custom p-4 text-center" onclick="chooseMember()"><h1>🥗</h1><small class="fw-bold">Hitung Gizi</small></div></div>
-            <div id="kader-menu" class="col-6 d-none"><div class="card card-custom p-4 text-center" onclick="manageFisik()"><h1>⚖️</h1><small class="fw-bold">Update TB/BB</small></div></div>
+            <div class="col-6"><div class="card card-custom p-4 text-center shadow-sm" onclick="chooseMember()"><h1>🥗</h1><small class="fw-bold">Hitung Gizi</small></div></div>
+            <div id="kader-menu" class="col-6 d-none"><div class="card card-custom p-4 text-center shadow-sm" onclick="manageFisik()"><h1>⚖️</h1><small class="fw-bold">Update TB/BB</small></div></div>
         </div>
-
         <div id="view-detail">
             <button onclick="goBack()" class="btn btn-light btn-sm mb-3 no-print rounded-pill border">← Kembali</button>
             <div id="detail-body"></div>
@@ -49,15 +46,17 @@
 </div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwMIF2ROROsW9r8UoGoCOejbI_ko4oVKurLBM59AmnuiuiNm5OpGXKDb_LqFaIytkhVww/exec"; // GANTI DENGAN URL GAS ANDA
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzmm89RHUGYdbrcRhy-vDJ8KcG1GgD0_EFDkfcWTBZV6H-Cz2vclAvAeosySJLXnW4SDQ/exec"; 
 let USER = null, DATA = null, piring = [], selectedMember = null;
 
 async function doLogin() {
     const nik = document.getElementById('nik').value, pass = document.getElementById('pass').value;
-    Swal.fire({title: 'Memuat...', didOpen:()=>Swal.showLoading()});
-    const res = await fetch(WEB_APP_URL, {method:'POST', body: JSON.stringify({action:'login', nik, password:pass})}).then(r=>r.json());
-    if(res.status==='success') { USER=res.user; localStorage.setItem('bulo_session', JSON.stringify(USER)); initApp(); Swal.close(); }
-    else { Swal.fire('Error', res.message, 'error'); }
+    Swal.fire({title: 'Memproses...', didOpen:()=>Swal.showLoading()});
+    try {
+        const res = await fetch(WEB_APP_URL, {method:'POST', body: JSON.stringify({action:'login', nik, password:pass})}).then(r=>r.json());
+        if(res.status==='success') { USER=res.user; localStorage.setItem('bulo_session', JSON.stringify(USER)); initApp(); Swal.close(); }
+        else { Swal.fire('Error', res.message, 'error'); }
+    } catch(e) { Swal.fire('Error', 'Gagal koneksi', 'error'); }
 }
 
 function doLogout() { localStorage.removeItem('bulo_session'); location.reload(); }
@@ -66,31 +65,21 @@ async function initApp() {
     document.getElementById('login-screen').classList.replace('d-flex', 'd-none');
     document.getElementById('app-content').style.display = 'block';
     if(USER.role === 'admin' || USER.role === 'kader') document.getElementById('kader-menu').classList.remove('d-none');
-    
     const res = await fetch(WEB_APP_URL, {method:'POST', body: JSON.stringify({action:'get_dashboard', user:USER})}).then(r=>r.json());
     DATA = res.data;
 }
 
 function chooseMember() {
     let opts = DATA.keluarga.map((k, i) => `<option value="${i}">${k.nama}</option>`).join('');
-    Swal.fire({
-        title: 'Pilih Anggota Keluarga',
-        html: `<select id="idx-mem" class="form-select mt-2 rounded-pill">${opts}</select>`,
-        confirmButtonText: 'Mulai'
-    }).then(r => {
-        if(r.isConfirmed) {
-            selectedMember = DATA.keluarga[document.getElementById('idx-mem').value];
-            piring = []; renderCalc();
-            document.getElementById('view-dashboard').classList.add('d-none');
-            document.getElementById('view-detail').style.display = 'block';
-        }
+    Swal.fire({ title: 'Pilih Anggota', html: `<select id="idx-mem" class="form-select mt-2 rounded-pill">${opts}</select>`, confirmButtonText: 'Pilih' }).then(r => {
+        if(r.isConfirmed) { selectedMember = DATA.keluarga[document.getElementById('idx-mem').value]; piring = []; renderCalc(); document.getElementById('view-dashboard').classList.add('d-none'); document.getElementById('view-detail').style.display='block'; }
     });
 }
 
 function manageFisik() {
     let opts = DATA.keluarga.map((k, i) => `<option value="${i}">${k.nama}</option>`).join('');
     Swal.fire({
-        title: 'Update Data Fisik',
+        title: 'Update TB/BB Kader',
         html: `<select id="upd-idx" class="form-select mb-2 rounded-pill">${opts}</select>
                <input id="upd-tb" type="number" class="form-control mb-2 rounded-pill" placeholder="Tinggi (cm)">
                <input id="upd-bb" type="number" class="form-control rounded-pill" placeholder="Berat (kg)">`,
@@ -112,13 +101,13 @@ function addPiring() {
     let f = DATA.master_gizi[document.getElementById('f-sel').value];
     let g = document.getElementById('f-gram').value;
     if(!g || g <= 0) return;
-    let ratio = parseFloat(g) / 100;
-    piring.push({
-        nama: f[0], gram: g,
-        kal: (Number(f[1]) || 0) * ratio,
-        pro: (Number(f[2]) || 0) * ratio,
-        lem: (Number(f[3]) || 0) * ratio,
-        fe: (Number(f[5]) || 0) * ratio
+    let r = parseFloat(g)/100;
+    piring.push({ 
+        nama: f[0], gram: g, 
+        kal: (Number(f[1])||0)*r, 
+        pro: (Number(f[2])||0)*r, 
+        lem: (Number(f[3])||0)*r, 
+        fe: (Number(f[5])||0)*r 
     });
     document.getElementById('f-gram').value = ""; renderCalc();
 }
@@ -127,32 +116,28 @@ function renderCalc() {
     let optFood = DATA.master_gizi.map((f, i) => `<option value="${i}">${f[0]}</option>`).join('');
     let total = { kal:0, pro:0, lem:0, fe:0 };
     piring.forEach(p => { total.kal += p.kal; total.pro += p.pro; total.lem += p.lem; total.fe += p.fe; });
-
     let t = selectedMember.target;
     let alertMsg = [];
-    if(total.lem > t.lem) alertMsg.push("🚫 <b>LEBIH LEMAK!</b> Kurangi makanan berminyak.");
-    if(total.kal > t.kal + 200) alertMsg.push("🛑 <b>KALORI BERLEBIH!</b> Kurangi porsi makan.");
-    if(total.fe < t.fe) alertMsg.push("🔴 <b>FE KURANG!</b> Tambah Hati Ayam/Kelor.");
+    if(total.lem > t.lem) alertMsg.push("🚫 <b>LEBIH LEMAK!</b>");
+    if(total.kal > t.kal + 200) alertMsg.push("🛑 <b>KALORI BERLEBIH!</b>");
+    if(total.fe < t.fe) alertMsg.push("🔴 <b>FE KURANG!</b>");
 
     document.getElementById('detail-body').innerHTML = `
-        <div class="card card-custom p-4 mb-4 no-print bg-white border-0 shadow-sm">
+        <div class="card card-custom p-4 mb-4 no-print bg-white shadow-sm">
             <h5 class="fw-bold mb-0">${selectedMember.nama}</h5>
             <small class="text-muted mb-3 d-block">📏 ${selectedMember.tb}cm | ⚖️ ${selectedMember.bb}kg</small>
-            
             <div class="row g-2 text-center mb-4">
-                <div class="col-3"><div class="indicator-box ${total.kal > t.kal ? 'is-over':''}"><small>KAL</small><br><b>${total.kal.toFixed(0)}</b></div></div>
-                <div class="col-3"><div class="indicator-box ${total.lem > t.lem ? 'is-over':''}"><small>LEM</small><br><b>${total.lem.toFixed(1)}</b></div></div>
-                <div class="col-3"><div class="indicator-box"><small>PRO</small><br><b>${total.pro.toFixed(1)}</b></div></div>
-                <div class="col-3"><div class="indicator-box"><small>FE</small><br><b>${total.fe.toFixed(1)}</b></div></div>
+                <div class="col-3 p-2 border rounded ${total.kal > t.kal ? 'is-over':''}"><small>KAL</small><br><b>${total.kal.toFixed(0)}</b></div>
+                <div class="col-3 p-2 border rounded ${total.lem > t.lem ? 'is-over':''}"><small>LEM</small><br><b>${total.lem.toFixed(1)}</b></div>
+                <div class="col-3 p-2 border rounded"><small>PRO</small><br><b>${total.pro.toFixed(1)}</b></div>
+                <div class="col-3 p-2 border rounded"><small>FE</small><br><b>${total.fe.toFixed(1)}</b></div>
             </div>
-
             <div class="input-group mb-2">
                 <select id="f-sel" class="form-select rounded-start-pill border-0 bg-light">${optFood}</select>
                 <input type="number" id="f-gram" class="form-control bg-light border-0" placeholder="Gram">
                 <button onclick="addPiring()" class="btn btn-primary rounded-end-pill px-4 fw-bold">TAMBAH</button>
             </div>
         </div>
-
         <div class="print-area p-4 bg-white card-custom border shadow-sm">
             <div class="text-center mb-3">
                 <img src="Lobo_Bulo.png" style="width:60px">
@@ -162,18 +147,15 @@ function renderCalc() {
             <div class="alert alert-${alertMsg.length ? 'warning' : 'success'} small py-2">
                 ${alertMsg.length ? alertMsg.join('<br>') : '✅ Gizi Seimbang!'}
             </div>
-            <table class="table table-sm small mb-0">
+            <table class="table table-sm small">
                 <thead><tr class="table-light"><th>Bahan</th><th>Berat</th><th>Lemak</th><th>Fe</th></tr></thead>
                 <tbody>
-                    ${piring.map(p => `<tr><td>${p.nama}</td><td>${p.gram}g</td><td>${p.lem.toFixed(1)}</td><td>${p.fe.toFixed(1)}</td></tr>`).join('')}
-                    <tr class="table-dark fw-bold">
-                        <td colspan="2">TOTAL</td><td>${total.lem.toFixed(1)}g</td><td>${total.fe.toFixed(1)}mg</td>
-                    </tr>
+                    ${piring.map(p => `<tr><td>${p.nama}</td><td>${p.gram}g</td><td>${(Number(p.lem)||0).toFixed(1)}</td><td>${(Number(p.fe)||0).toFixed(1)}</td></tr>`).join('')}
+                    <tr class="table-dark fw-bold"><td>TOTAL</td><td></td><td>${total.lem.toFixed(1)}g</td><td>${total.fe.toFixed(1)}mg</td></tr>
                 </tbody>
             </table>
             <button onclick="window.print()" class="btn btn-dark btn-sm w-100 mt-3 rounded-pill no-print shadow">CETAK LAPORAN</button>
-        </div>
-    `;
+        </div>`;
 }
 
 function goBack() { document.getElementById('view-detail').style.display='none'; document.getElementById('view-dashboard').classList.remove('d-none'); }
