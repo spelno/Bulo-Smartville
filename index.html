@@ -6,44 +6,53 @@
     <title>Bulo Smartville</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        body { background-color: #f0f2f5; font-family: 'Segoe UI', Roboto, Helvetica, Arial, sans-serif; }
         .hidden { display: none !important; }
-        .card { border-radius: 12px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
-        .nav-custom { background: #0047AB; color: white; padding: 15px; }
-        .btn-primary { background-color: #0047AB; border: none; }
-        .status-card { transition: transform 0.2s; }
-        .status-card:hover { transform: translateY(-5px); }
+        .card { border: none; border-radius: 12px; box-shadow: 0 8px 24px rgba(0,0,0,0.1); }
+        .nav-custom { background: #ffffff; border-bottom: 2px solid #0047AB; padding: 10px 20px; }
+        .logo-img { height: 45px; margin-right: 12px; }
+        .btn-primary { background-color: #0047AB; border: none; padding: 10px; font-weight: 600; }
+        .btn-primary:hover { background-color: #003580; }
+        .loader-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.8); display: flex; justify-content: center; align-items: center; z-index: 9999; }
     </style>
 </head>
 <body>
 
+<div id="loader" class="loader-overlay hidden">
+    <div class="spinner-border text-primary" role="status"></div>
+</div>
+
 <nav class="nav-custom d-flex justify-content-between align-items-center hidden" id="mainNav">
-    <h4 class="m-0 fw-bold">Bulo Smartville</h4>
     <div class="d-flex align-items-center">
-        <span id="userTag" class="badge bg-light text-primary me-3 p-2"></span>
-        <button class="btn btn-sm btn-light text-danger fw-bold" onclick="logout()">Logout</button>
+        <img src="Logo_Bulo.png" alt="Logo" class="logo-img">
+        <h4 class="m-0 fw-bold text-primary">Bulo Smartville</h4>
+    </div>
+    <div class="d-flex align-items-center">
+        <span id="userTag" class="badge bg-primary me-3 p-2"></span>
+        <button class="btn btn-sm btn-outline-danger fw-bold" onclick="logout()">Logout</button>
     </div>
 </nav>
 
 <div class="container mt-5">
 
     <div id="loginSection" class="mx-auto" style="max-width: 400px;">
-        <div class="card p-4">
-            <div class="text-center mb-4">
-                <h2 class="fw-bold text-primary">Bulo Smartville</h2>
-                <p class="text-muted">Silakan Login untuk Mengelola Data</p>
-            </div>
-            <div id="loginError" class="alert alert-danger hidden">Username/Password Salah!</div>
+        <div class="card p-4 text-center">
+            <img src="Logo_Bulo.png" alt="Logo" class="mx-auto mb-3" style="height: 80px;">
+            <h3 class="fw-bold text-primary mb-1">Bulo Smartville</h3>
+            <p class="text-muted mb-4">Sistem Terpadu Gizi & Sanitasi</p>
+            
+            <div id="loginError" class="alert alert-danger hidden"></div>
+            
             <form id="loginForm">
-                <div class="mb-3">
-                    <label class="form-label">Username</label>
+                <div class="mb-3 text-start">
+                    <label class="form-label small fw-bold">Username</label>
                     <input type="text" id="username" class="form-control" required>
                 </div>
-                <div class="mb-3">
-                    <label class="form-label">Password</label>
+                <div class="mb-3 text-start">
+                    <label class="form-label small fw-bold">Password</label>
                     <input type="password" id="password" class="form-control" required>
                 </div>
-                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Masuk</button>
+                <button type="submit" class="btn btn-primary w-100">Masuk ke Sistem</button>
             </form>
         </div>
     </div>
@@ -52,30 +61,31 @@
         <div class="row g-4">
             <div class="col-md-7">
                 <div class="card p-4">
-                    <h5 class="fw-bold text-primary mb-3">Registrasi Balita Baru</h5>
+                    <h5 class="fw-bold text-primary mb-4 border-bottom pb-2">Registrasi Balita Baru</h5>
                     <form id="formBalita">
                         <div class="row g-3">
-                            <div class="col-md-6"><input type="number" id="nik_anak" class="form-control" placeholder="NIK Anak" required></div>
-                            <div class="col-md-6"><input type="number" id="nik_kk" class="form-control" placeholder="NIK KK" required></div>
-                            <div class="col-12"><input type="text" id="nama_anak" class="form-control" placeholder="Nama Lengkap Balita" required></div>
-                            <div class="col-md-6"><label class="small">Tgl Lahir</label><input type="date" id="tgl_lahir" class="form-control" required></div>
-                            <div class="col-md-6">
-                                <label class="small">Gender</label>
+                            <div class="col-md-6"><label class="small fw-bold">NIK Anak</label><input type="number" id="nik_anak" class="form-control" required></div>
+                            <div class="col-md-6"><label class="small fw-bold">NIK KK</label><input type="number" id="nik_kk" class="form-control" required></div>
+                            <div class="col-12"><label class="small fw-bold">Nama Lengkap Anak</label><input type="text" id="nama_anak" class="form-control" required></div>
+                            <div class="col-md-6"><label class="small fw-bold">Tgl Lahir</label><input type="date" id="tgl_lahir" class="form-control" required></div>
+                            <div class="col-md-6"><label class="small fw-bold">Gender</label>
                                 <select id="jenis_kelamin" class="form-select"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select>
                             </div>
-                            <div class="col-12"><input type="text" id="wa_ortu" class="form-control" placeholder="WhatsApp Orang Tua (Contoh: 628123...)" required></div>
-                            <div class="col-12"><button type="submit" class="btn btn-success w-100 fw-bold">Simpan Data Balita</button></div>
+                            <div class="col-12"><label class="small fw-bold">No. WhatsApp Ortu</label><input type="text" id="wa_ortu" class="form-control" placeholder="628..." required></div>
+                            <div class="col-12"><label class="small fw-bold">Alamat Dusun</label><input type="text" id="alamat_dusun" class="form-control" required></div>
+                            <div class="col-12"><button type="submit" class="btn btn-success w-100 fw-bold py-2 mt-2">SIMPAN DATA</button></div>
                         </div>
                     </form>
                 </div>
             </div>
             <div class="col-md-5">
-                <div class="card p-4 bg-light">
-                    <h5 class="fw-bold">Menu Kader</h5>
-                    <hr>
-                    <button class="btn btn-primary mb-2 w-100 text-start">📊 Input Pengukuran Bulanan</button>
-                    <button class="btn btn-info mb-2 w-100 text-start text-white">🧹 Lapor Titik Sampah</button>
-                    <button class="btn btn-warning mb-2 w-100 text-start text-white">📖 Katalog MP-ASI Lokal</button>
+                <div class="card p-4 bg-white border-start border-primary border-4">
+                    <h5 class="fw-bold">Menu Navigasi</h5>
+                    <div class="list-group mt-3">
+                        <button class="list-group-item list-group-item-action">📊 Input Pengukuran Gizi</button>
+                        <button class="list-group-item list-group-item-action">🧹 Lapor Kebersihan</button>
+                        <button class="list-group-item list-group-item-action">🍲 Resep MP-ASI Lokal</button>
+                    </div>
                 </div>
             </div>
         </div>
@@ -83,81 +93,60 @@
 
     <div id="viewKades" class="hidden">
         <div class="row g-4">
-            <div class="col-md-4">
-                <div class="card p-4 bg-primary text-white text-center status-card">
-                    <h6>Total Balita</h6>
-                    <h2 class="fw-bold" id="kades_total">120</h2>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card p-4 bg-danger text-white text-center status-card">
-                    <h6>Anak Terindikasi Stunting</h6>
-                    <h2 class="fw-bold" id="kades_stunting">8</h2>
-                </div>
-            </div>
-            <div class="col-md-4">
-                <div class="card p-4 bg-success text-white text-center status-card">
-                    <h6>Kebersihan Desa</h6>
-                    <h2 class="fw-bold">BAIK</h2>
-                </div>
-            </div>
-        </div>
-        <div class="card mt-4 p-4">
-            <h5 class="fw-bold">Peta Persebaran Gizi Desa Bulo</h5>
-            <div class="text-center py-5 bg-light border rounded mt-2">Visualisasi Grafik (Integrasi Google Charts)</div>
+            <div class="col-md-4"><div class="card p-4 text-center bg-white border-bottom border-primary border-4"><h6>Total Balita</h6><h2 class="fw-bold text-primary">120</h2></div></div>
+            <div class="col-md-4"><div class="card p-4 text-center bg-white border-bottom border-danger border-4"><h6>Stunting</h6><h2 class="fw-bold text-danger">8</h2></div></div>
+            <div class="col-md-4"><div class="card p-4 text-center bg-white border-bottom border-success border-4"><h6>Status Lingkungan</h6><h2 class="fw-bold text-success">BERSIH</h2></div></div>
         </div>
     </div>
 
 </div>
 
 <script>
-    // MASUKKAN URL WEB APP GAS ANDA
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxsu8pRbVu-CShupP0ACEYdydQK7_gNaUfewWJTgeL4biTygJ0YMjEyQoF1-xK_qjpYHg/exec";
+    // GANTI DENGAN URL WEB APP GAS ANDA
+    const WEB_APP_URL = "MASUKKAN_URL_WEB_APP_GAS_ANDA_DI_SINI";
 
-    // Fungsi Pengatur Tampilan Berdasarkan Role
-    function switchView(role, username) {
-        // Sembunyikan semua section dulu
-        document.getElementById('loginSection').classList.add('hidden');
-        document.getElementById('viewKader').classList.add('hidden');
-        document.getElementById('viewKades').classList.add('hidden');
-        
-        // Tampilkan Navigasi
-        document.getElementById('mainNav').classList.remove('hidden');
-        document.getElementById('userTag').innerText = `${username} (${role.toUpperCase()})`;
-
-        // Pilih dashboard yang muncul sesuai Role
-        if (role === 'kader') {
-            document.getElementById('viewKader').classList.remove('hidden');
-        } else if (role === 'kades') {
-            document.getElementById('viewKades').classList.remove('hidden');
-        } else if (role === 'admin') {
-            // Admin bisa melihat semuanya (opsional)
-            document.getElementById('viewKader').classList.remove('hidden');
-            document.getElementById('viewKades').classList.remove('hidden');
-        }
+    function showLoader(show) {
+        document.getElementById('loader').classList.toggle('hidden', !show);
     }
 
-    // Handle Form Login
+    // FUNGSI LOGIN DENGAN JSONP
     document.getElementById('loginForm').addEventListener('submit', function(e) {
         e.preventDefault();
-        const user = document.getElementById('username').value;
-        const pass = document.getElementById('password').value;
+        showLoader(true);
+        const u = document.getElementById('username').value;
+        const p = document.getElementById('password').value;
 
-        // Simulasi Logika Login (Nanti dihubungkan ke GAS)
-        // Kita tes manual di sini:
-        if (user === 'kader' && pass === '123') {
-            switchView('kader', user);
-        } else if (user === 'kades' && pass === '123') {
-            switchView('kades', user);
-        } else {
-            document.getElementById('loginError').classList.remove('hidden');
-        }
+        const script = document.createElement('script');
+        script.src = `${WEB_APP_URL}?action=login&username=${u}&password=${p}&callback=handleLogin`;
+        document.body.appendChild(script);
+        document.body.removeChild(script);
     });
 
-    function logout() {
-        window.location.reload();
+    function handleLogin(response) {
+        showLoader(false);
+        if (response.status === "success") {
+            switchView(response.data.role, response.data.username);
+        } else {
+            const err = document.getElementById('loginError');
+            err.innerText = response.message;
+            err.classList.remove('hidden');
+        }
     }
-</script>
 
+    function switchView(role, username) {
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('mainNav').classList.remove('hidden');
+        document.getElementById('userTag').innerText = `${username} (${role.toUpperCase()})`;
+        
+        if (role === 'kader') document.getElementById('viewKader').classList.remove('hidden');
+        if (role === 'kades') document.getElementById('viewKades').classList.remove('hidden');
+        if (role === 'admin') {
+            document.getElementById('viewKader').classList.remove('hidden');
+            document.getElementById('viewKades').classList.remove('hidden');
+        }
+    }
+
+    function logout() { window.location.reload(); }
+</script>
 </body>
 </html>
