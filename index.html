@@ -7,239 +7,160 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        :root { --bulo-blue: #0047AB; --bulo-red: #ff4757; }
-        body { background: #f8fafb; font-family: 'Segoe UI', Roboto, sans-serif; overflow-x: hidden; }
-        
-        /* LOGIN STYLING */
-        .login-container { min-height: 100vh; display: flex; align-items: center; justify-content: center; }
-        .login-card { border-radius: 35px; border: none; padding: 40px; width: 100%; max-width: 400px; box-shadow: 0 15px 35px rgba(0,0,0,0.1); background: white; }
-        .login-logo { width: 100%; max-width: 320px; height: auto; margin-bottom: 20px; transition: 0.5s; }
-        
-        /* APP STYLING */
-        .header-app { background: white; padding: 15px 20px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); sticky: top; }
-        .alarm-card { border-radius: 25px; border: none; background: white; border-left: 8px solid var(--bulo-blue); box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .alarm-active { animation: pulse-red 1s infinite; color: white !important; }
-        @keyframes pulse-red { 0% { background: var(--bulo-red); } 50% { background: #ff6b81; } 100% { background: var(--bulo-red); } }
-        
-        .card-menu { border-radius: 20px; border: none; cursor: pointer; transition: 0.3s; background: white; height: 100%; box-shadow: 0 4px 10px rgba(0,0,0,0.03); }
-        .card-menu:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.08); }
-        
-        /* NAVIGATION */
-        #main-view, #detail-view, #login-screen { display: none; }
-        
-        /* PRINT */
-        @media print {
-            .no-print { display: none !important; }
-            body { background: white; }
-            .print-area { border: none !important; box-shadow: none !important; }
-        }
+        :root { --primary: #0047AB; --bg: #f4f7f6; }
+        body { background: var(--bg); font-family: 'Segoe UI', sans-serif; }
+        .login-screen { height: 100vh; display: flex; align-items: center; justify-content: center; background: #fff; }
+        .login-logo { width: 100%; max-width: 400px; height: auto; margin-bottom: 2rem; }
+        .header-app { background: white; padding: 15px; border-bottom: 3px solid var(--primary); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .card-menu { border-radius: 20px; border: none; cursor: pointer; transition: 0.3s; background: white; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .card-menu:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        #app-content, #view-detail { display: none; }
+        @media print { .no-print { display: none !important; } .print-area { border:none !important; } }
     </style>
 </head>
 <body>
 
-<div id="login-screen" class="login-container">
-    <div class="login-card text-center">
-        <img src="Lobo_Bulo.png" class="login-logo" alt="Bulo Smartville">
-        <div class="mb-3 text-start"><label class="small fw-bold">NIK</label><input type="text" id="nik" class="form-control" placeholder="Masukkan NIK"></div>
-        <div class="mb-3 text-start"><label class="small fw-bold">Password</label><input type="password" id="pass" class="form-control" placeholder="Password"></div>
-        <button onclick="handleLogin()" class="btn btn-primary w-100 fw-bold py-2 shadow-sm rounded-pill">MASUK</button>
+<div id="login-screen" class="login-screen text-center container-fluid">
+    <div class="col-md-4">
+        <img src="Lobo_Bulo.png" class="login-logo" alt="Logo">
+        <div class="card p-4 border-0 shadow-lg" style="border-radius:30px">
+            <input type="text" id="nik" class="form-control mb-3 rounded-pill" placeholder="NIK">
+            <input type="password" id="pass" class="form-control mb-3 rounded-pill" placeholder="Password">
+            <button onclick="login()" class="btn btn-primary w-100 rounded-pill py-2 fw-bold">MASUK</button>
+        </div>
     </div>
 </div>
 
-<div id="app-view">
+<div id="app-content">
     <div class="header-app d-flex justify-content-between align-items-center no-print">
-        <div class="fw-bold text-primary" style="letter-spacing: 1px;">BULO SMARTVILLE</div>
+        <div class="fw-bold text-primary">BULO SMARTVILLE</div>
         <div class="text-end">
-            <span id="u-nama" class="small fw-bold d-block"></span>
+            <small id="user-nm" class="fw-bold d-block"></small>
             <button onclick="logout()" class="btn btn-link btn-sm text-danger p-0 text-decoration-none">Keluar</button>
         </div>
     </div>
 
     <div class="container py-4">
-        <div id="main-view">
-            <div id="alarm-box" class="alarm-card p-4 mb-4">
-                <h6 class="text-muted small mb-1">Jadwal Sampah Dusun: <span id="u-dusun" class="text-primary fw-bold"></span></h6>
-                <h1 id="timer" class="fw-bold mb-0">--:--:--</h1>
-                <small id="alarm-msg">Memuat jadwal penjemputan...</small>
-            </div>
+        <div id="view-dashboard">
+            <h5 class="fw-bold mb-3">Selamat Datang,</h5>
             <div id="menu-grid" class="row g-3"></div>
         </div>
 
-        <div id="detail-view">
-            <button onclick="backToDashboard()" class="btn btn-light btn-sm mb-3 no-print rounded-pill border">← Dashboard</button>
-            <div id="detail-content"></div>
+        <div id="view-detail">
+            <button onclick="goBack()" class="btn btn-light btn-sm mb-3 no-print rounded-pill border">← Dashboard</button>
+            <div id="detail-body"></div>
         </div>
     </div>
 </div>
 
-<audio id="audioKades"></audio>
-
 <script>
-const API_URL = "https://script.google.com/macros/s/AKfycbxRoCaQ9Ez-JdxLCZiVy2JW5fuOiexgKMCXZW3-8-VApRzU82P6CvrMnOZZ9EYPb43Abw/exec"; // Ganti dengan URL Deployment Apps Script Anda
-let USER = null;
-let DATA = null;
-let keranjangMakan = [];
+const URL_GAS = "https://script.google.com/macros/s/AKfycbyp9B06__-58R0Xr1s-wicdF3gkWdYCdQtrS7ScYOPnN5_KmArIG4-PyFdfxHbE4fHV7Q/exec"; // Ganti dengan URL deployment Anda
+let USER = null, DATA = null, items = [], activeTarget = null;
 
-// PERSISTENCE: Cek session saat buka halaman
 window.onload = () => {
-    const session = localStorage.getItem('bulo_session');
-    if(session) {
-        USER = JSON.parse(session);
-        initApp();
-    } else {
-        document.getElementById('login-screen').style.display = 'flex';
-    }
+    const saved = localStorage.getItem('bulo_session');
+    if(saved) { USER = JSON.parse(saved); init(); }
+    else { document.getElementById('login-screen').style.display = 'flex'; }
 };
 
-async function handleLogin() {
-    const nik = document.getElementById('nik').value;
-    const pass = document.getElementById('pass').value;
-    if(!nik || !pass) return;
-
-    Swal.fire({title: 'Memproses...', didOpen: () => Swal.showLoading(), allowOutsideClick: false});
-    
-    try {
-        const res = await fetch(API_URL, {method:'POST', body: JSON.stringify({action:'login', nik, password:pass})}).then(r=>r.json());
-        if(res.status === 'success') {
-            USER = res.user;
-            localStorage.setItem('bulo_session', JSON.stringify(USER));
-            Swal.close();
-            initApp();
-        } else {
-            Swal.fire('Error', res.message, 'error');
-        }
-    } catch(e) { Swal.fire('Error', 'Gagal terhubung ke server', 'error'); }
+async function login() {
+    const nik = document.getElementById('nik').value, pass = document.getElementById('pass').value;
+    const res = await fetch(URL_GAS, {method:'POST', body: JSON.stringify({action:'login', nik, password:pass})}).then(r=>r.json());
+    if(res.status==='success') { USER=res.user; localStorage.setItem('bulo_session', JSON.stringify(USER)); init(); }
+    else { Swal.fire('Gagal', res.message, 'error'); }
 }
 
-function logout() {
-    localStorage.removeItem('bulo_session');
-    location.reload();
-}
+function logout() { localStorage.removeItem('bulo_session'); location.reload(); }
 
-async function initApp() {
+async function init() {
     document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app-view').style.display = 'block';
-    document.getElementById('main-view').style.display = 'block';
+    document.getElementById('app-content').style.display = 'block';
+    document.getElementById('user-nm').innerText = USER.nama;
     
-    const res = await fetch(API_URL, {method:'POST', body: JSON.stringify({action:'get_dashboard', user: USER})}).then(r=>r.json());
+    const res = await fetch(URL_GAS, {method:'POST', body: JSON.stringify({action:'get_dashboard', user:USER})}).then(r=>r.json());
     DATA = res.data;
-    
-    document.getElementById('u-nama').innerText = USER.nama;
-    document.getElementById('u-dusun').innerText = USER.dusun;
-    
-    renderGrid();
-    if(DATA.alarm.length > 0) startAlarm(DATA.alarm[0]);
+    renderDashboard();
 }
 
-function renderGrid() {
-    let html = '';
-    const r = USER.role;
-    
-    if(r === 'warga') {
-        html += gridItem('💰 Saldo Sampah', `Rp ${DATA.saldo.toLocaleString()}`, 'bg-white', 'viewSaldo()');
-        html += gridItem('👶 Status Gizi', DATA.status_anak ? DATA.status_anak[5] : 'Belum Ada Data', 'bg-white');
-    }
-    html += gridItem('🥗 Kalkulator Gizi', 'Menu Piring Makan', 'bg-primary text-white', 'viewKalkulator()');
-    html += gridItem('📹 YouTube Edukasi', 'Materi Mahasiswa', 'bg-danger text-white', 'viewYouTube()');
-
-    document.getElementById('menu-grid').innerHTML = html;
+function renderDashboard() {
+    document.getElementById('view-detail').style.display = 'none';
+    document.getElementById('view-dashboard').style.display = 'block';
+    let h = `
+        <div class="col-6"><div class="card card-menu p-4 text-center h-100" onclick="startCalc()">
+            <h1 class="mb-0">🥗</h1><div class="fw-bold small mt-2">Kalkulator Gizi</div>
+        </div></div>
+        <div class="col-6"><div class="card card-menu p-4 text-center h-100">
+            <h1 class="mb-0">📹</h1><div class="fw-bold small mt-2">Edukasi</div>
+        </div></div>
+    `;
+    document.getElementById('menu-grid').innerHTML = h;
 }
 
-function gridItem(t, d, c, act) {
-    return `<div class="col-6"><div class="card card-menu ${c} p-3" onclick="${act}">
-            <div class="fw-bold small">${t}</div><div style="font-size:0.7rem; opacity:0.8">${d}</div></div></div>`;
+function goBack() { renderDashboard(); }
+
+function startCalc() {
+    let opts = DATA.keluarga.map((k, i) => `<option value="${i}">${k.nama} (${k.usia}thn)</option>`).join('');
+    Swal.fire({
+        title: 'Pilih Siapa yang Makan?',
+        html: `<select id="swal-idx" class="form-select rounded-pill">${opts}</select>`,
+        confirmButtonText: 'Lanjut'
+    }).then(r => {
+        if(r.isConfirmed) {
+            activeTarget = DATA.keluarga[document.getElementById('swal-idx').value];
+            items = [];
+            showCalc();
+        }
+    });
 }
 
-function backToDashboard() {
-    document.getElementById('detail-view').style.display = 'none';
-    document.getElementById('main-view').style.display = 'block';
+function showCalc() {
+    document.getElementById('view-dashboard').style.display = 'none';
+    document.getElementById('view-detail').style.display = 'block';
+    renderCalcUI();
 }
 
-function viewKalkulator() {
-    keranjangMakan = [];
-    document.getElementById('main-view').style.display = 'none';
-    document.getElementById('detail-view').style.display = 'block';
-    renderCalc();
-}
+function renderCalcUI() {
+    let optFood = DATA.master_gizi.map((f, i) => `<option value="${i}">${f[0]}</option>`).join('');
+    let rows = items.map(i => `<tr><td>${i.nama}</td><td>${i.g}g</td><td>${i.fe}mg</td></tr>`).join('');
+    let totalFe = items.reduce((a, b) => a + parseFloat(b.fe), 0).toFixed(2);
+    let persen = Math.min((totalFe / activeTarget.targetFe) * 100, 100).toFixed(0);
 
-function renderCalc() {
-    let opts = DATA.master_gizi.map((it, i) => `<option value="${i}">${it[0]}</option>`).join('');
-    let listRows = keranjangMakan.map((it, i) => `<tr><td>${it.nama}</td><td>${it.berat}g</td><td>${it.fe}mg</td></tr>`).join('');
-    let totalFe = keranjangMakan.reduce((a, b) => a + parseFloat(b.fe), 0).toFixed(2);
-
-    document.getElementById('detail-content').innerHTML = `
-        <div class="card p-3 no-print mb-3 border-0 shadow-sm" style="border-radius:20px;">
-            <h6 class="fw-bold">Pilih Bahan Makanan</h6>
-            <select id="sel-gizi" class="form-select mb-2 rounded-pill">${opts}</select>
-            <input type="number" id="gram-gizi" class="form-control mb-2 rounded-pill" placeholder="Berat (Gram)">
-            <button onclick="addToPiring()" class="btn btn-primary w-100 rounded-pill btn-sm fw-bold">TAMBAH KE PIRING</button>
+    document.getElementById('detail-body').innerHTML = `
+        <div class="card p-3 border-0 shadow-sm no-print mb-4" style="border-radius:25px">
+            <div class="d-flex justify-content-between mb-2">
+                <span class="fw-bold">${activeTarget.nama}</span>
+                <span class="badge bg-primary">Target: ${activeTarget.targetFe}mg</span>
+            </div>
+            <div class="progress mb-3" style="height:15px;border-radius:10px">
+                <div class="progress-bar bg-success" style="width:${persen}%">${persen}%</div>
+            </div>
+            <select id="f-sel" class="form-select mb-2 rounded-pill">${optFood}</select>
+            <input type="number" id="f-gram" class="form-control mb-2 rounded-pill" placeholder="Berat (gram)">
+            <button onclick="addItem()" class="btn btn-primary w-100 rounded-pill fw-bold">TAMBAH</button>
         </div>
-        <div class="print-area p-4 bg-white rounded shadow-sm border">
-            <div class="text-center mb-4">
-                <img src="Lobo_Bulo.png" style="width:80px;" class="mb-2">
-                <h5 class="fw-bold m-0">HASIL ANALISIS GIZI</h5>
-                <small class="text-muted">Menu Piring Makan Balita - Bulo Smartville</small>
+        <div class="print-area p-4 bg-white border rounded shadow-sm">
+            <div class="text-center mb-3">
+                <img src="Lobo_Bulo.png" style="width:80px">
+                <h6 class="fw-bold mt-2">ANALISIS GIZI HARIAN</h6>
+                <small>${activeTarget.nama} | ${activeTarget.status || 'Normal'}</small>
             </div>
-            <table class="table table-sm mt-3">
-                <thead class="table-light"><tr><th>Bahan</th><th>Berat</th><th>Zat Besi</th></tr></thead>
-                <tbody>${listRows || '<tr><td colspan="3" class="text-center text-muted">Belum ada data</td></tr>'}</tbody>
-                <tfoot><tr class="table-primary"><th colspan="2">Total Zat Besi</th><th>${totalFe} mg</th></tr></tfoot>
+            <table class="table table-sm small">
+                <thead><tr><th>Bahan</th><th>Berat</th><th>Fe</th></tr></thead>
+                <tbody>${rows || '<tr><td colspan="3" class="text-center">Kosong</td></tr>'}</tbody>
+                <tr class="table-light"><td><b>Total</b></td><td></td><td><b>${totalFe} mg</b></td></tr>
             </table>
-            <div class="mt-3 small ${totalFe >= 4 ? 'text-success fw-bold' : 'text-danger'}">
-                ${totalFe >= 4 ? '✅ Menu Hebat! Kebutuhan zat besi harian tercukupi.' : 'ℹ️ Tambahkan bahan kaya zat besi (seperti hati ayam atau bayam).'}
-            </div>
-            <button onclick="window.print()" class="btn btn-dark w-100 mt-4 no-print rounded-pill btn-sm">🖨️ PRINT / SIMPAN PDF</button>
+            <button onclick="window.print()" class="btn btn-dark btn-sm w-100 mt-2 rounded-pill no-print">PRINT</button>
         </div>
     `;
 }
 
-function addToPiring() {
-    const idx = document.getElementById('sel-gizi').value;
-    const gram = document.getElementById('gram-gizi').value;
-    if(!gram) return;
-    const bahan = DATA.master_gizi[idx];
-    const feRes = ((parseFloat(bahan[3]) * gram) / 100).toFixed(2);
-    keranjangMakan.push({ nama: bahan[0], berat: gram, fe: feRes });
-    renderCalc();
-}
-
-function viewYouTube() {
-    document.getElementById('main-view').style.display = 'none';
-    document.getElementById('detail-view').style.display = 'block';
-    let h = '<div class="row g-2">';
-    DATA.edukasi.forEach(v => {
-        h += `<div class="col-12"><div class="card p-3 shadow-sm border-0 rounded-4">
-              <h6 class="m-0 fw-bold text-primary">${v[2]}</h6>
-              <a href="${v[3]}" target="_blank" class="btn btn-danger btn-sm mt-2 rounded-pill">Tonton Video</a>
-              </div></div>`;
-    });
-    document.getElementById('detail-content').innerHTML = h + '</div>';
-}
-
-function startAlarm(cfg) {
-    const jamTarget = cfg[3]; 
-    const urlAudio = cfg[4];
-    setInterval(() => {
-        const now = new Date();
-        const t = new Date();
-        const [h, m] = jamTarget.split(':');
-        t.setHours(h, m, 0);
-        let diff = t - now;
-        if(diff > 0) {
-            let mm = Math.floor((diff%3600000)/60000);
-            let ss = Math.floor((diff%60000)/1000);
-            document.getElementById('timer').innerText = `00:${mm < 10 ? '0'+mm : mm}:${ss < 10 ? '0'+ss : ss}`;
-            if(mm === 30 && ss === 0) {
-                document.getElementById('alarm-box').classList.add('alarm-active');
-                const aud = document.getElementById('audioKades');
-                aud.src = urlAudio; aud.play();
-                Swal.fire('Alarm Sampah!', 'Petugas akan tiba dalam 30 menit.', 'warning');
-            }
-        } else {
-            document.getElementById('timer').innerText = "SELESAI";
-            document.getElementById('alarm-box').classList.remove('alarm-active');
-        }
-    }, 1000);
+function addItem() {
+    let f = DATA.master_gizi[document.getElementById('f-sel').value];
+    let g = document.getElementById('f-gram').value;
+    if(!g) return;
+    let fe = ((parseFloat(f[3]) * g) / 100).toFixed(2);
+    items.push({nama: f[0], g, fe});
+    renderCalcUI();
 }
 </script>
 </body>
