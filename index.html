@@ -11,8 +11,8 @@
         body { background: var(--bg); font-family: 'Segoe UI', sans-serif; }
         .login-screen { height: 100vh; display: flex; align-items: center; justify-content: center; background: #fff; }
         .login-logo { width: 85%; max-width: 450px; margin-bottom: 2rem; }
-        .header-app { background: #fff; padding: 15px; border-bottom: 3px solid var(--bulo); sticky: top; }
-        .card-menu { border-radius: 20px; border: none; cursor: pointer; transition: 0.3s; background: #fff; box-shadow: 0 4px 6px rgba(0,0,0,0.02); }
+        .header-app { background: #fff; padding: 15px; border-bottom: 3px solid var(--bulo); box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
+        .card-menu { border-radius: 20px; border: none; cursor: pointer; transition: 0.3s; background: #fff; }
         .card-menu:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         #app-content, #view-detail { display: none; }
         @media print { .no-print { display: none !important; } .print-area { border:none !important; box-shadow: none !important; } }
@@ -22,7 +22,7 @@
 
 <div id="login-screen" class="login-screen text-center container-fluid">
     <div class="col-md-4">
-        <img src="Lobo_Bulo.png" class="login-logo" alt="Bulo Smartville">
+        <img src="Lobo_Bulo.png" class="login-logo">
         <div class="card p-4 border-0 shadow-lg" style="border-radius:30px">
             <input type="text" id="nik" class="form-control mb-3 rounded-pill" placeholder="NIK">
             <input type="password" id="pass" class="form-control mb-3 rounded-pill" placeholder="Password">
@@ -46,14 +46,14 @@
         </div>
 
         <div id="view-detail">
-            <button onclick="goBack()" class="btn btn-light btn-sm mb-3 no-print rounded-pill border">← Kembali</button>
+            <button onclick="goBack()" class="btn btn-light btn-sm mb-3 no-print rounded-pill border">← Dashboard</button>
             <div id="detail-body"></div>
         </div>
     </div>
 </div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbypuIQS5Ws9PcTt3IMfI1ee-ztLgZm1XO7XgpuWPZepWYYcbQNlfX267uuwinRpLbJhKQ/exec"; // Ganti dengan URL deployment Google Apps Script Anda
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwX9CbDUcoBsqYxZD6Xl7L5DYi6slqXJ8qc1QYxXYF8STXN5AaYX8eqN7kyvsNyAvLKwg/exec"; // GANTI DENGAN URL GAS ANDA
 let USER = null, DATA = null, piring = [], selectedMember = null;
 
 window.onload = () => {
@@ -76,7 +76,6 @@ async function initApp() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app-content').style.display = 'block';
     document.getElementById('u-name').innerText = USER.nama;
-    
     const res = await fetch(WEB_APP_URL, {method:'POST', body: JSON.stringify({action:'get_dashboard', user:USER})}).then(r=>r.json());
     DATA = res.data;
     renderDashboard();
@@ -112,39 +111,43 @@ function chooseMember() {
     });
 }
 
+function getSaranGizi(totalFe, targetFe) {
+    let p = (totalFe / targetFe) * 100;
+    if (p < 50) return { status: "SANGAT KURANG", warna: "danger", pesan: "Asupan Zat Besi rendah. Anak/Ibu berisiko cepat lelah & anemia.", rekomendasi: "Hati Ayam, Kerang, atau Daun Kelor." };
+    if (p < 100) return { status: "HAMPIR CUKUP", warna: "warning", pesan: "Sedikit lagi terpenuhi! Tambahkan porsi kecil lauk hijau.", rekomendasi: "Telur, Tempe, atau Bayam." };
+    return { status: "TERPENUHI", warna: "success", pesan: "Luar biasa! Target gizi hari ini sudah tercapai.", rekomendasi: "Pertahankan variasi makanan sehat ini." };
+}
+
 function renderCalc() {
     let optFood = DATA.master_gizi.map((f, i) => `<option value="${i}">${f[0]}</option>`).join('');
     let rows = piring.map(p => `<tr><td>${p.nama}</td><td>${p.g}g</td><td>${p.fe}mg</td></tr>`).join('');
     let totalFe = piring.reduce((a, b) => a + parseFloat(b.fe), 0).toFixed(2);
-    let persen = Math.min((totalFe / selectedMember.targetFe) * 100, 100).toFixed(0);
+    let target = selectedMember.targetFe;
+    let persen = Math.min((totalFe / target) * 100, 100).toFixed(0);
+    let analisis = getSaranGizi(totalFe, target);
 
     document.getElementById('detail-body').innerHTML = `
         <div class="card p-3 border-0 shadow-sm no-print mb-4" style="border-radius:25px">
-            <div class="mb-2">
-                <h5 class="fw-bold m-0">${selectedMember.nama}</h5>
-                <small class="text-primary fw-bold">${selectedMember.infoLabel}</small>
+            <h5 class="fw-bold m-0">${selectedMember.nama}</h5>
+            <small class="text-primary fw-bold mb-2 d-block">${selectedMember.infoLabel}</small>
+            <div class="progress mb-1" style="height:15px; border-radius:10px">
+                <div class="progress-bar bg-${analisis.warna}" style="width:${persen}%">${persen}%</div>
             </div>
-            <div class="progress mb-3" style="height:15px; border-radius:10px">
-                <div class="progress-bar bg-success progress-bar-striped" style="width:${persen}%">${persen}%</div>
-            </div>
+            <small class="text-muted mb-3 d-block">Target: ${totalFe} / ${target} mg Fe</small>
             <select id="f-sel" class="form-select mb-2 rounded-pill">${optFood}</select>
             <input type="number" id="f-gram" class="form-control mb-2 rounded-pill" placeholder="Berat (gram)">
-            <button onclick="addPiring()" class="btn btn-primary w-100 rounded-pill fw-bold shadow-sm">TAMBAH KE PIRING</button>
+            <button onclick="addPiring()" class="btn btn-primary w-100 rounded-pill fw-bold">TAMBAH</button>
         </div>
         <div class="print-area p-4 bg-white border rounded shadow-sm">
-            <div class="text-center mb-4">
-                <img src="Lobo_Bulo.png" style="width:100px">
-                <h5 class="fw-bold mt-3 m-0">HASIL ANALISIS GIZI</h5>
-                <small class="text-muted">Bulo Smartville - ${new Date().toLocaleDateString()}</small>
+            <div class="alert alert-${analisis.warna} small mb-3" style="border-radius:15px">
+                <b>Status: ${analisis.status}</b><br>${analisis.pesan}<br>
+                <hr class="my-1"><b>Saran:</b> ${analisis.rekomendasi}
             </div>
-            <p class="small mb-1"><b>Nama:</b> ${selectedMember.nama} (${selectedMember.usia})</p>
-            <p class="small"><b>Keterangan:</b> ${selectedMember.keterangan || '-'}</p>
-            <table class="table table-sm table-bordered small mt-3">
-                <thead class="table-light"><tr><th>Bahan</th><th>Berat</th><th>Fe</th></tr></thead>
-                <tbody>${rows || '<tr><td colspan="3" class="text-center">Belum ada makanan</td></tr>'}</tbody>
-                <tfoot><tr class="table-primary"><td><b>Total</b></td><td></td><td><b>${totalFe} / ${selectedMember.targetFe} mg</b></td></tr></tfoot>
+            <table class="table table-sm small mb-0">
+                <thead><tr class="table-light"><th>Bahan</th><th>Berat</th><th>Fe</th></tr></thead>
+                <tbody>${rows || '<tr><td colspan="3" class="text-center">Kosong</td></tr>'}</tbody>
             </table>
-            <button onclick="window.print()" class="btn btn-dark btn-sm w-100 mt-3 rounded-pill no-print">🖨️ CETAK LAPORAN</button>
+            <button onclick="window.print()" class="btn btn-dark btn-sm w-100 mt-3 rounded-pill no-print">PRINT LAPORAN</button>
         </div>
     `;
 }
