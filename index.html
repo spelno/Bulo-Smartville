@@ -3,61 +3,92 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bulo Smartville v6.0</title>
+    <title>Bulo Smartville v6.0 Pro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --bulo: #0047AB; }
-        body { background: #f4f7f6; font-family: 'Segoe UI', sans-serif; }
-        .card-personal { border-radius: 20px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.08); background: #fff; }
-        .badge-status { font-size: 0.7rem; padding: 5px 12px; border-radius: 50px; }
+        :root { --bulo: #0047AB; --danger: #dc3545; --success: #198754; }
+        body { background: #f8f9fa; font-family: 'Plus Jakarta Sans', sans-serif; color: #333; }
+        .card-custom { border-radius: 24px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.05); transition: 0.3s; }
+        .header-app { background: #fff; padding: 1rem; border-bottom: 2px solid #eee; position: sticky; top: 0; z-index: 100; }
+        .indicator-box { padding: 12px; border-radius: 15px; border: 1px solid #eee; background: #fff; }
+        .is-over { background: var(--danger) !important; color: #fff !important; border-color: var(--danger); animation: shake 0.5s; }
+        @keyframes shake { 0%, 100% {transform: translateX(0);} 25% {transform: translateX(-5px);} 75% {transform: translateX(5px);} }
         #app-content, #view-detail { display: none; }
-        @media print { .no-print { display: none !important; } .print-area { border:none !important; } }
+        .btn-bulo { background: var(--bulo); color: white; border-radius: 50px; font-weight: 600; padding: 12px; border: none; }
+        .btn-bulo:hover { background: #003580; color: white; }
+        @media print { .no-print { display: none !important; } .print-area { box-shadow: none !important; border: 1px solid #ddd !important; border-radius: 0; } }
     </style>
 </head>
 <body>
 
-<div id="login-screen" class="vh-100 d-flex align-items-center justify-content-center bg-white">
-    <div class="col-md-4 text-center p-4">
-        <img src="Lobo_Bulo.png" style="width:180px" class="mb-4">
-        <div class="card card-personal p-4 shadow-lg">
-            <h5 class="fw-bold mb-3">Login Penduduk</h5>
-            <input type="text" id="nik" class="form-control mb-3 rounded-pill" placeholder="Masukkan NIK">
-            <input type="password" id="pass" class="form-control mb-3 rounded-pill" placeholder="Password">
-            <button onclick="doLogin()" class="btn btn-primary w-100 rounded-pill fw-bold py-2">MASUK</button>
+<div id="login-screen" class="vh-100 d-flex align-items-center justify-content-center bg-white p-4">
+    <div class="col-md-4 text-center">
+        <img src="Lobo_Bulo.png" style="width:200px" class="mb-4" alt="Logo">
+        <div class="card card-custom p-4 shadow-lg">
+            <h4 class="fw-800 mb-1">Bulo Smartville</h4>
+            <p class="text-muted small mb-4">Sistem Monitoring Gizi Profesional</p>
+            <input type="text" id="nik" class="form-control mb-3 rounded-pill p-3 border-light bg-light" placeholder="Masukkan NIK">
+            <input type="password" id="pass" class="form-control mb-4 rounded-pill p-3 border-light bg-light" placeholder="Password">
+            <button onclick="doLogin()" class="btn btn-bulo w-100">MASUK KE SISTEM</button>
         </div>
     </div>
 </div>
 
 <div id="app-content">
-    <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center no-print">
-        <div class="fw-bold text-primary">BULO SMARTVILLE PRO</div>
-        <button onclick="doLogout()" class="btn btn-sm btn-outline-danger rounded-pill">Keluar</button>
+    <div class="header-app d-flex justify-content-between align-items-center no-print shadow-sm">
+        <div class="fw-800 text-primary">BULO <span class="text-dark">PRO</span></div>
+        <div class="text-end">
+            <small id="u-name" class="fw-600 d-block"></small>
+            <button onclick="doLogout()" class="btn btn-link btn-sm text-danger p-0 text-decoration-none small">Keluar</button>
+        </div>
     </div>
 
     <div class="container py-4">
-        <div id="view-dashboard" class="row g-3">
-            <div class="col-12"><h5 class="fw-bold">Selamat Datang, <span id="u-name"></span></h5></div>
-            <div class="col-6"><div class="card card-personal p-4 text-center" onclick="chooseMember()"><h1>🥗</h1><small>Hitung Gizi</small></div></div>
+        <div id="view-dashboard">
+            <h5 class="fw-800 mb-4 text-secondary">Menu Utama</h5>
+            <div class="row g-3">
+                <div class="col-6">
+                    <div class="card card-custom p-4 text-center h-100 bg-white" onclick="chooseMember()">
+                        <div class="display-6">🥗</div>
+                        <div class="fw-600 small mt-2">Kalkulator Gizi</div>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card card-custom p-4 text-center h-100 bg-white">
+                        <div class="display-6">📈</div>
+                        <div class="fw-600 small mt-2">Laporan Dusun</div>
+                    </div>
+                </div>
+            </div>
         </div>
 
         <div id="view-detail">
-            <button onclick="goBack()" class="btn btn-light btn-sm mb-3 no-print rounded-pill border">← Dashboard</button>
+            <button onclick="goBack()" class="btn btn-light btn-sm mb-3 no-print rounded-pill px-3 shadow-sm">← Kembali</button>
             <div id="detail-body"></div>
         </div>
     </div>
 </div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbywKVsEtXthbw1MM6WusUHIVagoOLd8rUIsdrApH1o6WMWcK8AexokjT3pje9RA-9Gzig/exec"; // GANTI DENGAN URL GAS ANDA
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyjvbRUn4nF06X1HAiQq2SR26l1PtCborB-y9z1gHQlRVm69VwpfF6RjCc9xRxWMTsEBw/exec"; // Ganti dengan URL Google Apps Script Anda
 let USER = null, DATA = null, piring = [], selectedMember = null;
 
 async function doLogin() {
     const nik = document.getElementById('nik').value, pass = document.getElementById('pass').value;
-    Swal.fire({title: 'Memuat...', didOpen:()=>Swal.showLoading()});
-    const res = await fetch(WEB_APP_URL, {method:'POST', body: JSON.stringify({action:'login', nik, password:pass})}).then(r=>r.json());
-    if(res.status==='success') { USER=res.user; localStorage.setItem('bulo_session', JSON.stringify(USER)); initApp(); Swal.close(); }
-    else { Swal.fire('Error', res.message, 'error'); }
+    if(!nik || !pass) return Swal.fire('Info', 'Isi NIK dan Password', 'warning');
+    
+    Swal.fire({title: 'Memverifikasi...', didOpen:()=>Swal.showLoading()});
+    try {
+        const res = await fetch(WEB_APP_URL, {method:'POST', body: JSON.stringify({action:'login', nik, password:pass})}).then(r=>r.json());
+        if(res.status==='success') { 
+            USER=res.user; 
+            localStorage.setItem('bulo_session', JSON.stringify(USER)); 
+            initApp(); 
+            Swal.close(); 
+        } else { Swal.fire('Error', res.message, 'error'); }
+    } catch(e) { Swal.fire('Error', 'Gagal terhubung', 'error'); }
 }
 
 function doLogout() { localStorage.removeItem('bulo_session'); location.reload(); }
@@ -66,6 +97,7 @@ async function initApp() {
     document.getElementById('login-screen').classList.replace('d-flex', 'd-none');
     document.getElementById('app-content').style.display = 'block';
     document.getElementById('u-name').innerText = USER.nama;
+    
     const res = await fetch(WEB_APP_URL, {method:'POST', body: JSON.stringify({action:'get_dashboard', user:USER})}).then(r=>r.json());
     DATA = res.data;
 }
@@ -73,15 +105,17 @@ async function initApp() {
 function chooseMember() {
     let opts = DATA.keluarga.map((k, i) => `<option value="${i}">${k.nama}</option>`).join('');
     Swal.fire({
-        title: 'Siapa yang sedang makan?',
+        title: 'Siapa yang makan?',
         html: `<select id="idx-mem" class="form-select rounded-pill mt-2">${opts}</select>`,
-        confirmButtonText: 'Mulai Analisis'
+        confirmButtonText: 'Mulai Hitung',
+        confirmButtonColor: '#0047AB'
     }).then(r => {
         if(r.isConfirmed) {
             selectedMember = DATA.keluarga[document.getElementById('idx-mem').value];
-            piring = []; renderCalc();
+            piring = [];
             document.getElementById('view-dashboard').classList.add('d-none');
             document.getElementById('view-detail').style.display = 'block';
+            renderCalc();
         }
     });
 }
@@ -89,9 +123,17 @@ function chooseMember() {
 function addPiring() {
     let f = DATA.master_gizi[document.getElementById('f-sel').value];
     let g = document.getElementById('f-gram').value;
-    if(!g || g <= 0) return;
-    let r = parseFloat(g) / 100;
-    piring.push({ nama: f[0], gram: g, kal: f[1]*r, pro: f[2]*r, lem: f[3]*r, kar: f[4]*r, fe: f[5]*r });
+    if(!g || g <= 0) return Swal.fire('Info', 'Masukkan berat gram', 'info');
+
+    let ratio = parseFloat(g) / 100;
+    piring.push({
+        nama: f[0], gram: g,
+        kal: (f[1] * ratio),
+        pro: (f[2] * ratio),
+        lem: (f[3] * ratio),
+        kar: (f[4] * ratio),
+        fe: (f[5] * ratio)
+    });
     document.getElementById('f-gram').value = "";
     renderCalc();
 }
@@ -99,48 +141,81 @@ function addPiring() {
 function renderCalc() {
     let optFood = DATA.master_gizi.map((f, i) => `<option value="${i}">${f[0]}</option>`).join('');
     let total = { kal:0, pro:0, lem:0, kar:0, fe:0 };
-    piring.forEach(p => { total.kal+=p.kal; total.pro+=p.pro; total.lem+=p.lem; total.kar+=p.kar; total.fe+=p.fe; });
+    piring.forEach(p => { 
+        total.kal += p.kal; total.pro += p.pro; total.lem += p.lem; total.kar += p.kar; total.fe += p.fe; 
+    });
 
     let t = selectedMember.target;
-    let msg = [];
-    if (total.fe < t.fe) msg.push("🔴 <b>Fe Kurang:</b> Risiko anemia/stunting.");
-    if (total.pro < t.pro * 0.8) msg.push("🟡 <b>Protein Kurang:</b> Tambahkan ikan/telur.");
-    if (total.pro > t.pro * 1.5) msg.push("🔵 <b>Protein Lebih:</b> Ginjal bekerja keras.");
-    if (total.lem > t.lem) msg.push("🚫 <b>Lemak Lebih:</b> Kurangi gorengan/santan!");
-    if (total.kal > t.kal + 200) msg.push("🛑 <b>Kalori Lebih:</b> Risiko kenaikan BB drastis.");
+    let alerts = [];
+    let statusWarna = "success";
+
+    // LOGIKA PERINGATAN (KURANG & LEBIH)
+    if (total.kal > t.kal + 200) { alerts.push("⚠️ <b>KALORI LEBIH:</b> Batasi porsi nasi atau gula."); statusWarna = "danger"; }
+    if (total.lem > t.lem) { alerts.push("🚫 <b>LEMAK LEBIH:</b> Kurangi gorengan/santan!"); statusWarna = "danger"; }
+    if (total.pro > t.pro * 1.5) { alerts.push("🔵 <b>PROTEIN TINGGI:</b> Sangat baik, imbangi air putih."); }
+    if (total.pro < t.pro * 0.7) { alerts.push("🟡 <b>PROTEIN KURANG:</b> Tambah Ikan/Telur."); if(statusWarna!=="danger") statusWarna="warning"; }
+    if (total.fe < t.fe) { alerts.push("🔴 <b>FE KURANG:</b> Tambah Hati Ayam/Daun Kelor."); if(statusWarna!=="danger") statusWarna="warning"; }
 
     document.getElementById('detail-body').innerHTML = `
-        <div class="card card-personal p-3 mb-4 no-print shadow-sm border-0">
-            <h5 class="fw-bold mb-0">${selectedMember.nama}</h5>
-            <small class="text-primary mb-3 d-block">📏 ${selectedMember.tb}cm | ⚖️ ${selectedMember.bb}kg | 🎂 ${selectedMember.usia}</small>
+        <div class="card card-custom p-4 mb-4 no-print bg-white border-0">
+            <h5 class="fw-800 mb-1">${selectedMember.nama}</h5>
+            <div class="d-flex gap-3 mb-4 small text-muted fw-600 text-uppercase" style="letter-spacing: 1px;">
+                <span>📏 ${selectedMember.tb} CM</span>
+                <span>⚖️ ${selectedMember.bb} KG</span>
+                <span>🎂 ${selectedMember.usia}</span>
+            </div>
             
-            <div class="row g-2 text-center mb-3">
-                <div class="col-3 small border-end"><b>Kal</b><br><span class="${total.kal > t.kal ? 'text-danger fw-bold':''}">${total.kal.toFixed(0)}</span></div>
-                <div class="col-3 small border-end"><b>Pro</b><br>${total.pro.toFixed(1)}</div>
-                <div class="col-3 small border-end"><b>Lem</b><br><span class="${total.lem > t.lem ? 'text-danger fw-bold':''}">${total.lem.toFixed(1)}</span></div>
-                <div class="col-3 small"><b>Fe</b><br>${total.fe.toFixed(1)}</div>
+            <div class="row g-2 text-center mb-4">
+                <div class="col-3"><div class="indicator-box ${total.kal > t.kal ? 'is-over' : ''}"><small>KALORI</small><br><b class="small">${total.kal.toFixed(0)}</b></div></div>
+                <div class="col-3"><div class="indicator-box ${total.lem > t.lem ? 'is-over' : ''}"><small>LEMAK</small><br><b class="small">${total.lem.toFixed(1)}</b></div></div>
+                <div class="col-3"><div class="indicator-box"><small>PROTEIN</small><br><b class="small">${total.pro.toFixed(1)}</b></div></div>
+                <div class="col-3"><div class="indicator-box"><small>FE (MG)</small><br><b class="small">${total.fe.toFixed(1)}</b></div></div>
             </div>
 
-            <select id="f-sel" class="form-select mb-2 rounded-pill shadow-sm">${optFood}</select>
-            <input type="number" id="f-gram" class="form-control mb-3 rounded-pill shadow-sm" placeholder="Berat (gram)">
-            <button onclick="addPiring()" class="btn btn-primary w-100 rounded-pill fw-bold py-2 shadow">TAMBAH MAKANAN</button>
+            <label class="small fw-800 mb-2">TAMBAH MAKANAN:</label>
+            <div class="input-group mb-3">
+                <select id="f-sel" class="form-select rounded-start-pill bg-light border-0">${optFood}</select>
+                <input type="number" id="f-gram" class="form-control bg-light border-0" placeholder="Gram">
+                <button onclick="addPiring()" class="btn btn-primary rounded-end-pill px-4 fw-bold shadow">TAMBAH</button>
+            </div>
         </div>
 
-        <div class="print-area p-4 bg-white border card-personal shadow-sm">
-            <div class="text-center mb-3"><img src="Lobo_Bulo.png" style="width:60px"><h6 class="fw-bold mt-2">LAPORAN ANALISIS PERSONAL</h6></div>
-            <div class="alert ${msg.length > 0 ? 'alert-warning' : 'alert-success'} small py-2 mb-3">
-                ${msg.length > 0 ? msg.join('<br>') : '✅ Komposisi gizi hari ini sudah seimbang dan tepat!'}
+        <div class="print-area p-4 bg-white card-custom">
+            <div class="text-center mb-4">
+                <img src="Lobo_Bulo.png" style="width:70px">
+                <h6 class="fw-800 mt-2 m-0 text-uppercase">Laporan Gizi Harian</h6>
+                <small class="text-muted">Notes of OD | Bulo Smartville v6.0</small>
             </div>
-            <table class="table table-sm small">
-                <thead><tr class="table-light"><th>Bahan</th><th>Porsi</th><th>Fe</th><th>Pro</th></tr></thead>
-                <tbody>${piring.map(p => `<tr><td>${p.nama}</td><td>${p.gram}g</td><td>${p.fe.toFixed(1)}</td><td>${p.pro.toFixed(1)}</td></tr>`).join('')}</tbody>
+
+            <div class="alert alert-${statusWarna} small py-3 mb-4 border-0 shadow-sm" style="border-radius:15px">
+                ${alerts.length > 0 ? alerts.join('<br>') : '✅ Komposisi gizi Anda sangat seimbang hari ini!'}
+            </div>
+
+            <table class="table table-sm small mb-4">
+                <thead><tr class="table-light"><th>Bahan</th><th>Berat</th><th>Lemak</th><th>Fe</th></tr></thead>
+                <tbody>
+                    ${piring.map(p => `<tr><td>${p.nama}</td><td>${p.gram}g</td><td>${p.lem.toFixed(1)}</td><td>${p.fe.toFixed(1)}</td></tr>`).join('')}
+                    <tr class="table-dark fw-bold">
+                        <td colspan="2">TOTAL</td><td>${total.lem.toFixed(1)}g</td><td>${total.fe.toFixed(1)}mg</td>
+                    </tr>
+                </tbody>
             </table>
-            <button onclick="window.print()" class="btn btn-dark btn-sm w-100 mt-2 rounded-pill no-print shadow-sm">🖨️ CETAK LAPORAN</button>
+            
+            <button onclick="window.print()" class="btn btn-outline-dark btn-sm w-100 rounded-pill no-print fw-bold py-2">🖨️ CETAK LAPORAN</button>
         </div>
     `;
 }
 
-function goBack() { document.getElementById('view-detail').style.display='none'; document.getElementById('view-dashboard').classList.remove('d-none'); }
+function goBack() { 
+    document.getElementById('view-detail').style.display='none'; 
+    document.getElementById('view-dashboard').classList.remove('d-none'); 
+}
+
+// Cek Sesi
+window.onload = () => {
+    const saved = localStorage.getItem('bulo_session');
+    if(saved) { USER = JSON.parse(saved); initApp(); }
+};
 </script>
 </body>
 </html>
