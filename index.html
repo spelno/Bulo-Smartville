@@ -15,18 +15,18 @@
         .card-menu { border-radius: 20px; border: none; cursor: pointer; transition: 0.3s; background: #fff; }
         .card-menu:hover { transform: translateY(-5px); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
         #app-content, #view-detail { display: none; }
-        @media print { .no-print { display: none !important; } .print-area { border:none !important; box-shadow: none !important; } }
+        @media print { .no-print { display: none !important; } .print-area { border:none !important; box-shadow: none !important; padding: 0 !important; } }
     </style>
 </head>
 <body>
 
 <div id="login-screen" class="login-screen text-center container-fluid">
     <div class="col-md-4">
-        <img src="Lobo_Bulo.png" class="login-logo">
+        <img src="Lobo_Bulo.png" class="login-logo" alt="Logo">
         <div class="card p-4 border-0 shadow-lg" style="border-radius:30px">
             <input type="text" id="nik" class="form-control mb-3 rounded-pill" placeholder="NIK">
             <input type="password" id="pass" class="form-control mb-3 rounded-pill" placeholder="Password">
-            <button onclick="doLogin()" class="btn btn-primary w-100 rounded-pill py-2 fw-bold">MASUK</button>
+            <button onclick="doLogin()" class="btn btn-primary w-100 rounded-pill py-2 fw-bold shadow">MASUK</button>
         </div>
     </div>
 </div>
@@ -34,7 +34,8 @@
 <div id="app-content">
     <div class="header-app d-flex justify-content-between align-items-center no-print">
         <div class="fw-bold text-primary">BULO SMARTVILLE</div>
-        <div class="text-end text-muted"><small id="u-name" class="fw-bold d-block"></small>
+        <div class="text-end text-muted">
+            <small id="u-name" class="fw-bold d-block"></small>
             <button onclick="doLogout()" class="btn btn-link btn-sm text-danger p-0 text-decoration-none">Keluar</button>
         </div>
     </div>
@@ -46,14 +47,15 @@
         </div>
 
         <div id="view-detail">
-            <button onclick="goBack()" class="btn btn-light btn-sm mb-3 no-print rounded-pill border">← Dashboard</button>
+            <button onclick="goBack()" class="btn btn-light btn-sm mb-3 no-print rounded-pill border shadow-sm">← Dashboard</button>
             <div id="detail-body"></div>
         </div>
     </div>
 </div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwX9CbDUcoBsqYxZD6Xl7L5DYi6slqXJ8qc1QYxXYF8STXN5AaYX8eqN7kyvsNyAvLKwg/exec"; // GANTI DENGAN URL GAS ANDA
+// KONFIGURASI: GANTI DENGAN URL GAS ANDA
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwX9CbDUcoBsqYxZD6Xl7L5DYi6slqXJ8qc1QYxXYF8STXN5AaYX8eqN7kyvsNyAvLKwg/exec"; 
 let USER = null, DATA = null, piring = [], selectedMember = null;
 
 window.onload = () => {
@@ -64,10 +66,22 @@ window.onload = () => {
 
 async function doLogin() {
     const nik = document.getElementById('nik').value, pass = document.getElementById('pass').value;
-    Swal.fire({title: 'Memverifikasi...', didOpen:()=>Swal.showLoading()});
-    const res = await fetch(WEB_APP_URL, {method:'POST', body: JSON.stringify({action:'login', nik, password:pass})}).then(r=>r.json());
-    if(res.status==='success') { USER=res.user; localStorage.setItem('bulo_session', JSON.stringify(USER)); initApp(); Swal.close(); }
-    else { Swal.fire('Error', res.message, 'error'); }
+    if(!nik || !pass) return Swal.fire('Info', 'NIK dan Password harus diisi', 'warning');
+    
+    Swal.fire({title: 'Memverifikasi...', didOpen:()=>Swal.showLoading(), allowOutsideClick: false});
+    try {
+        const res = await fetch(WEB_APP_URL, {method:'POST', body: JSON.stringify({action:'login', nik, password:pass})}).then(r=>r.json());
+        if(res.status==='success') { 
+            USER=res.user; 
+            localStorage.setItem('bulo_session', JSON.stringify(USER)); 
+            initApp(); 
+            Swal.close(); 
+        } else { 
+            Swal.fire('Error', res.message, 'error'); 
+        }
+    } catch(e) {
+        Swal.fire('Error', 'Gagal terhubung ke server', 'error');
+    }
 }
 
 function doLogout() { localStorage.removeItem('bulo_session'); location.reload(); }
@@ -76,6 +90,7 @@ async function initApp() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app-content').style.display = 'block';
     document.getElementById('u-name').innerText = USER.nama;
+    
     const res = await fetch(WEB_APP_URL, {method:'POST', body: JSON.stringify({action:'get_dashboard', user:USER})}).then(r=>r.json());
     DATA = res.data;
     renderDashboard();
@@ -85,10 +100,10 @@ function renderDashboard() {
     document.getElementById('view-detail').style.display = 'none';
     document.getElementById('view-dashboard').style.display = 'block';
     document.getElementById('menu-grid').innerHTML = `
-        <div class="col-6"><div class="card card-menu p-4 text-center h-100" onclick="chooseMember()">
+        <div class="col-6"><div class="card card-menu p-4 text-center h-100 shadow-sm" onclick="chooseMember()">
             <h1 class="mb-0">🥗</h1><div class="fw-bold small mt-2">Kalkulator Gizi</div>
         </div></div>
-        <div class="col-6"><div class="card card-menu p-4 text-center h-100">
+        <div class="col-6"><div class="card card-menu p-4 text-center h-100 shadow-sm">
             <h1 class="mb-0">📹</h1><div class="fw-bold small mt-2">Edukasi</div>
         </div></div>
     `;
@@ -98,8 +113,9 @@ function chooseMember() {
     let opts = DATA.keluarga.map((k, i) => `<option value="${i}">${k.nama} [${k.status}]</option>`).join('');
     Swal.fire({
         title: 'Siapa yang Makan?',
-        html: `<select id="idx-mem" class="form-select rounded-pill">${opts}</select>`,
-        confirmButtonText: 'Lanjut'
+        html: `<select id="idx-mem" class="form-select rounded-pill mt-2">${opts}</select>`,
+        confirmButtonText: 'Mulai Hitung',
+        confirmButtonColor: '#0047AB'
     }).then(r => {
         if(r.isConfirmed) {
             selectedMember = DATA.keluarga[document.getElementById('idx-mem').value];
@@ -113,14 +129,15 @@ function chooseMember() {
 
 function getSaranGizi(totalFe, targetFe) {
     let p = (totalFe / targetFe) * 100;
-    if (p < 50) return { status: "SANGAT KURANG", warna: "danger", pesan: "Asupan Zat Besi rendah. Anak/Ibu berisiko cepat lelah & anemia.", rekomendasi: "Hati Ayam, Kerang, atau Daun Kelor." };
-    if (p < 100) return { status: "HAMPIR CUKUP", warna: "warning", pesan: "Sedikit lagi terpenuhi! Tambahkan porsi kecil lauk hijau.", rekomendasi: "Telur, Tempe, atau Bayam." };
-    return { status: "TERPENUHI", warna: "success", pesan: "Luar biasa! Target gizi hari ini sudah tercapai.", rekomendasi: "Pertahankan variasi makanan sehat ini." };
+    if (p < 50) return { status: "SANGAT KURANG", warna: "danger", pesan: "Asupan Zat Besi rendah. Risiko lelah & anemia.", rekomendasi: "Hati Ayam, Ikan Laut, atau Daun Kelor." };
+    if (p < 100) return { status: "HAMPIR CUKUP", warna: "warning", pesan: "Sedikit lagi terpenuhi! Tambahkan porsi kecil lauk.", rekomendasi: "Telur Ayam, Tempe, atau Bayam." };
+    return { status: "TERPENUHI", warna: "success", pesan: "Luar biasa! Target harian sudah tercapai.", rekomendasi: "Pertahankan variasi makanan sehat ini." };
 }
 
 function renderCalc() {
     let optFood = DATA.master_gizi.map((f, i) => `<option value="${i}">${f[0]}</option>`).join('');
     let rows = piring.map(p => `<tr><td>${p.nama}</td><td>${p.g}g</td><td>${p.fe}mg</td></tr>`).join('');
+    
     let totalFe = piring.reduce((a, b) => a + parseFloat(b.fe), 0).toFixed(2);
     let target = selectedMember.targetFe;
     let persen = Math.min((totalFe / target) * 100, 100).toFixed(0);
@@ -130,24 +147,48 @@ function renderCalc() {
         <div class="card p-3 border-0 shadow-sm no-print mb-4" style="border-radius:25px">
             <h5 class="fw-bold m-0">${selectedMember.nama}</h5>
             <small class="text-primary fw-bold mb-2 d-block">${selectedMember.infoLabel}</small>
+            
             <div class="progress mb-1" style="height:15px; border-radius:10px">
-                <div class="progress-bar bg-${analisis.warna}" style="width:${persen}%">${persen}%</div>
+                <div class="progress-bar bg-${analisis.warna} progress-bar-striped progress-bar-animated" style="width:${persen}%">${persen}%</div>
             </div>
-            <small class="text-muted mb-3 d-block">Target: ${totalFe} / ${target} mg Fe</small>
+            <div class="d-flex justify-content-between small text-muted mb-3">
+                <span>Tercapai: ${totalFe} mg</span>
+                <span>Target: ${target} mg</span>
+            </div>
+
+            <label class="small fw-bold mb-1">Pilih Bahan Makanan:</label>
             <select id="f-sel" class="form-select mb-2 rounded-pill">${optFood}</select>
-            <input type="number" id="f-gram" class="form-control mb-2 rounded-pill" placeholder="Berat (gram)">
-            <button onclick="addPiring()" class="btn btn-primary w-100 rounded-pill fw-bold">TAMBAH</button>
+            
+            <label class="small fw-bold mb-1">Berat (Gram):</label>
+            <input type="number" id="f-gram" class="form-control mb-3 rounded-pill" placeholder="Contoh: 100">
+            
+            <button onclick="addPiring()" class="btn btn-primary w-100 rounded-pill fw-bold shadow">TAMBAH KE PIRING</button>
         </div>
-        <div class="print-area p-4 bg-white border rounded shadow-sm">
-            <div class="alert alert-${analisis.warna} small mb-3" style="border-radius:15px">
-                <b>Status: ${analisis.status}</b><br>${analisis.pesan}<br>
-                <hr class="my-1"><b>Saran:</b> ${analisis.rekomendasi}
+
+        <div class="print-area p-4 bg-white border rounded shadow-sm" style="border-radius:20px">
+            <div class="text-center mb-4">
+                <img src="Lobo_Bulo.png" style="width:80px">
+                <h5 class="fw-bold mt-2 m-0 text-uppercase">Analisis Gizi Harian</h5>
+                <small class="text-muted">Desa Bulo Smartville</small>
             </div>
+
+            <div class="alert alert-${analisis.warna} small mb-3 border-0 shadow-sm" style="border-radius:15px">
+                <b>Status: ${analisis.status}</b><br>
+                ${analisis.pesan}<br>
+                <hr class="my-2">
+                <b>Saran:</b> ${analisis.rekomendasi}
+            </div>
+
             <table class="table table-sm small mb-0">
-                <thead><tr class="table-light"><th>Bahan</th><th>Berat</th><th>Fe</th></tr></thead>
-                <tbody>${rows || '<tr><td colspan="3" class="text-center">Kosong</td></tr>'}</tbody>
+                <thead><tr class="table-light"><th>Bahan</th><th>Porsi</th><th>Zat Besi</th></tr></thead>
+                <tbody>${rows || '<tr><td colspan="3" class="text-center text-muted">Belum ada makanan</td></tr>'}</tbody>
+                <tr class="table-primary fw-bold">
+                    <td colspan="2">Total Zat Besi (Fe)</td>
+                    <td>${totalFe} mg</td>
+                </tr>
             </table>
-            <button onclick="window.print()" class="btn btn-dark btn-sm w-100 mt-3 rounded-pill no-print">PRINT LAPORAN</button>
+
+            <button onclick="window.print()" class="btn btn-dark btn-sm w-100 mt-4 rounded-pill no-print fw-bold shadow-sm">🖨️ CETAK LAPORAN</button>
         </div>
     `;
 }
@@ -155,9 +196,14 @@ function renderCalc() {
 function addPiring() {
     let f = DATA.master_gizi[document.getElementById('f-sel').value];
     let g = document.getElementById('f-gram').value;
-    if(!g) return;
-    let fe = ((parseFloat(f[3]) * g) / 100).toFixed(2);
-    piring.push({nama: f[0], g, fe});
+    
+    if(!g || g <= 0) return Swal.fire('Info', 'Masukkan berat makanan yang valid', 'warning');
+
+    // PERBAIKAN RUMUS: Nilai Tabel / 100 * Berat Input
+    let fePerGram = parseFloat(f[3]) / 100;
+    let feTotal = (fePerGram * parseFloat(g)).toFixed(2);
+
+    piring.push({nama: f[0], g: g, fe: feTotal});
     renderCalc();
 }
 
