@@ -5,219 +5,145 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bulo Smartville</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { background-color: #f0f4f7; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
-        .hidden { display: none !important; }
-        .nav-custom { background: white; border-bottom: 3px solid #0047AB; padding: 10px 20px; }
-        .logo-nav { height: 40px; margin-right: 10px; }
-        .card { border: none; border-radius: 20px; box-shadow: 0 10px 40px rgba(0,0,0,0.08); }
-        .btn-menu { width: 100%; text-align: left; padding: 15px; border-radius: 12px; margin-bottom: 12px; border: 1px solid #e2e8f0; background: white; transition: 0.2s; font-weight: 600; }
-        .btn-menu:hover { background: #0047AB; color: white; transform: translateX(5px); }
-        .loader-box { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: rgba(255,255,255,0.9); z-index: 9999; display: flex; flex-direction: column; justify-content: center; align-items: center; }
-        .slogan { color: #64748b; font-style: italic; font-weight: 500; letter-spacing: 0.5px; }
-        .btn-primary { background-color: #0047AB; border: none; padding: 12px; border-radius: 10px; font-weight: bold; }
+        body { background: #f0f2f5; font-family: 'Segoe UI', sans-serif; }
+        .card-custom { border-radius: 15px; border: none; box-shadow: 0 4px 15px rgba(0,0,0,0.1); transition: 0.3s; }
+        .card-custom:hover { transform: translateY(-5px); }
+        .btn-bulo { background: #0047AB; color: white; border-radius: 10px; font-weight: bold; }
+        .alarm-card { background: linear-gradient(135deg, #ff4757, #ff6b81); color: white; }
+        #app-content { display: none; }
     </style>
 </head>
 <body>
 
-<div id="loader" class="loader-box hidden">
-    <div class="spinner-border text-primary mb-2"></div>
-    <span class="text-primary fw-bold">Memproses Data...</span>
-</div>
-
-<nav id="mainNav" class="nav-custom d-flex justify-content-between align-items-center hidden">
-    <div class="d-flex align-items-center">
-        <img src="Lobo_Bulo.png" class="logo-nav">
-        <h5 class="m-0 fw-bold text-primary">Bulo Smartville</h5>
-    </div>
-    <div class="d-flex align-items-center">
-        <span id="userTag" class="badge bg-primary p-2 me-3"></span>
-        <button class="btn btn-sm btn-outline-danger" onclick="location.reload()">Logout</button>
-    </div>
-</nav>
-
-<div class="container mt-5">
-    <div id="loginPage" class="mx-auto" style="max-width: 400px; margin-top: 50px;">
-        <div class="card p-5 text-center">
-            <img src="Lobo_Bulo.png" style="height: 120px;" class="mx-auto mb-3">
-            
-            <p class="slogan mb-4">"Desa Maju, Warga Sejahtera"</p>
-            
-            <div id="loginError" class="alert alert-danger hidden small"></div>
-            
-            <form id="loginForm">
-                <div class="form-floating mb-3">
-                    <input type="text" id="user" class="form-control" placeholder="Username" required>
-                    <label>Username</label>
-                </div>
-                <div class="form-floating mb-4">
-                    <input type="password" id="pass" class="form-control" placeholder="Password" required>
-                    <label>Password</label>
-                </div>
-                <button type="submit" class="btn btn-primary w-100">MASUK KE SISTEM</button>
-            </form>
-            <p class="mt-4 text-muted small">© 2026 Posyandu Bulo</p>
-        </div>
-    </div>
-
-    <div id="viewKader" class="hidden">
-        <div class="row">
-            <div class="col-md-4">
-                <div class="card p-3 mb-4">
-                    <h6 class="fw-bold mb-3 text-secondary text-uppercase small">Menu Utama Kader</h6>
-                    <button class="btn-menu" onclick="showSection('sectionRegis')"><i class="bi bi-person-plus-fill me-2 text-primary"></i> Registrasi Balita</button>
-                    <button class="btn-menu" onclick="showSection('sectionTimbang')"><i class="bi bi-activity me-2 text-danger"></i> Input Timbang</button>
-                    <button class="btn-menu" onclick="showSection('sectionCari')"><i class="bi bi-search me-2 text-info"></i> Cari Data Balita</button>
-                </div>
-            </div>
-            <div class="col-md-8">
-                <div id="sectionRegis" class="section card p-4">
-                    <h5 class="fw-bold text-primary mb-3"><i class="bi bi-plus-circle me-2"></i>Registrasi Baru</h5>
-                    <form id="formRegis">
-                        <div class="row g-2">
-                            <div class="col-6"><input type="number" id="reg_nik" class="form-control" placeholder="NIK Anak" required></div>
-                            <div class="col-6"><input type="number" id="reg_kk" class="form-control" placeholder="NIK KK" required></div>
-                            <div class="col-12"><input type="text" id="reg_nama" class="form-control" placeholder="Nama Lengkap Anak" required></div>
-                            <div class="col-6"><label class="small text-muted">Tgl Lahir</label><input type="date" id="reg_tgl" class="form-control" required></div>
-                            <div class="col-6"><label class="small text-muted">Gender</label><select id="reg_jk" class="form-select"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select></div>
-                            <div class="col-12"><input type="text" id="reg_wa" class="form-control" placeholder="Nomor WhatsApp (628...)" required></div>
-                            <button type="submit" class="btn btn-success fw-bold py-2 mt-3">SIMPAN DATA</button>
-                        </div>
-                    </form>
-                </div>
-
-                <div id="sectionTimbang" class="section card p-4 hidden">
-                    <h5 class="fw-bold text-danger mb-3"><i class="bi bi-speedometer2 me-2"></i>Penimbangan Bulanan</h5>
-                    <form id="formTimbang">
-                        <input type="text" id="tim_id" class="form-control mb-3" placeholder="ID Balita (Contoh: CHL1)" readonly style="background: #f8f9fa;">
-                        <div class="row g-2">
-                            <div class="col-6"><label class="small">Berat Badan (kg)</label><input type="number" step="0.1" id="tim_bb" class="form-control" required></div>
-                            <div class="col-6"><label class="small">Tinggi Badan (cm)</label><input type="number" step="0.1" id="tim_tb" class="form-control" required></div>
-                        </div>
-                        <button type="submit" class="btn btn-danger fw-bold mt-4 w-100">SIMPAN & ANALISA</button>
-                    </form>
-                    <p class="mt-2 small text-muted text-center">*Gunakan menu 'Cari Balita' untuk mengisi ID secara otomatis.</p>
-                </div>
-
-                <div id="sectionCari" class="section card p-4 hidden">
-                    <h5 class="fw-bold text-info mb-3"><i class="bi bi-search me-2"></i>Cari Balita</h5>
-                    <div class="input-group mb-3">
-                        <input type="text" id="cari_key" class="form-control" placeholder="Masukkan Nama atau NIK...">
-                        <button class="btn btn-info text-white" onclick="actionCari()">CARI</button>
-                    </div>
-                    <div id="hasilCari" class="list-group"></div>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div id="viewKades" class="hidden">
-        <div class="card p-5 text-center">
-            <h2 class="fw-bold text-primary">Monitoring Desa Bulo</h2>
-            <p class="slogan">"Desa Maju, Warga Sejahtera"</p>
-            <hr class="my-4">
-            <div class="row">
-                <div class="col-md-6 mb-3"><div class="card bg-light p-4 shadow-sm border-0"><h6>Total Balita Terdata</h6><h2 class="fw-bold">--</h2></div></div>
-                <div class="col-md-6 mb-3"><div class="card bg-danger text-white p-4 shadow-sm border-0"><h6>Kasus Stunting</h6><h2 class="fw-bold">--</h2></div></div>
-            </div>
-        </div>
+<div id="login-page" class="container mt-5">
+    <div class="card card-custom p-4 mx-auto" style="max-width: 400px;">
+        <h2 class="text-center fw-bold text-primary">BULO SMARTVILLE</h2>
+        <p class="text-center text-muted small">Desa Digital: Gizi & Lingkungan</p>
+        <hr>
+        <div class="mb-3"><label>NIK</label><input type="text" id="nik" class="form-control"></div>
+        <div class="mb-3"><label>Password</label><input type="password" id="pass" class="form-control"></div>
+        <button onclick="login()" class="btn btn-bulo w-100 mt-2">MASUK</button>
     </div>
 </div>
+
+<div id="app-content" class="container mt-3 pb-5">
+    <div class="d-flex justify-content-between align-items-center mb-4">
+        <div><h4 id="display-name" class="m-0">--</h4><span id="display-role" class="badge bg-secondary">--</span></div>
+        <button onclick="location.reload()" class="btn btn-outline-danger btn-sm">Logout</button>
+    </div>
+
+    <div id="alarm-section" class="card card-custom alarm-card p-4 text-center mb-4 d-none">
+        <h5>ALARM SAMPAH DUSUN <span id="display-dusun"></span></h5>
+        <h1 id="timer" class="display-4 fw-bold">00:00:00</h1>
+        <p id="alarm-note">Menunggu jadwal penjemputan...</p>
+    </div>
+
+    <div id="menu-area" class="row g-3"></div>
+
+    <div id="content-display" class="mt-4"></div>
+</div>
+
+<audio id="audioPlayer"></audio>
 
 <script>
-    // MASUKKAN URL WEB APP GAS ANDA
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxC3g48XAtChCFkbnwPok5ZAH27U6IjREVSgFqehE-a5aN94rhyQfMbxmwfvtA33pHypA/exec";
-    let currentUser = "";
+    const API_URL = "https://script.google.com/macros/s/AKfycbwdzoQFImva6U8YAgOgrQIWCDIcR6tl5CzTjFy4DwIaEck1Z54bpQFHrnxcs00Afvm7wA/exec"; 
+    let USER = null;
+    let MASTER_DATA = null;
 
-    function toggleLoader(s) { document.getElementById('loader').classList.toggle('hidden', !s); }
+    async function login() {
+        const nik = document.getElementById('nik').value;
+        const pass = document.getElementById('pass').value;
+        Swal.fire({title: 'Memproses...', didOpen: () => Swal.showLoading()});
 
-    function callAPI(p, cb) {
-        toggleLoader(true);
-        const s = document.createElement('script');
-        s.src = `${WEB_APP_URL}?${new URLSearchParams(p).toString()}&callback=${cb}`;
-        document.body.appendChild(s);
-        s.onload = () => document.body.removeChild(s);
-    }
-
-    // --- LOGIC LOGIN ---
-    document.getElementById('loginForm').onsubmit = (e) => {
-        e.preventDefault();
-        callAPI({ 
-            action: 'login', 
-            username: document.getElementById('user').value, 
-            password: document.getElementById('pass').value 
-        }, 'resLogin');
-    };
-
-    function resLogin(r) {
-        toggleLoader(false);
-        if(r.status==='success') {
-            document.getElementById('loginPage').classList.add('hidden');
-            document.getElementById('mainNav').classList.remove('hidden');
-            document.getElementById('userTag').innerText = r.data.username + " | " + r.data.role;
-            currentUser = r.data.username;
-            if(r.data.role==='kader') document.getElementById('viewKader').classList.remove('hidden');
-            else document.getElementById('viewKades').classList.remove('hidden');
+        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({action:'login', nik, password:pass}) }).then(r => r.json());
+        
+        if(res.status === 'success') {
+            USER = res.user;
+            Swal.close();
+            document.getElementById('login-page').style.display = 'none';
+            document.getElementById('app-content').style.display = 'block';
+            initApp();
         } else {
-            const err = document.getElementById('loginError');
-            err.innerText = r.message;
-            err.classList.remove('hidden');
+            Swal.fire('Error', res.message, 'error');
         }
     }
 
-    // --- LOGIC REGISTRASI ---
-    document.getElementById('formRegis').onsubmit = (e) => {
-        e.preventDefault();
-        callAPI({ 
-            action: 'addBalita', 
-            nik_anak: document.getElementById('reg_nik').value, 
-            nik_kk: document.getElementById('reg_kk').value, 
-            nama_anak: document.getElementById('reg_nama').value, 
-            tgl_lahir: document.getElementById('reg_tgl').value, 
-            jenis_kelamin: document.getElementById('reg_jk').value, 
-            wa_ortu: document.getElementById('reg_wa').value 
-        }, 'resRegis');
-    };
-    function resRegis(r) { toggleLoader(false); alert(r.message); if(r.status==='success') document.getElementById('formRegis').reset(); }
+    async function initApp() {
+        document.getElementById('display-name').innerText = USER.nama;
+        document.getElementById('display-role').innerText = USER.role.toUpperCase();
+        document.getElementById('display-dusun').innerText = USER.dusun;
 
-    // --- LOGIC CARI ---
-    function actionCari() {
-        callAPI({ action: 'searchBalita', keyword: document.getElementById('cari_key').value }, 'resCari');
+        const res = await fetch(API_URL, { method: 'POST', body: JSON.stringify({action:'get_data', user: USER}) }).then(r => r.json());
+        MASTER_DATA = res.data;
+
+        renderMenu();
+        if(MASTER_DATA.alarm.length > 0) startAlarm(MASTER_DATA.alarm[0]);
     }
-    function resCari(r) {
-        toggleLoader(false);
-        const div = document.getElementById('hasilCari');
-        div.innerHTML = "";
-        if(r.data.length === 0) div.innerHTML = "<p class='text-center mt-3'>Data tidak ditemukan.</p>";
-        r.data.forEach(b => {
-            div.innerHTML += `<div class="list-group-item d-flex justify-content-between align-items-center">
-                <span><b>${b.nama}</b><br><small class='text-muted'>${b.nik} | ID: ${b.id}</small></span>
-                <button class="btn btn-sm btn-primary rounded-pill px-3" onclick="pilihBalita('${b.id}')">Pilih</button>
-            </div>`;
+
+    function renderMenu() {
+        let html = '';
+        const role = USER.role;
+
+        // Menu Warga & All
+        html += `<div class="col-6"><div class="card card-custom p-3 text-center" onclick="viewYouTube()">📹 Edukasi</div></div>`;
+        html += `<div class="col-6"><div class="card card-custom p-3 text-center" onclick="viewKalkulator()">🥗 Cek Gizi</div></div>`;
+        
+        if(role === 'warga') html += `<div class="col-12"><div class="card card-custom p-3 bg-white text-center"><b>Saldo Anda: Rp ${MASTER_DATA.saldo}</b></div></div>`;
+        
+        // Menu Kader & Admin
+        if(['kader','admin','super_admin'].includes(role)) {
+            html += `<div class="col-6"><div class="card card-custom p-3 bg-warning text-center" onclick="formGizi()">⚖️ Input Gizi</div></div>`;
+            html += `<div class="col-6"><div class="card card-custom p-3 bg-warning text-center" onclick="formSampah()">♻️ Input Sampah</div></div>`;
+        }
+
+        // Menu Super Admin / Dosen
+        if(role === 'super_admin') {
+            html += `<div class="col-12"><div class="card card-custom p-3 bg-dark text-white text-center" onclick="superAdminPanel()">🛠️ Control Panel (Dosen/Mhs)</div></div>`;
+        }
+
+        document.getElementById('menu-area').innerHTML = html;
+    }
+
+    function startAlarm(cfg) {
+        document.getElementById('alarm-section').classList.remove('d-none');
+        const jamTarget = cfg[3]; // HH:mm
+        const audioUrl = cfg[4];
+
+        setInterval(() => {
+            const now = new Date();
+            const target = new Date();
+            const [h, m] = jamTarget.split(':');
+            target.setHours(h, m, 0);
+
+            let diff = target - now;
+            if(diff > 0) {
+                let hh = Math.floor(diff/3600000);
+                let mm = Math.floor((diff%3600000)/60000);
+                let ss = Math.floor((diff%60000)/1000);
+                document.getElementById('timer').innerText = `${hh}:${mm}:${ss}`;
+                
+                // TRIGGER 30 MENIT
+                if(hh === 0 && mm === 30 && ss === 0) {
+                    const player = document.getElementById('audioPlayer');
+                    player.src = audioUrl;
+                    player.play();
+                    Swal.fire('PENGINGAT!', 'Petugas sampah tiba 30 menit lagi!', 'warning');
+                }
+            } else {
+                document.getElementById('timer').innerText = "SELESAI";
+            }
+        }, 1000);
+    }
+
+    // Fungsi tambahan (YouTube, Kalkulator, dll) bisa ditambahkan di sini...
+    function viewYouTube() {
+        let h = '<h5>Edukasi Mahasiswa</h5>';
+        MASTER_DATA.edukasi.forEach(v => {
+            h += `<div class="card p-2 mb-2" onclick="window.open('${v[3]}')"><b>${v[2]}</b><br><small>${v[4]}</small></div>`;
         });
-    }
-    function pilihBalita(id) {
-        document.getElementById('tim_id').value = id;
-        showSection('sectionTimbang');
-    }
-
-    // --- LOGIC TIMBANG ---
-    document.getElementById('formTimbang').onsubmit = (e) => {
-        e.preventDefault();
-        callAPI({ 
-            action: 'addPengukuran', 
-            anak_id: document.getElementById('tim_id').value, 
-            bb: document.getElementById('tim_bb').value, 
-            tb: document.getElementById('tim_tb').value, 
-            petugas: currentUser 
-        }, 'resTimbang');
-    };
-    function resTimbang(r) { toggleLoader(false); alert(r.message); if(r.status==='success') document.getElementById('formTimbang').reset(); }
-
-    function showSection(id) {
-        document.querySelectorAll('.section').forEach(s => s.classList.add('hidden'));
-        document.getElementById(id).classList.remove('hidden');
+        document.getElementById('content-display').innerHTML = h;
     }
 </script>
 </body>
