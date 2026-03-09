@@ -3,173 +3,159 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bulo Smartville - Dashboard</title>
+    <title>Bulo Smartville</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <style>
-        body { font-family: 'Inter', sans-serif; background-color: #f4f7f6; }
-        .login-container { max-width: 400px; margin-top: 100px; }
-        .card { border: none; border-radius: 15px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        .btn-primary { background-color: #007bff; border: none; border-radius: 8px; padding: 10px; }
-        .nav-custom { background-color: #ffffff; border-bottom: 1px solid #dee2e6; }
-        .hidden { display: none; }
-        .status-badge { font-size: 0.8rem; padding: 5px 10px; border-radius: 20px; }
+        body { background-color: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; }
+        .hidden { display: none !important; }
+        .card { border-radius: 12px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); }
+        .nav-custom { background: #0047AB; color: white; padding: 15px; }
+        .btn-primary { background-color: #0047AB; border: none; }
+        .status-card { transition: transform 0.2s; }
+        .status-card:hover { transform: translateY(-5px); }
     </style>
 </head>
 <body>
 
-<nav class="navbar nav-custom px-3 hidden" id="mainNav">
-    <span class="navbar-brand fw-bold text-primary">Bulo Smartville</span>
+<nav class="nav-custom d-flex justify-content-between align-items-center hidden" id="mainNav">
+    <h4 class="m-0 fw-bold">Bulo Smartville</h4>
     <div class="d-flex align-items-center">
-        <span id="userDisplay" class="me-3 fw-semibold text-secondary"></span>
-        <button class="btn btn-outline-danger btn-sm" onclick="logout()">Logout</button>
+        <span id="userTag" class="badge bg-light text-primary me-3 p-2"></span>
+        <button class="btn btn-sm btn-light text-danger fw-bold" onclick="logout()">Logout</button>
     </div>
 </nav>
 
-<div class="container mt-4">
+<div class="container mt-5">
 
-    <div id="loginSection" class="login-container mx-auto">
+    <div id="loginSection" class="mx-auto" style="max-width: 400px;">
         <div class="card p-4">
-            <h3 class="text-center fw-bold mb-4">Bulo Smartville</h3>
-            <div id="loginAlert" class="alert alert-danger hidden"></div>
+            <div class="text-center mb-4">
+                <h2 class="fw-bold text-primary">Bulo Smartville</h2>
+                <p class="text-muted">Silakan Login untuk Mengelola Data</p>
+            </div>
+            <div id="loginError" class="alert alert-danger hidden">Username/Password Salah!</div>
             <form id="loginForm">
                 <div class="mb-3">
-                    <label class="form-label text-secondary">Username</label>
-                    <input type="text" id="username" class="form-control" placeholder="Masukkan username" required>
+                    <label class="form-label">Username</label>
+                    <input type="text" id="username" class="form-control" required>
                 </div>
                 <div class="mb-3">
-                    <label class="form-label text-secondary">Password</label>
-                    <input type="password" id="password" class="form-control" placeholder="Masukkan password" required>
+                    <label class="form-label">Password</label>
+                    <input type="password" id="password" class="form-control" required>
                 </div>
-                <button type="submit" class="btn btn-primary w-100 fw-bold">Masuk ke Sistem</button>
+                <button type="submit" class="btn btn-primary w-100 py-2 fw-bold">Masuk</button>
             </form>
-            <p class="text-center mt-3 text-muted small">v1.0 - Proyek Gizi & Kebersihan</p>
         </div>
     </div>
 
-    <div id="dashboardKader" class="hidden">
-        <div class="row">
-            <div class="col-md-6 mb-4">
+    <div id="viewKader" class="hidden">
+        <div class="row g-4">
+            <div class="col-md-7">
                 <div class="card p-4">
-                    <h5 class="fw-bold mb-3">Pendaftaran Balita Baru</h5>
+                    <h5 class="fw-bold text-primary mb-3">Registrasi Balita Baru</h5>
                     <form id="formBalita">
-                        <div class="row g-2">
-                            <div class="col-12 mb-2">
-                                <input type="number" id="nik_anak" class="form-control" placeholder="NIK Anak (16 Digit)" required>
+                        <div class="row g-3">
+                            <div class="col-md-6"><input type="number" id="nik_anak" class="form-control" placeholder="NIK Anak" required></div>
+                            <div class="col-md-6"><input type="number" id="nik_kk" class="form-control" placeholder="NIK KK" required></div>
+                            <div class="col-12"><input type="text" id="nama_anak" class="form-control" placeholder="Nama Lengkap Balita" required></div>
+                            <div class="col-md-6"><label class="small">Tgl Lahir</label><input type="date" id="tgl_lahir" class="form-control" required></div>
+                            <div class="col-md-6">
+                                <label class="small">Gender</label>
+                                <select id="jenis_kelamin" class="form-select"><option value="L">Laki-laki</option><option value="P">Perempuan</option></select>
                             </div>
-                            <div class="col-12 mb-2">
-                                <input type="number" id="nik_kk" class="form-control" placeholder="NIK Kepala Keluarga" required>
-                            </div>
-                            <div class="col-12 mb-2">
-                                <input type="text" id="nama_anak" class="form-control" placeholder="Nama Lengkap Balita" required>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="small text-muted">Tgl Lahir</label>
-                                <input type="date" id="tgl_lahir" class="form-control" required>
-                            </div>
-                            <div class="col-md-6 mb-2">
-                                <label class="small text-muted">Gender</label>
-                                <select id="jenis_kelamin" class="form-select">
-                                    <option value="L">Laki-laki</option>
-                                    <option value="P">Perempuan</option>
-                                </select>
-                            </div>
-                            <div class="col-12 mb-2">
-                                <input type="text" id="wa_ortu" class="form-control" placeholder="No. WhatsApp Ortu (628...)" required>
-                            </div>
+                            <div class="col-12"><input type="text" id="wa_ortu" class="form-control" placeholder="WhatsApp Orang Tua (Contoh: 628123...)" required></div>
+                            <div class="col-12"><button type="submit" class="btn btn-success w-100 fw-bold">Simpan Data Balita</button></div>
                         </div>
-                        <button type="submit" class="btn btn-success w-100 mt-3 fw-bold">Simpan Data Balita</button>
                     </form>
                 </div>
             </div>
-            <div class="col-md-6">
-                <div class="card p-4 h-100">
-                    <h5 class="fw-bold mb-3">Akses Cepat</h5>
-                    <div class="d-grid gap-2">
-                        <button class="btn btn-outline-primary p-3">Input Pengukuran Bulanan</button>
-                        <button class="btn btn-outline-info p-3">Lapor Kebersihan Lingkungan</button>
-                    </div>
+            <div class="col-md-5">
+                <div class="card p-4 bg-light">
+                    <h5 class="fw-bold">Menu Kader</h5>
+                    <hr>
+                    <button class="btn btn-primary mb-2 w-100 text-start">📊 Input Pengukuran Bulanan</button>
+                    <button class="btn btn-info mb-2 w-100 text-start text-white">🧹 Lapor Titik Sampah</button>
+                    <button class="btn btn-warning mb-2 w-100 text-start text-white">📖 Katalog MP-ASI Lokal</button>
                 </div>
             </div>
         </div>
     </div>
 
-    <div id="dashboardKades" class="hidden">
-        <div class="row">
-            <div class="col-md-4 mb-3">
-                <div class="card p-4 text-center bg-primary text-white">
-                    <h6 class="small">TOTAL BALITA</h6>
-                    <h2 id="totalBalita" class="fw-bold">--</h2>
+    <div id="viewKades" class="hidden">
+        <div class="row g-4">
+            <div class="col-md-4">
+                <div class="card p-4 bg-primary text-white text-center status-card">
+                    <h6>Total Balita</h6>
+                    <h2 class="fw-bold" id="kades_total">120</h2>
                 </div>
             </div>
-            <div class="col-md-4 mb-3">
-                <div class="card p-4 text-center bg-danger text-white">
-                    <h6 class="small">STUNTING / KURANG GIZI</h6>
-                    <h2 id="totalStunting" class="fw-bold">--</h2>
+            <div class="col-md-4">
+                <div class="card p-4 bg-danger text-white text-center status-card">
+                    <h6>Anak Terindikasi Stunting</h6>
+                    <h2 class="fw-bold" id="kades_stunting">8</h2>
                 </div>
             </div>
-            <div class="col-md-4 mb-3">
-                <div class="card p-4 text-center bg-success text-white">
-                    <h6 class="small">AREA BERSIH</h6>
-                    <h2 class="fw-bold">85%</h2>
+            <div class="col-md-4">
+                <div class="card p-4 bg-success text-white text-center status-card">
+                    <h6>Kebersihan Desa</h6>
+                    <h2 class="fw-bold">BAIK</h2>
                 </div>
             </div>
         </div>
-        <div class="card p-4 mt-3">
-            <h5 class="fw-bold">Peta Gizi Desa Bulo</h5>
-            <div class="bg-light p-5 text-center border rounded">Data Grafik Akan Muncul di Sini</div>
+        <div class="card mt-4 p-4">
+            <h5 class="fw-bold">Peta Persebaran Gizi Desa Bulo</h5>
+            <div class="text-center py-5 bg-light border rounded mt-2">Visualisasi Grafik (Integrasi Google Charts)</div>
         </div>
     </div>
 
 </div>
 
 <script>
-    // MASUKKAN URL WEB APP 
+    // MASUKKAN URL WEB APP GAS ANDA
     const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxsu8pRbVu-CShupP0ACEYdydQK7_gNaUfewWJTgeL4biTygJ0YMjEyQoF1-xK_qjpYHg/exec";
 
-    // Handle Login
-    document.getElementById('loginForm').addEventListener('submit', async (e) => {
-        e.preventDefault();
-        const user = document.getElementById('username').value;
-        const pass = document.getElementById('password').value;
-        const alert = document.getElementById('loginAlert');
+    // Fungsi Pengatur Tampilan Berdasarkan Role
+    function switchView(role, username) {
+        // Sembunyikan semua section dulu
+        document.getElementById('loginSection').classList.add('hidden');
+        document.getElementById('viewKader').classList.add('hidden');
+        document.getElementById('viewKades').classList.add('hidden');
+        
+        // Tampilkan Navigasi
+        document.getElementById('mainNav').classList.remove('hidden');
+        document.getElementById('userTag').innerText = `${username} (${role.toUpperCase()})`;
 
-        try {
-            const response = await fetch(WEB_APP_URL, {
-                method: 'POST',
-                mode: 'no-cors', // Penting untuk GAS
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify({ action: 'login', username: user, password: pass })
-            });
-            
-            // Simulasi Login (Karena fetch ke GAS mode no-cors tidak bisa baca body secara langsung tanpa setup khusus)
-            // Dalam implementasi nyata, kita butuh penanganan JSONP atau setup CORS di GAS
-            const fakeResponse = { status: 'success', data: { role: 'kader', username: user } }; // Testing purposes
-            processLogin(fakeResponse);
-
-        } catch (error) {
-            alert.innerText = "Terjadi kesalahan koneksi.";
-            alert.classList.remove('hidden');
-        }
-    });
-
-    function processLogin(response) {
-        if (response.status === 'success') {
-            const user = response.data;
-            document.getElementById('loginSection').classList.add('hidden');
-            document.getElementById('mainNav').classList.remove('hidden');
-            document.getElementById('userDisplay').innerText = `Role: ${user.role.toUpperCase()}`;
-
-            if (user.role === 'kader') {
-                document.getElementById('dashboardKader').classList.remove('hidden');
-            } else if (user.role === 'kades') {
-                document.getElementById('dashboardKades').classList.remove('hidden');
-            }
+        // Pilih dashboard yang muncul sesuai Role
+        if (role === 'kader') {
+            document.getElementById('viewKader').classList.remove('hidden');
+        } else if (role === 'kades') {
+            document.getElementById('viewKades').classList.remove('hidden');
+        } else if (role === 'admin') {
+            // Admin bisa melihat semuanya (opsional)
+            document.getElementById('viewKader').classList.remove('hidden');
+            document.getElementById('viewKades').classList.remove('hidden');
         }
     }
 
+    // Handle Form Login
+    document.getElementById('loginForm').addEventListener('submit', function(e) {
+        e.preventDefault();
+        const user = document.getElementById('username').value;
+        const pass = document.getElementById('password').value;
+
+        // Simulasi Logika Login (Nanti dihubungkan ke GAS)
+        // Kita tes manual di sini:
+        if (user === 'kader' && pass === '123') {
+            switchView('kader', user);
+        } else if (user === 'kades' && pass === '123') {
+            switchView('kades', user);
+        } else {
+            document.getElementById('loginError').classList.remove('hidden');
+        }
+    });
+
     function logout() {
-        location.reload();
+        window.location.reload();
     }
 </script>
 
