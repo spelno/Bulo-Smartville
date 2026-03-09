@@ -8,11 +8,11 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         :root { --bulo-blue: #0047AB; --bulo-red: #ff4757; }
-        body { background: #f8f9fa; font-family: 'Inter', sans-serif; }
+        body { background: #f4f7f6; font-family: 'Segoe UI', sans-serif; }
         .header-bulo { background: white; padding: 15px; box-shadow: 0 2px 10px rgba(0,0,0,0.05); }
-        .logo { font-weight: 800; color: var(--bulo-blue); }
-        .card-menu { border-radius: 20px; border: none; transition: 0.3s; cursor: pointer; height: 100%; }
-        .card-menu:hover { transform: scale(1.03); box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
+        .logo { font-weight: 800; color: var(--bulo-blue); font-size: 1.2rem; }
+        .card-menu { border-radius: 20px; border: none; cursor: pointer; transition: 0.3s; height: 100%; }
+        .card-menu:hover { transform: scale(1.02); box-shadow: 0 8px 20px rgba(0,0,0,0.1); }
         .alarm-banner { border-radius: 15px; background: white; border-left: 5px solid var(--bulo-blue); }
         .alarm-warning { animation: blink-bg 1s infinite; border-left: 5px solid white; color: white !important; }
         @keyframes blink-bg { 0% { background: var(--bulo-red); } 50% { background: #ff6b81; } 100% { background: var(--bulo-red); } }
@@ -23,17 +23,17 @@
 <div id="login-screen" class="container mt-5">
     <div class="row justify-content-center">
         <div class="col-md-4 card p-4 shadow-sm border-0" style="border-radius: 20px;">
-            <h2 class="text-center logo mb-4">BULO<br>SMARTVILLE</h2>
+            <h2 class="text-center logo mb-4">BULO SMARTVILLE</h2>
             <div class="mb-3"><label>NIK</label><input type="text" id="nik" class="form-control"></div>
             <div class="mb-3"><label>Password</label><input type="password" id="pass" class="form-control"></div>
-            <button onclick="handleLogin()" class="btn btn-primary w-100 fw-bold py-2">MASUK</button>
+            <button onclick="handleLogin()" class="btn btn-primary w-100 fw-bold">MASUK</button>
         </div>
     </div>
 </div>
 
 <div id="main-app" class="d-none">
     <div class="header-bulo d-flex justify-content-between align-items-center mb-4">
-        <div class="logo">Bulo Smartville</div>
+        <div class="logo">BULO SMARTVILLE</div>
         <div class="text-end">
             <div class="fw-bold" id="u-nama">--</div>
             <small class="badge bg-primary" id="u-role">--</small>
@@ -44,9 +44,8 @@
         <div id="alarm-box" class="alarm-banner p-3 mb-4 shadow-sm">
             <h6 class="m-0">Alarm Sampah Dusun <span id="u-dusun"></span></h6>
             <h2 id="countdown" class="fw-bold m-0">--:--:--</h2>
-            <small id="alarm-msg">Menghitung waktu penjemputan...</small>
+            <small id="alarm-msg">Memuat jadwal...</small>
         </div>
-
         <div id="menu-grid" class="row g-3"></div>
     </div>
 </div>
@@ -54,7 +53,7 @@
 <audio id="kadesAudio"></audio>
 
 <script>
-const API = "https://script.google.com/macros/s/AKfycbyZjcP1tx0mGk6m2NP0LshKt2fTW412VrvYXgPBAiISJfe8Wp5ZZMdPi5_YnkdhdRXLkg/exec";
+const API = "https://script.google.com/macros/s/AKfycbykcVsoe0ny-_syvInn07IE3uIjNUy5tJXcvoxJDhvgl2z02HE3DXaHzqHlQi8YmJzuFA/exec"; // GANTI INI
 let USER = null;
 let DATA = null;
 
@@ -76,13 +75,11 @@ async function handleLogin() {
 }
 
 async function loadDashboard() {
+    const res = await fetch(API, {method:'POST', body: JSON.stringify({action:'get_dashboard', user: USER})}).then(r=>r.json());
+    DATA = res.data;
     document.getElementById('u-nama').innerText = USER.nama;
     document.getElementById('u-role').innerText = USER.role.toUpperCase();
     document.getElementById('u-dusun').innerText = USER.dusun;
-
-    const res = await fetch(API, {method:'POST', body: JSON.stringify({action:'get_dashboard', user: USER})}).then(r=>r.json());
-    DATA = res.data;
-
     renderMenu();
     if(DATA.alarm.length > 0) initAlarm(DATA.alarm[0]);
 }
@@ -91,30 +88,21 @@ function renderMenu() {
     let h = '';
     const r = USER.role;
 
-    // WARGA
     if(r === 'warga') {
-        h += cardMenu('💰 Saldo Sampah', `Rp ${DATA.saldo}`, 'bg-white');
-        h += cardMenu('👶 Status Gizi', DATA.status_anak ? DATA.status_anak[5] : 'Belum Ada Data', 'bg-white');
+        h += cardMenu('💰 Saldo Sampah', `Rp ${DATA.saldo.toLocaleString('id-ID')}`, 'bg-white', 'showSaldo()');
+        h += cardMenu('👶 Gizi Keluarga', DATA.status_anak ? DATA.status_anak[5] : 'Update Nanti', 'bg-white');
     }
 
-    // KADER
     if(['kader', 'admin', 'super_admin'].includes(r)) {
-        h += cardMenu('⚖️ Input Timbangan', 'Posyandu', 'bg-warning', 'showFormGizi()');
-        h += cardMenu('♻️ Setoran Sampah', 'Input Berat', 'bg-warning', 'showFormSampah()');
+        h += cardMenu('⚖️ Input Timbangan', 'Kader Posyandu', 'bg-warning', 'showFormGizi()');
+        h += cardMenu('♻️ Setor Sampah', 'Input Berat', 'bg-warning', 'showFormSampah()');
     }
 
-    // KADES / ADMIN
     if(['kades', 'admin', 'super_admin'].includes(r)) {
-        h += cardMenu('📊 Statistik Desa', 'Lihat Laporan', 'bg-success text-white');
-        h += cardMenu('🌍 Total Sampah', `${DATA.total_sampah_kg} Kg`, 'bg-info text-white');
+        h += cardMenu('📊 Statistik Desa', 'Laporan Gizi', 'bg-success text-white');
+        h += cardMenu('🌍 Total Plastik', `${DATA.total_desa_sampah} Kg`, 'bg-info text-white');
     }
 
-    // SUPER ADMIN
-    if(r === 'super_admin') {
-        h += cardMenu('🛠️ Control Panel', 'Manajemen Sistem', 'bg-dark text-white');
-    }
-
-    // UMUM
     h += cardMenu('📹 YouTube Edukasi', 'Materi Mahasiswa', 'bg-danger text-white', 'showYouTube()');
     h += cardMenu('🥗 Kalkulator Gizi', 'Cek Zat Besi', 'bg-primary text-white', 'showKalkulator()');
 
@@ -126,6 +114,34 @@ function cardMenu(title, desc, color, action = '') {
             <div class="fw-bold">${title}</div><small>${desc}</small></div></div>`;
 }
 
+function showYouTube() {
+    let html = '<div class="list-group text-start">';
+    DATA.edukasi.forEach(v => {
+        html += `<a href="${v[3]}" target="_blank" class="list-group-item list-group-item-action"><b>${v[2]}</b><br><small>${v[4]}</small></a>`;
+    });
+    Swal.fire({title:'Edukasi Bulo', html: html+'</div>'});
+}
+
+function showKalkulator() {
+    let opts = '';
+    DATA.master_gizi.forEach((it, i) => opts += `<option value="${i}">${it[0]}</option>`);
+    Swal.fire({
+        title: 'Cek Zat Besi',
+        html: `<select id="b-sel" class="form-select mb-2">${opts}</select><input type="number" id="b-gram" class="form-control" placeholder="Gram">`,
+        confirmButtonText: 'Hitung',
+        preConfirm: () => {
+            const b = DATA.master_gizi[document.getElementById('b-sel').value];
+            const g = document.getElementById('b-gram').value;
+            const tot = (parseFloat(b[3]) * (g/100)).toFixed(2);
+            Swal.fire('Hasil', `Kandungan Zat Besi: ${tot} mg`, 'info');
+        }
+    });
+}
+
+function showSaldo() {
+    Swal.fire('Saldo Sampah', `Total: Rp ${DATA.saldo.toLocaleString('id-ID')}`, 'success');
+}
+
 function initAlarm(cfg) {
     const jamTarget = cfg[3];
     const audioUrl = cfg[4];
@@ -135,25 +151,19 @@ function initAlarm(cfg) {
         const [h, m] = jamTarget.split(':');
         target.setHours(h, m, 0);
         let diff = target - now;
-
         if(diff > 0) {
             let mm = Math.floor((diff % 3600000) / 60000);
             let ss = Math.floor((diff % 60000) / 1000);
             document.getElementById('countdown').innerText = `00:${mm}:${ss}`;
-            
             if(mm === 30 && ss === 0) {
                 document.getElementById('alarm-box').classList.add('alarm-warning');
-                const audio = document.getElementById('kadesAudio');
-                audio.src = audioUrl; audio.play();
-                Swal.fire('INFO!', '30 Menit lagi petugas sampah tiba!', 'warning');
+                const aud = document.getElementById('kadesAudio');
+                aud.src = audioUrl; aud.play();
+                Swal.fire('PENGINGAT', '30 Menit lagi petugas tiba!', 'warning');
             }
-        } else {
-            document.getElementById('countdown').innerText = "SELESAI";
-        }
+        } else { document.getElementById('countdown').innerText = "SELESAI"; }
     }, 1000);
 }
-
-// Fungsi Modal (YouTube/Gizi) menyusul di file GitHub lengkap...
 </script>
 </body>
 </html>
