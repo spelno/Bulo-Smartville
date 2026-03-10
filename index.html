@@ -4,83 +4,79 @@
   <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 15px; }
-    .card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-top: 4px solid #3498db; }
-    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-    .stat { padding: 15px; border-radius: 10px; color: white; text-align: center; }
-    .timer { font-size: 1.8rem; font-weight: bold; color: #e74c3c; margin: 10px 0; }
+    body { font-family: sans-serif; background: #f4f4f4; margin: 0; padding: 15px; }
+    .card { background: white; border-radius: 10px; padding: 20px; margin-bottom: 15px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); text-align: center; }
+    .header { border-top: 5px solid #2ecc71; text-align: left; }
+    .saldo-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; }
+    .box { padding: 15px; border-radius: 8px; color: white; }
+    .timer { font-size: 2rem; font-weight: bold; color: #e74c3c; margin: 10px 0; }
     #loader { position: fixed; inset: 0; background: white; display: flex; align-items: center; justify-content: center; z-index: 100; }
   </style>
 </head>
 <body>
 
-  <div id="loader">Sinkronisasi Data...</div>
+  <div id="loader">Memuat Data Sampah...</div>
+
+  <div class="card header">
+    <h2 id="nama" style="margin:0">Nama Warga</h2>
+    <small id="nikDisplay" style="color:gray"></small>
+  </div>
+
+  <div class="saldo-grid">
+    <div class="box" style="background:#27ae60">
+      <small>SALDO RP</small><br>
+      <b id="saldoRp" style="font-size:1.2rem">Rp 0</b>
+    </div>
+    <div class="box" style="background:#2980b9">
+      <small>TOTAL SAMPAH</small><br>
+      <b id="saldoKg" style="font-size:1.2rem">0 Kg</b>
+    </div>
+  </div>
+
+  <div class="card" style="margin-top:15px">
+    <div id="statusTxt" style="font-weight:bold; color:#7f8c8d;">JADWAL BUANG SAMPAH</div>
+    <div id="clock" class="timer">00:00:00</div>
+    <small id="pesan" style="color:gray"></small>
+  </div>
 
   <div class="card">
-    <h2 id="name" style="margin:0">-</h2>
-    <p id="info" style="color:gray; margin:5px 0; font-size:0.9rem"></p>
-    <b style="color:#2e7d32">Status Gizi: <span id="gizi">-</span></b>
-  </div>
-
-  <div class="grid">
-    <div class="stat" style="background:#2ecc71">
-      <small>SALDO TUNAI</small><br><b id="rp">Rp 0</b>
-    </div>
-    <div class="stat" style="background:#3498db">
-      <small>TABUNGAN KG</small><br><b id="kg">0 Kg</b>
-    </div>
-  </div>
-
-  <div class="card" style="text-align:center">
-    <div id="statusLabel" style="font-weight:bold; color:#7f8c8d;">JADWAL SAMPAH</div>
-    <div id="clock" class="timer">00:00:00</div>
-  </div>
-
-  <div class="card" style="text-align:center">
-    <b>ID DIGITAL WARGA</b><br>
-    <img id="qrImg" src="" style="width:160px; margin-top:10px; border:1px solid #eee;">
+    <b>QR ID WARGA</b><br>
+    <img id="qr" src="" style="width:150px; margin-top:10px;">
   </div>
 
   <script>
-    /** * PETUNJUK: 
-     * 1. Deploy script ini (Deploy > New Deployment).
-     * 2. Salin URL Web App yang muncul.
-     * 3. Tempel URL tersebut di dalam tanda kutip di bawah ini.
-     */
-    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyDcs2h7s1SCzYsbuht8QCI4_BrBzVvwXuC7Nj5ke0QM2uX9kX-K2JomNHPoNaumIPo/exec"; 
-    const NIK_WARGA = "<?= nik ?>";
+    const NIK_USER = "<?= nik ?>";
 
-    function startTimer(target) {
+    function jalankanTimer(tgl) {
       setInterval(() => {
-        const diff = target - new Date().getTime();
-        const h = Math.floor((diff % 86400000) / 3600000);
-        const m = Math.floor((diff % 3600000) / 60000);
-        const s = Math.floor((diff % 60000) / 1000);
+        const selisih = tgl - new Date().getTime();
+        const h = Math.floor((selisih % 86400000) / 3600000);
+        const m = Math.floor((selisih % 3600000) / 60000);
+        const s = Math.floor((selisih % 60000) / 1000);
         document.getElementById("clock").innerText = `${h<10?'0':''}${h}:${m<10?'0':''}${m}:${s<10?'0':''}${s}`;
-        if (diff < 0) location.reload();
+        if (selisih < 0) location.reload();
       }, 1000);
     }
 
     window.onload = () => {
-      if(!NIK_WARGA) {
-        document.body.innerHTML = "<div style='text-align:center;padding:50px;'>Akses Ditolak. Gunakan Link NIK Resmi.</div>";
+      if(!NIK_USER) {
+        document.body.innerHTML = "<div style='text-align:center;padding:50px;'>Masukkan NIK pada URL</div>";
         return;
       }
 
-      google.script.run.withSuccessHandler(data => {
-        if(data.error) { document.body.innerHTML = data.error; return; }
-        
+      google.script.run.withSuccessHandler(res => {
+        if(res.error) { alert(res.error); return; }
         document.getElementById("loader").style.display = "none";
-        document.getElementById("name").innerText = data.profile.nama;
-        document.getElementById("info").innerText = "Dusun " + data.profile.dusun + " | NIK: " + NIK_WARGA;
-        document.getElementById("gizi").innerText = data.profile.statusGizi;
-        document.getElementById("rp").innerText = "Rp " + data.trash.saldo.toLocaleString('id-ID');
-        document.getElementById("kg").innerText = data.trash.kg + " Kg";
-        document.getElementById("qrImg").src = data.qr;
-        document.getElementById("statusLabel").innerText = data.isBuang ? "WAKTUNYA BUANG SAMPAH!" : "BELUM WAKTUNYA";
+        document.getElementById("nama").innerText = res.warga.nama;
+        document.getElementById("nikDisplay").innerText = "NIK: " + NIK_USER;
+        document.getElementById("saldoRp").innerText = "Rp " + res.warga.saldo.toLocaleString('id-ID');
+        document.getElementById("saldoKg").innerText = res.warga.kg + " Kg";
+        document.getElementById("qr").src = res.qr;
+        document.getElementById("statusTxt").innerText = res.isWaktunya ? "WAKTUNYA BUANG SAMPAH!" : "BELUM WAKTUNYA";
+        document.getElementById("pesan").innerText = res.isWaktunya ? "Segera bawa sampah reguler ke bak." : "Tunggu jadwal buang sampah berikutnya.";
         
-        startTimer(data.targetTime);
-      }).getFullDashboardData(NIK_WARGA);
+        jalankanTimer(res.targetTime);
+      }).getDataSampah(NIK_USER);
     };
   </script>
 </body>
