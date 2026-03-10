@@ -3,90 +3,169 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bulo Smartville v10.1</title>
+    <title>Bulo Smartville v10.2</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        :root { --bca-blue: #0060af; --bca-dark: #004a87; --bg-gray: #f2f2f7; }
-        body { background: var(--bg-gray); font-family: 'Arial', sans-serif; padding-bottom: 80px; }
+        :root { --main-blue: #00569e; --soft-gray: #f7f9fb; }
         
-        /* Header m-BCA Style */
-        .top-header { background: linear-gradient(to bottom, var(--bca-blue), var(--bca-dark)); color: white; padding: 20px; border-bottom-left-radius: 20px; border-bottom-right-radius: 20px; box-shadow: 0 4px 10px rgba(0,0,0,0.1); }
-        
-        /* Card Dashboard */
-        .info-card { background: white; border-radius: 15px; margin-top: -30px; padding: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); }
-        
-        /* Grid Menu */
-        .menu-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 15px; padding: 20px; }
-        .menu-item { text-align: center; font-size: 0.75rem; font-weight: bold; color: #444; }
-        .menu-icon { width: 55px; height: 55px; background: white; border-radius: 15px; display: flex; align-items: center; justify-content: center; margin: 0 auto 8px; font-size: 1.5rem; box-shadow: 0 4px 8px rgba(0,0,0,0.05); }
+        /* Mengunci Layar Agar Tidak Geser-Geser */
+        html, body { 
+            height: 100%; 
+            overflow: hidden; 
+            background: var(--soft-gray); 
+            font-family: 'Segoe UI', sans-serif;
+        }
 
-        /* Bottom Navigation m-BCA */
-        .bottom-nav { position: fixed; bottom: 0; left: 0; right: 0; background: white; height: 70px; display: flex; justify-content: space-around; align-items: center; border-top: 1px solid #ddd; z-index: 1000; }
-        .nav-link { text-align: center; color: #888; text-decoration: none; font-size: 0.7rem; }
-        
-        /* Tombol QR Melayang (Floating QR) */
-        .qr-wrapper { position: relative; top: -25px; }
-        .btn-qr { width: 65px; height: 65px; background: var(--bca-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 2rem; border: 5px solid var(--bg-gray); box-shadow: 0 4px 10px rgba(0,0,0,0.2); }
-        
-        #login-screen, #app-content { display: none; }
+        /* Container Halaman */
+        .page {
+            display: none;
+            height: 100vh;
+            width: 100%;
+            position: absolute;
+            top: 0; left: 0;
+            flex-direction: column;
+        }
+        .page.active { display: flex; }
+
+        /* Header Statis */
+        .top-header { 
+            background: linear-gradient(135deg, var(--main-blue), #003d70); 
+            color: white; padding: 20px; 
+            border-bottom-left-radius: 25px; border-bottom-right-radius: 25px;
+            flex-shrink: 0;
+        }
+
+        /* Area Konten yang Bisa di-Scroll (Hanya di dalam sini) */
+        .content-area {
+            flex-grow: 1;
+            overflow-y: auto;
+            padding: 20px;
+            -webkit-overflow-scrolling: touch;
+        }
+
+        .info-card { 
+            background: white; border-radius: 15px; margin-top: -35px; 
+            padding: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); 
+        }
+
+        /* Menu Grid */
+        .menu-grid { 
+            display: grid; grid-template-columns: repeat(3, 1fr); 
+            gap: 15px; margin-top: 20px; 
+        }
+        .menu-item { 
+            background: white; border-radius: 18px; padding: 15px 10px;
+            text-align: center; font-size: 0.75rem; font-weight: 600;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
+            border: 1px solid #f0f0f0;
+        }
+        .menu-icon { font-size: 1.8rem; margin-bottom: 5px; display: block; }
+
+        /* Navbar Bawah m-Banking Style */
+        .bottom-nav { 
+            height: 75px; background: white; border-top: 1px solid #eee;
+            display: flex; justify-content: space-around; align-items: center;
+            flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom);
+        }
+        .nav-link { text-align: center; color: #999; text-decoration: none; font-size: 0.7rem; }
+        .nav-link.active { color: var(--main-blue); font-weight: bold; }
+
+        /* Tombol QR Tengah */
+        .btn-qr { 
+            width: 65px; height: 65px; background: var(--main-blue); 
+            border-radius: 50%; display: flex; align-items: center; 
+            justify-content: center; color: white; font-size: 1.8rem; 
+            margin-top: -45px; border: 6px solid var(--soft-gray);
+            box-shadow: 0 5px 15px rgba(0,86,158,0.3);
+        }
+
+        /* Login Screen */
+        #login-screen { 
+            background: white; display: flex; align-items: center; justify-content: center; 
+        }
     </style>
 </head>
 <body>
 
-<div id="login-screen" class="vh-100 d-flex align-items-center justify-content-center p-4">
-    <div class="w-100 text-center" style="max-width: 350px;">
-        <img src="https://upload.wikimedia.org/wikipedia/commons/5/5c/Bank_Central_Asia.svg" width="150" class="mb-4">
-        <div class="bg-white p-4 rounded-4 shadow">
-            <input type="number" id="nik" class="form-control mb-3 py-3" placeholder="Access Code (NIK)">
-            <input type="password" id="pass" class="form-control mb-4 py-3" placeholder="Password">
-            <button onclick="handleLogin()" class="btn btn-primary w-100 py-3 fw-bold rounded-pill" style="background: var(--bca-blue);">LOG IN</button>
+<div id="login-screen" class="page active">
+    <div class="w-100 p-4 text-center" style="max-width: 380px;">
+        <h2 class="fw-bold text-primary mb-1">Bulo Smartville</h2>
+        <p class="text-muted small mb-5">Digitalisasi Desa Pilot Bulo</p>
+        
+        <div class="mb-3 text-start">
+            <label class="small fw-bold text-muted px-2">Access Code (NIK)</label>
+            <input type="number" id="nik" class="form-control form-control-lg rounded-pill border-0 bg-light px-4" placeholder="16 Digit NIK">
         </div>
+        <div class="mb-4 text-start">
+            <label class="small fw-bold text-muted px-2">Password</label>
+            <input type="password" id="pass" class="form-control form-control-lg rounded-pill border-0 bg-light px-4" placeholder="******">
+        </div>
+        <button onclick="handleLogin()" class="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow-sm" style="background: var(--main-blue);">LOG IN</button>
     </div>
 </div>
 
-<div id="app-content">
+<div id="app-home" class="page">
     <div class="top-header">
         <div class="d-flex justify-content-between align-items-center">
             <div>
-                <small>Selamat Datang,</small>
-                <h5 class="mb-0 fw-bold" id="user-display">User Name</h5>
+                <small class="opacity-75">Selamat Datang,</small>
+                <h5 class="mb-0 fw-bold" id="user-display">Nama User</h5>
             </div>
-            <i class="bi bi-bell-fill fs-4"></i>
+            <div class="bg-white bg-opacity-25 rounded-circle p-2">
+                <i class="bi bi-person-fill fs-5"></i>
+            </div>
         </div>
     </div>
 
-    <div class="container">
+    <div class="content-area">
         <div class="info-card">
-            <div class="d-flex justify-content-between small text-muted mb-2">
-                <span>Tabungan Sampah</span>
-                <span id="trash-status" class="badge bg-success">BUKA</span>
+            <div class="d-flex justify-content-between align-items-center mb-2">
+                <span class="small fw-bold text-muted">TABUNGAN SAMPAH</span>
+                <span id="trash-status" class="badge rounded-pill bg-success px-3">BUKA</span>
             </div>
-            <h2 class="fw-bold mb-0 text-primary" id="info-saldo">Rp 0</h2>
-            <hr>
-            <div class="row text-center small">
-                <div class="col-6 border-end">Tabungan: <b id="info-kg">0 Kg</b></div>
-                <div class="col-6">Harga/Kg: <b id="info-harga">Rp 3.000</b></div>
+            <h1 class="fw-bold mb-0 text-primary" id="info-saldo">Rp 0</h1>
+            <div class="d-flex justify-content-between mt-3 pt-3 border-top small">
+                <span>Berat: <b id="info-kg">0 Kg</b></span>
+                <span>Harga: <b id="info-harga">Rp 3.000/Kg</b></span>
             </div>
         </div>
-    </div>
 
-    <div class="menu-grid">
-        <div class="menu-item" onclick="openGizi()"><div class="menu-icon text-success"><i class="bi bi-egg-fried"></i></div>Gizi AKG</div>
-        <div class="menu-item"><div class="menu-icon text-primary"><i class="bi bi-trash3-fill"></i></div>Bank Sampah</div>
-        <div class="menu-item"><div class="menu-icon text-warning"><i class="bi bi-newspaper"></i></div>Edukasi</div>
-        <div class="menu-item"><div class="menu-icon text-danger"><i class="bi bi-geo-alt-fill"></i></div>Lokasi</div>
+        <div class="menu-grid">
+            <div class="menu-item" onclick="switchPage('app-gizi')"><span class="menu-icon">🥗</span>Gizi & AKG</div>
+            <div class="menu-item"><span class="menu-icon">♻️</span>Bank Sampah</div>
+            <div class="menu-item"><span class="menu-icon">📖</span>Edukasi</div>
+            <div class="menu-item"><span class="menu-icon">📈</span>Statistik</div>
+            <div class="menu-item"><span class="menu-icon">📞</span>Kontak</div>
+            <div class="menu-item" onclick="logout()"><span class="menu-icon text-danger">🚪</span>Keluar</div>
+        </div>
     </div>
 
     <div class="bottom-nav">
-        <a href="#" class="nav-link active" style="color: var(--bca-blue);"><i class="bi bi-house-door-fill fs-4"></i><br>Home</a>
-        <a href="#" class="nav-link"><i class="bi bi-clock-history fs-4"></i><br>Aktivitas</a>
-        <div class="qr-wrapper" onclick="showQR()">
-            <div class="btn-qr"><i class="bi bi-qr-code-scan"></i></div>
+        <a href="javascript:void(0)" onclick="switchPage('app-home')" class="nav-link active"><i class="bi bi-house-door-fill fs-3"></i><br>Home</a>
+        <div onclick="showQR()"><div class="btn-qr"><i class="bi bi-qr-code-scan"></i></div></div>
+        <a href="javascript:void(0)" class="nav-link"><i class="bi bi-grid-fill fs-3"></i><br>Menu</a>
+    </div>
+</div>
+
+<div id="app-gizi" class="page">
+    <div class="top-header">
+        <div class="d-flex align-items-center">
+            <i class="bi bi-chevron-left fs-4 me-3" onclick="switchPage('app-home')"></i>
+            <h5 class="mb-0 fw-bold">Kalkulator Gizi AKG</h5>
         </div>
-        <a href="#" class="nav-link"><i class="bi bi-chat-dots-fill fs-4"></i><br>Pesan</a>
-        <a href="#" onclick="logout()" class="nav-link"><i class="bi bi-box-arrow-right fs-4"></i><br>Logout</a>
+    </div>
+    <div class="content-area">
+        <div class="card border-0 shadow-sm rounded-4 p-3 mb-3">
+            <p class="small text-muted mb-2">Pilih Anggota Keluarga:</p>
+            <div id="list-keluarga-gizi"></div>
+        </div>
+    </div>
+    <div class="bottom-nav">
+        <a href="javascript:void(0)" onclick="switchPage('app-home')" class="nav-link"><i class="bi bi-house-door-fill fs-3"></i><br>Home</a>
+        <div onclick="showQR()"><div class="btn-qr"><i class="bi bi-qr-code-scan"></i></div></div>
+        <a href="javascript:void(0)" class="nav-link active"><i class="bi bi-grid-fill fs-3"></i><br>Menu</a>
     </div>
 </div>
 
@@ -95,41 +174,46 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6CKdpyg71G1jUBN5E
 let DB_FULL = null;
 let USER_SESSION = null;
 
+// Fungsi Pindah Halaman (Tanpa Scroll Geser)
+function switchPage(pageId) {
+    document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
+    document.getElementById(pageId).classList.add('active');
+    if(pageId === 'app-gizi') renderGiziList();
+}
+
 async function fetchAllData() {
     try {
-        const response = await fetch(WEB_APP_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'read_all' })
-        });
+        const response = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'read_all' }) });
         const result = await response.json();
         if(result.status === 'success') DB_FULL = result.db;
     } catch (e) { console.log(e); }
 }
 
 function handleLogin() {
-    const nik = document.getElementById('nik').value;
-    const pass = document.getElementById('pass').value;
-    const master = DB_FULL.Master_Data_Penduduk;
-    const userFound = master.find(r => r[0].toString() === nik && r[1].toString() === pass);
+    const nik = document.getElementById('nik').value.toString().trim();
+    const pass = document.getElementById('pass').value.toString().trim();
+    
+    if(!DB_FULL) return Swal.fire('Tunggu', 'Mengambil data...', 'info');
+
+    const userFound = DB_FULL.Master_Data_Penduduk.find(r => 
+        r[0].toString().trim() === nik && r[1].toString().trim() === pass
+    );
 
     if(userFound) {
         USER_SESSION = { nik: userFound[0], nama: userFound[2], kk: userFound[7] };
         localStorage.setItem('bulo_user', JSON.stringify(USER_SESSION));
-        renderApp();
+        initDashboard();
+        switchPage('app-home');
     } else {
-        Swal.fire('Error', 'Access Code Salah', 'error');
+        Swal.fire('Error', 'Akses Ditolak!', 'error');
     }
 }
 
-function renderApp() {
-    document.getElementById('login-screen').style.display = 'none';
-    document.getElementById('app-content').style.display = 'block';
+function initDashboard() {
     document.getElementById('user-display').innerText = USER_SESSION.nama;
-
-    // Load Saldo & Harga
     const settings = DB_FULL.sampah_pengaturan;
     const harga = settings.find(r => r[0] === 'Harga_Beli_Warga')[1];
-    document.getElementById('info-harga').innerText = `Rp ${parseInt(harga).toLocaleString()}`;
+    document.getElementById('info-harga').innerText = `Rp ${parseInt(harga).toLocaleString()}/Kg`;
 
     const saldo = DB_FULL.sampah_saldo.find(r => r[0].toString() === USER_SESSION.nik.toString());
     if(saldo) {
@@ -138,12 +222,22 @@ function renderApp() {
     }
 }
 
+function renderGiziList() {
+    const keluarga = DB_FULL.Master_Data_Penduduk.filter(r => r[7].toString() === USER_SESSION.kk.toString());
+    document.getElementById('list-keluarga-gizi').innerHTML = keluarga.map(k => `
+        <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+            <div><b class="d-block">${k[2]}</b><small class="text-muted">${k[5]}</small></div>
+            <button class="btn btn-sm btn-primary rounded-pill px-3">Cek Gizi</button>
+        </div>
+    `).join('');
+}
+
 function showQR() {
     Swal.fire({
-        title: 'QR IDENTITY',
-        text: 'Tunjukkan ke petugas untuk transaksi',
+        title: 'ID DIGITAL',
         imageUrl: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${USER_SESSION.nik}`,
-        confirmButtonColor: '#0060af'
+        imageWidth: 200, imageHeight: 200,
+        confirmButtonColor: '#00569e'
     });
 }
 
@@ -152,8 +246,7 @@ function logout() { localStorage.removeItem('bulo_user'); location.reload(); }
 window.onload = async () => {
     await fetchAllData();
     const saved = localStorage.getItem('bulo_user');
-    if(saved) { USER_SESSION = JSON.parse(saved); renderApp(); }
-    else { document.getElementById('login-screen').style.display = 'flex'; }
+    if(saved) { USER_SESSION = JSON.parse(saved); initDashboard(); switchPage('app-home'); }
 };
 </script>
 </body>
