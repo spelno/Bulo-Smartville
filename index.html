@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bulo Smartville v13.1</title>
+    <title>Bulo Smartville v13.2</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <style>
         :root { --main-blue: #00569e; --dark-blue: #003d70; --bg-gray: #f8f9fa; }
         html, body { height: 100%; overflow: hidden; background: var(--bg-gray); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
@@ -14,18 +15,20 @@
         .top-header { background: linear-gradient(135deg, var(--main-blue), var(--dark-blue)); color: white; padding: 25px 20px; border-bottom-left-radius: 25px; border-bottom-right-radius: 25px; flex-shrink: 0; position: relative; z-index: 10; }
         .content-area { flex-grow: 1; overflow-y: auto; padding: 20px; -webkit-overflow-scrolling: touch; }
         .info-card { background: white; border-radius: 18px; margin-top: -45px; padding: 22px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); position: relative; z-index: 11; }
-        .menu-grid { display: grid; grid-columns: repeat(3, 1fr); display: flex; flex-wrap: wrap; gap: 12px; margin-top: 25px; justify-content: center; }
-        .menu-item { background: white; border-radius: 18px; width: 30%; padding: 15px 5px; text-align: center; font-size: 0.7rem; font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1px solid #eee; }
-        .bottom-nav { height: 75px; background: white; border-top: 1px solid #ddd; display: flex; justify-content: space-around; align-items: center; }
+        .menu-grid { display: flex; flex-wrap: wrap; gap: 12px; margin-top: 25px; justify-content: center; }
+        .menu-item { background: white; border-radius: 18px; width: 30%; padding: 15px 5px; text-align: center; font-size: 0.7rem; font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1px solid #eee; transition: 0.2s; }
+        .menu-item:active { transform: scale(0.95); background: #f8f9fa; }
+        .bottom-nav { height: 75px; background: white; border-top: 1px solid #ddd; display: flex; justify-content: space-around; align-items: center; flex-shrink: 0; }
         .nav-link { text-align: center; color: #999; text-decoration: none; font-size: 0.7rem; }
         .nav-link.active { color: var(--main-blue); font-weight: bold; }
-        .btn-qr { width: 60px; height: 60px; background: var(--main-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; margin-top: -40px; border: 5px solid var(--bg-gray); }
+        .btn-qr { width: 60px; height: 60px; background: var(--main-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.5rem; margin-top: -40px; border: 5px solid var(--bg-gray); box-shadow: 0 5px 10px rgba(0,86,158,0.2); }
         .food-search-res { position: absolute; width: 100%; z-index: 100; max-height: 200px; overflow-y: auto; }
+        #loading-overlay { position:fixed; top:0; left:0; width:100%; height:100%; background:white; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999; }
     </style>
 </head>
 <body>
 
-    <div id="loading-overlay" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:9999;">
+    <div id="loading-overlay">
         <div class="spinner-border text-primary mb-3"></div>
         <small class="text-muted fw-bold">Menghubungkan ke Desa Bulo...</small>
     </div>
@@ -36,7 +39,7 @@
             <p class="text-muted small mb-5">Digitalisasi Desa Pilot Bulo</p>
             <input type="number" id="nik" class="form-control form-control-lg rounded-pill mb-3 border-0 bg-light px-4" placeholder="NIK">
             <input type="password" id="pass" class="form-control form-control-lg rounded-pill mb-4 border-0 bg-light px-4" placeholder="Password">
-            <button onclick="handleLogin()" class="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow-sm">LOG IN</button>
+            <button onclick="handleLogin()" class="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow-sm" style="background:var(--main-blue)">LOG IN</button>
             <p class="mt-5 small text-muted">Notes of OD &copy; 2026</p>
         </div>
     </div>
@@ -50,7 +53,7 @@
             <div class="info-card">
                 <div class="d-flex justify-content-between mb-2">
                     <span class="small fw-bold text-muted">TABUNGAN SAMPAH</span>
-                    <span id="trash-status" class="badge rounded-pill bg-success px-3">AKTIF</span>
+                    <span id="trash-status" class="badge rounded-pill bg-success px-3">...</span>
                 </div>
                 <h1 class="fw-bold mb-0 text-primary" id="info-saldo">Rp 0</h1>
                 <div class="d-flex justify-content-between mt-3 pt-3 border-top small text-muted">
@@ -61,7 +64,7 @@
             <div class="menu-grid" id="main-menu">
                 <div class="menu-item" onclick="switchPage('app-gizi')"><span class="menu-icon d-block fs-3">🥗</span>Gizi AKG</div>
                 <div class="menu-item" onclick="switchPage('app-sampah')"><span class="menu-icon d-block fs-3">♻️</span>Sampah</div>
-                <div class="menu-item" onclick="Swal.fire('Info','Informasi Desa Segera Hadir','info')"><span class="menu-icon d-block fs-3">🏢</span>Desa</div>
+                <div class="menu-item" onclick="Swal.fire('Info','Fitur Desa segera hadir.','info')"><span class="menu-icon d-block fs-3">🏢</span>Desa</div>
             </div>
         </div>
         <div class="bottom-nav">
@@ -83,7 +86,7 @@
 
             <div id="mode-manual">
                 <div class="card border-0 shadow-sm rounded-4 p-3 mb-3 position-relative">
-                    <input type="text" id="search-food" class="form-control rounded-pill border-light bg-light" placeholder="Cari menu..." onkeyup="filterFood()">
+                    <input type="text" id="search-food" class="form-control rounded-pill border-light bg-light px-3" placeholder="Pilih menu lokal..." onkeyup="filterFood()">
                     <div id="food-results" class="list-group food-search-res mt-1 shadow rounded-3 border-0" style="display:none"></div>
                 </div>
             </div>
@@ -92,14 +95,15 @@
                 <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
                     <i class="bi bi-camera fs-1 text-primary mb-3"></i>
                     <h6>Hitung Otomatis</h6>
+                    <p class="small text-muted mb-3">Foto piring Anda, sistem akan mencocokkan.</p>
                     <input type="file" id="camera-input" accept="image/*" capture="environment" class="d-none" onchange="processAIPhoto(this)">
-                    <button onclick="document.getElementById('camera-input').click()" class="btn btn-outline-primary rounded-pill w-100">Ambil Foto Piring</button>
-                    <div id="ai-loading" class="mt-3 d-none"><div class="spinner-border spinner-border-sm text-primary"></div> <small>Mengenali makanan...</small></div>
+                    <button onclick="document.getElementById('camera-input').click()" class="btn btn-outline-primary rounded-pill w-100 py-2 fw-bold">Ambil Foto Makanan</button>
+                    <div id="ai-loading" class="mt-3 d-none"><div class="spinner-border spinner-border-sm text-primary"></div> <small class="ms-2">Mengenali makanan...</small></div>
                 </div>
             </div>
 
             <div id="selected-list" class="mt-4 d-none">
-                <h6 class="fw-bold px-2 small">Menu Terpilih (Bisa Hapus):</h6>
+                <h6 class="fw-bold px-2 small">Menu Terpilih (Hapus jika salah):</h6>
                 <div id="current-meal-items"></div>
                 <button onclick="hitungGiziFinal()" class="btn btn-primary w-100 mt-3 rounded-pill shadow-sm fw-bold">SIMPAN & CEK AKG</button>
             </div>
@@ -131,6 +135,7 @@
     <script>
         // --- KONFIGURASI ---
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6CKdpyg71G1jUBN5EyZWDyqsVzqUYqElkpE1XH3fh-cbiMfEjFvhxKubK-dJI74pb7A/exec"; 
+        // TEMPEL API KEY BAPAK DI SINI
         const GEMINI_API_KEY = "AIzaSyD82WFXe5G1SnMIS0mjIvmfv6yQF1JZvqM"; 
 
         let DB_FULL = null;
@@ -173,22 +178,27 @@
             // Render menu khusus Kader
             if(USER_SESSION.role.toLowerCase() === 'kader' || USER_SESSION.role.toLowerCase() === 'kades') {
                 if(!document.getElementById('menu-monitor')) {
-                    const extra = `<div id="menu-monitor" class="menu-item text-primary" onclick="Swal.fire('Monitor','Fitur Monitor Harian Warga Segera Aktif','success')"><span class="menu-icon d-block fs-3">📊</span>Monitor</div>`;
+                    const extra = `<div id="menu-monitor" class="menu-item text-primary" onclick="Swal.fire('Monitor','Fitur Monitor Segera Aktif','success')"><span class="menu-icon d-block fs-3">🌍</span>Monitor</div>`;
                     document.getElementById('main-menu').insertAdjacentHTML('beforeend', extra);
                 }
             }
 
             // Update Saldo Sampah
-            const hrg = DB_FULL.sampah_pengaturan.find(r => r[0] === 'Harga_Beli_Warga')[1];
-            document.getElementById('info-harga').innerText = `Rp ${hrg}/Kg`;
-            document.getElementById('detail-kurs').innerText = `Rp ${hrg}`;
+            const hrgSet = DB_FULL.sampah_pengaturan.find(r => r[0] === 'Harga_Beli_Warga');
+            const hrg = hrgSet ? hrgSet[1] : 0;
+            const statusLayanan = DB_FULL.sampah_pengaturan.find(r => r[0] === 'Status_Layanan')[1];
+
+            document.getElementById('info-harga').innerText = `Rp ${parseInt(hrg).toLocaleString()}/Kg`;
+            document.getElementById('detail-kurs').innerText = `Rp ${parseInt(hrg).toLocaleString()}`;
+            document.getElementById('trash-status').innerText = statusLayanan.toUpperCase();
+
             const saldo = DB_FULL.sampah_saldo.find(r => r[0].toString() === USER_SESSION.nik);
             if(saldo) {
-                const s = `Rp ${parseInt(saldo[2]).toLocaleString()}`;
-                document.getElementById('info-saldo').innerText = s;
-                document.getElementById('detail-saldo').innerText = s;
-                document.getElementById('info-kg').innerText = `${saldo[3]} Kg`;
-                document.getElementById('detail-kg').innerText = `${saldo[3]} Kg`;
+                const sFmt = `Rp ${parseInt(saldo[2] || 0).toLocaleString()}`;
+                document.getElementById('info-saldo').innerText = sFmt;
+                document.getElementById('detail-saldo').innerText = sFmt;
+                document.getElementById('info-kg').innerText = `${saldo[3] || 0} Kg`;
+                document.getElementById('detail-kg').innerText = `${saldo[3] || 0} Kg`;
             }
         }
 
@@ -203,9 +213,15 @@
             const q = document.getElementById('search-food').value.toLowerCase();
             const res = document.getElementById('food-results');
             if(q.length < 2) { res.style.display = 'none'; return; }
-            const matches = DB_FULL.master_gizi.filter(r => r[0] && r[0].toLowerCase().includes(q));
-            res.innerHTML = matches.slice(0, 5).map(m => `<button onclick="addFood('${m[0]}', ${m[1]}, ${m[5]})" class="list-group-item list-group-item-action py-3 small">${m[0]}</button>`).join('');
-            res.style.display = 'block';
+            const matches = DB_FULL.master_gizi.filter(r => r[0] && r[0].toLowerCase().includes(q) && r[1] !== "");
+            if(matches.length > 0) {
+                res.innerHTML = matches.slice(0, 8).map(m => `
+                    <button onclick="addFood('${m[0]}', ${m[1]}, ${m[5]})" class="list-group-item list-group-item-action py-3 small">
+                        ${m[0]} <span class="badge bg-light text-muted float-end">${m[1]} kkal</span>
+                    </button>
+                `).join('');
+                res.style.display = 'block';
+            } else { res.style.display = 'none'; }
         }
 
         function addFood(nama, kal, fe) {
@@ -224,9 +240,9 @@
             const div = document.getElementById('current-meal-items');
             document.getElementById('selected-list').classList.toggle('d-none', currentMeal.length === 0);
             div.innerHTML = currentMeal.map(item => `
-                <div class="d-flex justify-content-between align-items-center mb-2 p-3 bg-white border rounded-3 shadow-sm">
+                <div class="d-flex justify-content-between align-items-center mb-2 p-3 bg-white border border-start border-4 border-primary rounded-3 shadow-sm">
                     <span class="small fw-bold">${item.nama}</span>
-                    <i class="bi bi-trash text-danger" onclick="removeFood(${item.id})"></i>
+                    <button onclick="removeFood(${item.id})" class="btn btn-sm btn-outline-danger border-0"><i class="bi bi-trash fs-5"></i></button>
                 </div>
             `).join('');
         }
@@ -237,11 +253,22 @@
             const reader = new FileReader();
             reader.onload = async () => {
                 const base64 = reader.result.split(',')[1];
-                const prompt = `Identifikasi makanan berdasarkan daftar lokal ini: ${DB_FULL.master_gizi.map(r=>r[0]).join(', ')}. Berikan JSON array saja berisi nama yang cocok.`;
+                // Perintah AI: Hanya cari di database lokal
+                const prompt = `Identifikasi makanan ini berdasarkan daftar lokal: ${DB_FULL.master_gizi.map(r=>r[0]).join(', ')}. Berikan JSON array berisi nama yang cocok saja.`;
                 try {
                     const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
                         method: 'POST', body: JSON.stringify({ contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: "image/jpeg", data: base64 } }] }] })
                     });
+                    
+                    if (!resp.ok) {
+                        const err = await resp.json();
+                        // Menangkap error quota terlampaui
+                        if (err.error && err.error.status === "RESOURCE_EXHAUSTED") {
+                             throw new Error("Quota");
+                        }
+                        throw new Error("Gagal");
+                    }
+                    
                     const data = await resp.json();
                     const textResult = data.candidates[0].content.parts[0].text;
                     const matched = JSON.parse(textResult.match(/\[.*\]/s)[0]);
@@ -251,8 +278,14 @@
                     });
                     renderSelected();
                     toggleGiziMode('manual');
-                    Swal.fire('Berhasil','Menu dikenali secara otomatis!','success');
-                } catch (e) { Swal.fire('Gagal','Coba foto ulang dengan cahaya lebih terang.','warning'); }
+                    Swal.fire('Selesai', 'Piring makan Anda berhasil dikenali! Silakan validasi.', 'success');
+                } catch (e) { 
+                    if (e.message === "Quota") {
+                        Swal.fire('Gagal (Quota Harian Habis)', 'Batas pencarian gratis harian tercapai. Silakan coba besok atau input manual.', 'error');
+                    } else {
+                        Swal.fire('Oops', 'AI kesulitan mengenali gambar atau API Key Bapak salah/mati.', 'warning'); 
+                    }
+                }
                 finally { document.getElementById('ai-loading').classList.add('d-none'); }
             };
             reader.readAsDataURL(input.files[0]);
@@ -263,9 +296,17 @@
             document.getElementById('list-keluarga-gizi').innerHTML = kel.map(k => `
                 <div class="d-flex justify-content-between align-items-center p-3 border-bottom bg-white">
                     <div><b>${k[2]}</b><br><small class="text-muted">TB: ${k[12]||0}cm | BB: ${k[13]||0}kg</small></div>
-                    <button onclick="cekStatusIMT('${k[0]}')" class="btn btn-sm btn-outline-primary rounded-pill px-3">Status</button>
+                    <div class="d-flex gap-1">
+                        ${k[0].toString() !== USER_SESSION.nik ? `<button onclick="cekRiwayatHarian('${k[0]}')" class="btn btn-sm btn-outline-success rounded-pill px-3"><i class="bi bi-calendar3"></i></button>` : ''}
+                        <button onclick="cekStatusIMT('${k[0]}')" class="btn btn-sm btn-outline-primary rounded-pill px-3">Status</button>
+                    </div>
                 </div>
             `).join('');
+        }
+
+        function cekRiwayatHarian(nik) {
+            const p = DB_FULL.Master_Data_Penduduk.find(r => r[0].toString() === nik);
+            Swal.fire('Monitor', `Laporan gizi harian harian untuk ${p[2]} segera aktif di role Kader Bapak.`, 'info');
         }
 
         function cekStatusIMT(nik) {
@@ -278,8 +319,24 @@
         }
 
         function hitungGiziFinal() {
+            const user = DB_FULL.Master_Data_Penduduk.find(r => r[0].toString() === USER_SESSION.nik);
+            const role_gizi = (user[6] === "Hamil") ? "Ibu Hamil" : (user[3] === "L" ? "Ayah / Lansia" : "Ibu Rumah Tangga");
+            const refAKG = DB_FULL.referensi_akg.find(r => r[0] === role_gizi);
+            const targetFe = parseFloat(refAKG[3]) || 0;
+
+            const tFe = currentMeal.reduce((s, i) => s + parseFloat(i.fe || 0), 0);
             const tKal = currentMeal.reduce((s, i) => s + parseFloat(i.kal || 0), 0);
-            Swal.fire('Tersimpan', `Total asupan: ${tKal} kkal. Data sudah masuk database harian.`, 'success').then(() => {
+            
+            Swal.fire({
+                title: 'Hasil Gizi Harian',
+                html: `
+                    <div class='text-start small'>
+                        <p class="mb-1">Energi: <b>${tKal.toFixed(0)} kkal</b></p>
+                        <p class="mb-2">Zat Besi (Fe): <b>${tFe.toFixed(1)} mg</b> dari target ${targetFe} mg</p>
+                        <div class='progress mt-2' style='height:15px;'><div class='progress-bar' style='width:${(tFe/targetFe*100)}%'></div></div>
+                    </div>`,
+                confirmButtonText: 'TUTUP & SIMPAN'
+            }).then(() => {
                 currentMeal = []; renderSelected(); switchPage('app-home');
             });
         }
