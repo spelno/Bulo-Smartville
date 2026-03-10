@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bulo Smartville v11.1</title>
+    <title>Bulo Smartville v11.2</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -42,10 +42,7 @@
 
     <div id="app-home" class="page">
         <div class="top-header">
-            <div>
-                <small class="opacity-75">Halo,</small>
-                <h5 class="mb-0 fw-bold" id="user-display">User</h5>
-            </div>
+            <div><small class="opacity-75">Halo,</small><h5 class="mb-0 fw-bold" id="user-display">User</h5></div>
             <button onclick="confirmLogout()" class="btn btn-sm btn-light rounded-pill position-absolute" style="right:20px; top:30px">Keluar</button>
         </div>
         <div class="content-area">
@@ -77,10 +74,7 @@
 
     <div id="app-gizi" class="page">
         <div class="top-header">
-            <div class="d-flex align-items-center">
-                <i class="bi bi-chevron-left fs-4 me-3" onclick="switchPage('app-home')"></i>
-                <h5 class="mb-0 fw-bold">Kalkulator Gizi</h5>
-            </div>
+            <div class="d-flex align-items-center"><i class="bi bi-chevron-left fs-4 me-3" onclick="switchPage('app-home')"></i><h5 class="mb-0 fw-bold">Kalkulator Gizi</h5></div>
         </div>
         <div class="content-area">
             <div class="card border-0 shadow-sm rounded-4 p-3">
@@ -98,10 +92,6 @@
             <div class="info-card mt-0 shadow-sm mb-4 text-center">
                 <p class="small text-muted mb-1">Saldo Tabungan</p>
                 <h2 class="fw-bold text-success" id="detail-saldo">Rp 0</h2>
-            </div>
-            <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
-                <i class="bi bi-clock-history fs-1 text-muted opacity-25"></i>
-                <p class="small text-muted mt-2">Riwayat belum tersedia.</p>
             </div>
         </div>
     </div>
@@ -187,13 +177,16 @@
 
         function cekAKG(nik) {
             const penduduk = DB_FULL.Master_Data_Penduduk.find(r => r[0].toString() === nik);
-            
-            // SESUAI GAMBAR BAPAK: TB di index 12 (Kolom M), BB di index 13 (Kolom N)
+            // Ambil data pengukuran terbaru dari sheet pengukuran_gizi (Kolom D adalah BB)
+            const listUkur = DB_FULL.pengukuran_gizi.filter(r => r[1].toString() === nik);
+            const ukurTerakhir = listUkur.length > 0 ? listUkur[listUkur.length - 1] : null;
+
             const tb = parseFloat(penduduk[12]) || 0; 
-            const bb = parseFloat(penduduk[13]) || 0;
+            const bb = ukurTerakhir ? parseFloat(ukurTerakhir[3]) : 0;
+            const tglUkur = ukurTerakhir ? ukurTerakhir[2] : "-";
 
             if (tb <= 0 || bb <= 0) {
-                Swal.fire('Data Kosong', `Data TB/BB untuk ${penduduk[2]} belum diisi di Spreadsheet (Kolom M & N).`, 'warning');
+                Swal.fire('Data Kosong', `Data pengukuran terbaru untuk ${penduduk[2]} tidak ditemukan.`, 'warning');
                 return;
             }
 
@@ -203,15 +196,16 @@
             else if(imt >= 25) { status = "Obesitas"; warna = "#dc3545"; }
 
             Swal.fire({
-                title: 'Hasil Analisis Gizi',
+                title: 'Kalkulator Gizi Checkpoint',
                 html: `
                     <div class="p-3 text-white rounded-4 mb-3" style="background:${warna}">
                         <h4 class="fw-bold mb-0">${status}</h4>
                         <small>IMT: ${imt}</small>
                     </div>
-                    <div class="row text-center small text-muted">
-                        <div class="col-6 border-end">TB: <b>${tb} cm</b></div>
-                        <div class="col-6">BB: <b>${bb} kg</b></div>
+                    <div class="text-start small p-2 bg-light rounded-3">
+                        <p class="mb-1"><b>Tinggi Badan:</b> ${tb} cm</p>
+                        <p class="mb-1"><b>Berat Badan:</b> ${bb} kg</p>
+                        <p class="mb-0 text-muted"><i>Terakhir diukur: ${tglUkur}</i></p>
                     </div>
                 `,
                 confirmButtonColor: '#00569e'
