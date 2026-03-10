@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Bulo Smartville v16.1</title>
+    <title>Bulo Smartville v16.3</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -13,23 +13,23 @@
     <style>
         :root { --main-blue: #00569e; --dark-blue: #003d70; --bg-gray: #f4f7f9; }
         * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        
-        /* Paksa Full Screen & Hilangkan Scroll Samping */
         html, body { height: 100svh; overflow: hidden; background: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; position: fixed; width: 100%; }
 
         .page { display: none; height: 100svh; width: 100%; flex-direction: column; background: var(--bg-gray); }
         .top-header { background: linear-gradient(135deg, var(--main-blue), var(--dark-blue)); color: white; padding: 25px 15px 55px; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; }
-        .content-area { flex: 1; overflow-y: auto; padding: 0 15px 150px; margin-top: -35px; } /* Padding bawah ditinggikan */
+        .content-area { flex: 1; overflow-y: auto; padding: 0 15px 180px; margin-top: -35px; }
         .premium-card { background: white; border-radius: 20px; padding: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); border: none; margin-bottom: 12px; }
 
-        /* NAVIGASI BAWAH - DINAIKKAN AGAR TIDAK TERTUTUP ANDROID NAV */
-        .bottom-nav { height: 75px; background: white; display: flex; justify-content: space-around; align-items: center; position: absolute; bottom: 10px; left: 10px; right: 10px; border-radius: 20px; box-shadow: 0 -5px 20px rgba(0,0,0,0.1); padding-bottom: 0; z-index: 1000; }
+        /* NAVIGASI BAWAH - FIX UNTUK ANDROID NAV BAR */
+        .bottom-nav { height: 75px; background: white; display: flex; justify-content: space-around; align-items: center; position: absolute; bottom: 20px; left: 15px; right: 15px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); z-index: 2000; }
         .nav-link { text-align: center; color: #bbb; text-decoration: none; font-size: 0.65rem; }
         .nav-link.active { color: var(--main-blue); font-weight: bold; }
         .btn-qr-main { width: 55px; height: 55px; background: var(--main-blue); border-radius: 18px; display: flex; align-items: center; justify-content: center; color: white; margin-top: -45px; border: 4px solid white; box-shadow: 0 4px 12px rgba(0,86,158,0.3); }
 
-        .meal-item { background: #fff; padding: 12px; margin-bottom: 8px; border-radius: 15px; border-left: 4px solid var(--main-blue); display: flex; align-items: center; gap: 8px; }
-        .input-gram { width: 65px; border-radius: 8px; border: 1px solid #ccc; padding: 4px; text-align: center; font-size: 0.9rem; font-weight: bold; }
+        .badge-role { font-size: 0.6rem; padding: 3px 10px; border-radius: 50px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); text-transform: uppercase; }
+        
+        /* GIZI INPUT STYLING */
+        .input-gram { width: 70px; border-radius: 10px; border: 1px solid #ddd; text-align: center; font-weight: bold; }
     </style>
 </head>
 <body onload="fetchAndInit()">
@@ -44,13 +44,17 @@
             <img src="Lobo_Bulo.png" style="width: 70%; max-width: 250px;" class="mb-4">
             <input type="number" id="nik" class="form-control rounded-pill border-0 bg-light px-4 mb-2" placeholder="NIK">
             <input type="password" id="pass" class="form-control rounded-pill border-0 bg-light px-4 mb-3" placeholder="Password">
-            <button onclick="handleLogin()" class="btn btn-primary w-100 py-2 fw-bold rounded-pill">MASUK</button>
+            <button onclick="handleLogin()" class="btn btn-primary w-100 py-2 fw-bold rounded-pill shadow">MASUK</button>
         </div>
     </div>
 
     <div id="app-home" class="page">
-        <div class="top-header d-flex justify-content-between align-items-center">
-            <div><small class="opacity-75">Halo,</small><h6 class="mb-0 fw-bold" id="user-display">Memuat...</h6></div>
+        <div class="top-header d-flex justify-content-between align-items-start">
+            <div>
+                <small class="opacity-75">Halo,</small>
+                <h6 class="mb-1 fw-bold" id="user-display">User</h6>
+                <span id="user-role" class="badge-role">ROLE</span>
+            </div>
             <i class="bi bi-person-circle fs-4 text-white"></i>
         </div>
         <div class="content-area">
@@ -60,15 +64,13 @@
                         <small class="fw-bold opacity-75" id="trash-status" style="font-size: 0.6rem;">JADWAL</small>
                         <h5 id="trash-timer" class="mb-0 fw-bold">00:00:00</h5>
                     </div>
-                    <i class="bi bi-trash3 fs-2"></i>
+                    <i class="bi bi-recycle fs-2"></i>
                 </div>
             </div>
-            <div class="row g-2 mb-3 text-center">
-                <div class="col-4" onclick="switchPage('app-gizi')"><div class="premium-card p-2 m-0">🥗<br><small class="fw-bold small">Gizi</small></div></div>
-                <div class="col-4" onclick="switchPage('app-sampah')"><div class="premium-card p-2 m-0">♻️<br><small class="fw-bold small">Sampah</small></div></div>
-                <div class="col-4" onclick="switchPage('app-desa')"><div class="premium-card p-2 m-0">🏢<br><small class="fw-bold small">Desa</small></div></div>
-            </div>
-            <h6 class="fw-bold mb-2 small text-muted">KELUARGA</h6>
+
+            <div class="row g-2 mb-3 text-center" id="main-menu-container"></div>
+            
+            <h6 class="fw-bold mb-2 small text-muted">DATA PENDUDUK/KELUARGA</h6>
             <div id="family-list"></div>
         </div>
     </div>
@@ -94,42 +96,29 @@
     <div id="app-sampah" class="page">
         <div class="top-header d-flex align-items-center" style="padding-bottom: 30px;">
             <i class="bi bi-chevron-left fs-4 me-3" onclick="switchPage('app-home')"></i>
-            <h6 class="mb-0 fw-bold">Tabungan Plastik</h6>
+            <h6 class="mb-0 fw-bold">Setoran Sampah Plastik</h6>
         </div>
         <div class="content-area">
             <div class="premium-card">
-                <h6 class="fw-bold small mb-2 text-primary">Input Setoran Plastik</h6>
+                <h6 class="fw-bold small mb-2 text-primary">Input Berat Sampah</h6>
                 <div class="input-group mb-2">
-                    <input type="number" id="plastic-weight" class="form-control border-0 bg-light px-3" placeholder="Berat sampah...">
-                    <span class="input-group-text border-0 bg-light fw-bold">kg</span>
+                    <input type="number" id="plastic-weight" class="form-control border-0 bg-light px-3" placeholder="0.0">
+                    <span class="input-group-text border-0 bg-light fw-bold">Kg</span>
                 </div>
-                <button onclick="savePlastic()" class="btn btn-success w-100 rounded-pill fw-bold">SETOR SAMPAH</button>
+                <button onclick="savePlastic()" class="btn btn-success w-100 rounded-pill fw-bold">SIMPAN SETORAN</button>
             </div>
-            <div class="premium-card">
-                <h6 class="fw-bold small mb-1">Total Tabungan Anda</h6>
-                <h3 class="text-success fw-bold">12.5 <small style="font-size:0.8rem">kg</small></h3>
-                <small class="text-muted">Terakhir setor: 09 Mar 2026</small>
-            </div>
-        </div>
-    </div>
-
-    <div id="app-desa" class="page">
-        <div class="top-header d-flex align-items-center" style="padding-bottom: 30px;">
-            <i class="bi bi-chevron-left fs-4 me-3" onclick="switchPage('app-home')"></i>
-            <h6 class="mb-0 fw-bold">Informasi Desa</h6>
-        </div>
-        <div class="content-area">
-            <div class="premium-card text-center py-4">
-                <i class="bi bi-info-circle fs-1 text-primary"></i>
-                <h6 class="mt-3">Menu Informasi Desa</h6>
-                <p class="small text-muted">Fitur sinkronisasi data pemerintah desa sedang disiapkan.</p>
+            <div id="admin-trash-view" class="d-none">
+                <div class="premium-card bg-light">
+                    <h6 class="fw-bold small">Total Rekap Desa</h6>
+                    <h4 class="fw-bold">1,240 Kg</h4>
+                </div>
             </div>
         </div>
     </div>
 
     <div class="bottom-nav" id="main-nav" style="display: none;">
-        <a href="#" onclick="switchPage('app-home')" class="nav-link active"><i class="bi bi-house-door fs-4"></i><br>Beranda</a>
-        <div onclick="showQR()"><div class="btn-qr-main"><i class="bi bi-qr-code-scan fs-3"></i></div></div>
+        <a href="#" onclick="switchPage('app-home')" id="nav-home" class="nav-link active"><i class="bi bi-house-door fs-4"></i><br>Beranda</a>
+        <div onclick="showQR()" id="nav-qr"><div class="btn-qr-main shadow"><i class="bi bi-qr-code-scan fs-3"></i></div></div>
         <a href="#" onclick="confirmLogout()" class="nav-link text-danger"><i class="bi bi-power fs-4"></i><br>Keluar</a>
     </div>
 
@@ -143,75 +132,92 @@
                 const json = await res.json();
                 DB_FULL = json.db;
                 updateTrashTimer(); setInterval(updateTrashTimer, 1000);
+                
+                const saved = localStorage.getItem('bulo_user');
                 setTimeout(() => {
                     document.getElementById('splash-screen').style.display = 'none';
-                    const saved = localStorage.getItem('bulo_user');
-                    if(saved) { 
-                        USER_SESSION = JSON.parse(saved); 
-                        initDashboard(); 
-                        switchPage('app-home');
-                        document.getElementById('main-nav').style.display = 'flex'; // Tampilkan nav jika sudah login
-                    } else {
-                        switchPage('login-screen');
-                        document.getElementById('main-nav').style.display = 'none'; // Sembunyikan jika belum login
-                    }
+                    if(saved) { USER_SESSION = JSON.parse(saved); initDashboard(); switchPage('app-home'); }
+                    else switchPage('login-screen');
                 }, 2000);
             } catch(e) { console.error(e); }
-        }
-
-        function initDashboard() {
-            document.getElementById('user-display').innerText = USER_SESSION.nama;
-            const family = DB_FULL.Master_Data_Penduduk.filter(r => r[7].toString() === USER_SESSION.kk);
-            document.getElementById('family-list').innerHTML = family.map(f => `
-                <div class="premium-card p-2 d-flex justify-content-between align-items-center">
-                    <div style="flex:1"><div class="fw-bold small">${f[2]}</div><small class="text-muted" style="font-size:0.6rem">Kondisi: ${f[13] || f[14] || 'Normal'}</small></div>
-                    <button class="btn btn-primary btn-sm rounded-pill px-3" style="font-size: 0.65rem;" onclick="cekBMI('${f[2]}', ${f[11]||160}, ${f[12]||60})">BMI</button>
-                </div>`).join('');
-        }
-
-        function updateTrashTimer() {
-            const now = new Date(), hour = now.getHours();
-            let target = new Date(), status = "", color = "";
-            if (hour >= 18 || hour < 6) {
-                status = "JADWAL ANGKUT"; color = "#dc3545";
-                if (hour >= 18) target.setDate(now.getDate() + 1);
-                target.setHours(6, 0, 0, 0);
-            } else {
-                status = "PERSIAPAN ANGKUT"; color = "#198754";
-                target.setHours(18, 0, 0, 0);
-            }
-            let diff = target - now, hh = Math.floor(diff/3600000), mm = Math.floor((diff%3600000)/60000), ss = Math.floor((diff%60000)/1000);
-            document.getElementById('trash-status').innerText = status;
-            document.getElementById('trash-card').style.background = color;
-            document.getElementById('trash-timer').innerText = `${hh.toString().padStart(2,'0')}:${mm.toString().padStart(2,'0')}:${ss.toString().padStart(2,'0')}`;
-        }
-
-        function switchPage(p) {
-            document.querySelectorAll('.page').forEach(pg => pg.style.display='none');
-            document.getElementById(p).style.display='flex';
-            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
-            if(p === 'app-home') document.querySelector('.nav-link:first-child').classList.add('active');
         }
 
         function handleLogin() {
             const nik = document.getElementById('nik').value, pass = document.getElementById('pass').value;
             const user = DB_FULL.Master_Data_Penduduk.find(r => r[0].toString() === nik && r[1].toString() === pass);
+            
             if(user) {
-                USER_SESSION = { nik: user[0].toString(), nama: user[2], kk: user[7].toString() };
+                // Kolom J (Indeks 9) adalah Role
+                USER_SESSION = { 
+                    nik: user[0].toString(), 
+                    nama: user[2], 
+                    kk: user[7].toString(),
+                    role: user[9] ? user[9].toLowerCase().trim() : 'warga'
+                };
                 localStorage.setItem('bulo_user', JSON.stringify(USER_SESSION));
-                initDashboard(); 
-                switchPage('app-home');
-                document.getElementById('main-nav').style.display = 'flex';
-            } else Swal.fire('Gagal','NIK atau Password salah','error');
+                initDashboard(); switchPage('app-home');
+            } else Swal.fire('Gagal','NIK atau Password tidak ditemukan','error');
         }
 
-        function savePlastic() {
-            const w = document.getElementById('plastic-weight').value;
-            if(!w) return Swal.fire('Gagal','Masukkan berat plastik','warning');
-            Swal.fire('Berhasil','Setoran plastik '+w+'kg tersimpan','success');
-            document.getElementById('plastic-weight').value = '';
+        function initDashboard() {
+            const role = USER_SESSION.role;
+            document.getElementById('user-display').innerText = USER_SESSION.nama;
+            document.getElementById('user-role').innerText = role;
+            document.getElementById('main-nav').style.display = 'flex';
+
+            // LEVELING MENU LOGIC
+            let menu = `
+                <div class="col-4" onclick="switchPage('app-gizi')"><div class="premium-card p-2 m-0">🥗<br><small class="fw-bold small">Gizi</small></div></div>
+                <div class="col-4" onclick="switchPage('app-sampah')"><div class="premium-card p-2 m-0">♻️<br><small class="fw-bold small">Sampah</small></div></div>
+            `;
+
+            if(role === 'super admin' || role === 'admin') {
+                menu += `<div class="col-4" onclick="showAdminPanel()"><div class="premium-card p-2 m-0">🛡️<br><small class="fw-bold small">Control</small></div></div>`;
+                document.getElementById('admin-trash-view').classList.remove('d-none');
+            } else if(role === 'kades' || role === 'kader') {
+                menu += `<div class="col-4" onclick="showReportPanel()"><div class="premium-card p-2 m-0">📊<br><small class="fw-bold small">Laporan</small></div></div>`;
+            } else {
+                menu += `<div class="col-4" onclick="switchPage('app-desa')"><div class="premium-card p-2 m-0">🏢<br><small class="fw-bold small">Desa</small></div></div>`;
+            }
+            document.getElementById('main-menu-container').innerHTML = menu;
+
+            // KONTROL DATA (Warga hanya lihat KK sendiri, Role lain lihat semua)
+            let familyData = [];
+            if(role === 'warga') {
+                familyData = DB_FULL.Master_Data_Penduduk.filter(r => r[7].toString() === USER_SESSION.kk);
+            } else {
+                familyData = DB_FULL.Master_Data_Penduduk.slice(0, 15); // Role tinggi bisa lihat data penduduk (sampel 15 orang)
+            }
+
+            document.getElementById('family-list').innerHTML = familyData.map(f => `
+                <div class="premium-card p-2 d-flex justify-content-between align-items-center">
+                    <div style="flex:1"><div class="fw-bold small">${f[2]}</div><small class="text-muted" style="font-size:0.6rem">NIK: ${f[0]} | Kondisi: ${f[13]||'Normal'}</small></div>
+                    <button class="btn btn-primary btn-sm rounded-pill px-3" style="font-size: 0.6rem;" onclick="cekBMI('${f[2]}', ${f[11]||160}, ${f[12]||60})">BMI</button>
+                </div>`).join('');
         }
 
+        // --- TRASH TIMER ---
+        function updateTrashTimer() {
+            const now = new Date(), hour = now.getHours();
+            let target = new Date(), status = "", color = "";
+            if (hour >= 18 || hour < 6) {
+                status = "WAKTU ANGKUT"; color = "#dc3545";
+                if (hour >= 18) target.setDate(now.getDate() + 1);
+                target.setHours(6, 0, 0, 0);
+            } else {
+                status = "PERSIAPAN 18:00"; color = "#198754";
+                target.setHours(18, 0, 0, 0);
+            }
+            let diff = target - now, hh = Math.floor(diff/3600000), mm = Math.floor((diff%3600000)/60000), ss = Math.floor((diff%60000)/1000);
+            const timerEl = document.getElementById('trash-timer');
+            if(timerEl) {
+                document.getElementById('trash-status').innerText = status;
+                document.getElementById('trash-card').style.background = color;
+                timerEl.innerText = `${hh.toString().padStart(2,'0')}:${mm.toString().padStart(2,'0')}:${ss.toString().padStart(2,'0')}`;
+            }
+        }
+
+        // --- GIZI LOGIC (FIXED INPUT) ---
         function filterFood() {
             const q = document.getElementById('search-food').value.toLowerCase();
             const res = document.getElementById('food-results');
@@ -231,21 +237,20 @@
 
         function renderMeal() {
             document.getElementById('current-meal-items').innerHTML = currentMeal.map(i => `
-                <div class="meal-item">
-                    <div style="flex:1; font-size:0.8rem" class="fw-bold">${i.nama}</div>
-                    <div id="cal-label-${i.id}" class="small text-muted" style="min-width:50px">${((i.kalori*i.gram)/100).toFixed(0)} kkal</div>
-                    <input type="number" class="input-gram" value="${i.gram}" oninput="updateMealValue(${i.id}, this.value)">
-                    <i class="bi bi-trash text-danger fs-5" onclick="currentMeal=currentMeal.filter(x=>x.id!==${i.id});renderMeal();"></i>
+                <div class="premium-card p-2 mb-2 d-flex align-items-center gap-2 border-start border-primary border-4 shadow-none bg-light">
+                    <div style="flex:1" class="fw-bold small">${i.nama}</div>
+                    <div id="cal-${i.id}" class="small text-muted" style="min-width:60px">${((i.kalori*i.gram)/100).toFixed(0)} kkal</div>
+                    <input type="number" class="input-gram" value="${i.gram}" oninput="updateGram(${i.id}, this.value)">
+                    <i class="bi bi-x-circle text-danger fs-5" onclick="removeItem(${i.id})"></i>
                 </div>`).join('');
             calculateTotal();
-            if(currentMeal.length === 0) document.getElementById('selected-list').classList.add('d-none');
         }
 
-        function updateMealValue(id, g) {
+        function updateGram(id, g) {
             const item = currentMeal.find(x => x.id === id);
             if(item) {
                 item.gram = parseFloat(g) || 0;
-                document.getElementById('cal-label-' + id).innerText = ((item.kalori * item.gram) / 100).toFixed(0) + ' kkal';
+                document.getElementById('cal-'+id).innerText = ((item.kalori * item.gram)/100).toFixed(0) + ' kkal';
                 calculateTotal();
             }
         }
@@ -256,14 +261,17 @@
             document.getElementById('total-kalori').innerText = total.toFixed(0) + " kkal";
         }
 
-        function cekBMI(n, t, b) {
-            const bmi = b / ((t/100)**2);
-            let s = bmi < 18.5 ? "Kurus" : (bmi < 25 ? "Normal" : "Obesitas");
-            Swal.fire({ title: n, html: `<h4>${bmi.toFixed(1)}</h4><b>${s}</b>`, confirmButtonColor: '#00569e' });
-        }
-        function showQR() { Swal.fire({ title: 'QR DIGITAL', html: '<canvas id="qr-canvas"></canvas>', didOpen: () => new QRious({element: document.getElementById('qr-canvas'), value: USER_SESSION.nik, size: 200}) }); }
+        function removeItem(id) { currentMeal = currentMeal.filter(x => x.id !== id); renderMeal(); if(currentMeal.length === 0) document.getElementById('selected-list').classList.add('d-none'); }
+
+        // --- AUTH & NAV ---
+        function switchPage(p) { document.querySelectorAll('.page').forEach(pg => pg.style.display='none'); document.getElementById(p).style.display='flex'; }
         function confirmLogout() { localStorage.clear(); location.reload(); }
-        function saveGizi() { Swal.fire('Berhasil','Data tersimpan','success'); currentMeal=[]; renderMeal(); }
+        function showQR() { Swal.fire({ title: 'ID DIGITAL', html: `<canvas id="qr"></canvas><br><b>${USER_SESSION.nik}</b>`, didOpen: () => new QRious({element: document.getElementById('qr'), value: USER_SESSION.nik, size: 200}) }); }
+        function showAdminPanel() { Swal.fire('Admin Panel','Akses penuh ke semua basis data aktif','info'); }
+        function showReportPanel() { Swal.fire('Laporan Desa','Melihat ringkasan kesehatan warga dan sampah','info'); }
+        function savePlastic() { Swal.fire('Tersimpan','Setoran sampah plastik berhasil dicatat','success'); }
+        function saveGizi() { Swal.fire('Berhasil','Analisa gizi harian disimpan','success'); currentMeal = []; renderMeal(); }
+        function cekBMI(n, t, b) { const bmi = b/((t/100)**2); Swal.fire(n, 'BMI: ' + bmi.toFixed(1), 'info'); }
     </script>
 </body>
 </html>
