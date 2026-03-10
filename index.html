@@ -4,49 +4,52 @@
   <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
   <style>
-    body { font-family: -apple-system, sans-serif; background: #f4f7f6; margin: 0; padding: 15px; }
-    .card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
-    .header-card { border-left: 5px solid #3498db; }
+    body { font-family: sans-serif; background: #f0f2f5; margin: 0; padding: 15px; }
+    .card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); border-top: 4px solid #3498db; }
     .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
-    .stat-box { padding: 15px; border-radius: 10px; color: white; text-align: center; }
-    .bg-green { background: #2ecc71; }
-    .bg-blue { background: #3498db; }
+    .stat { padding: 15px; border-radius: 10px; color: white; text-align: center; }
     .timer { font-size: 1.8rem; font-weight: bold; color: #e74c3c; margin: 10px 0; }
-    #loader { position: fixed; inset: 0; background: white; display: flex; align-items: center; justify-content: center; z-index: 100; font-weight: bold; }
-    .status-badge { background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; }
+    #loader { position: fixed; inset: 0; background: white; display: flex; align-items: center; justify-content: center; z-index: 100; }
   </style>
 </head>
 <body>
 
   <div id="loader">Sinkronisasi Data...</div>
 
-  <div class="card header-card">
+  <div class="card">
     <h2 id="name" style="margin:0">-</h2>
     <p id="info" style="color:gray; margin:5px 0; font-size:0.9rem"></p>
-    <span class="status-badge">Status Gizi: <span id="gizi">-</span></span>
+    <b style="color:#2e7d32">Status Gizi: <span id="gizi">-</span></b>
   </div>
 
   <div class="grid">
-    <div class="stat-box bg-green">
-      <small>SALDO TUNAI</small><br><b id="rp" style="font-size:1.1rem">Rp 0</b>
+    <div class="stat" style="background:#2ecc71">
+      <small>SALDO TUNAI</small><br><b id="rp">Rp 0</b>
     </div>
-    <div class="stat-box bg-blue">
-      <small>TABUNGAN KG</small><br><b id="kg" style="font-size:1.1rem">0 Kg</b>
+    <div class="stat" style="background:#3498db">
+      <small>TABUNGAN KG</small><br><b id="kg">0 Kg</b>
     </div>
   </div>
 
   <div class="card" style="text-align:center">
-    <div id="statusLabel" style="font-size:0.8rem; font-weight:bold; color:#7f8c8d;">JADWAL SAMPAH</div>
+    <div id="statusLabel" style="font-weight:bold; color:#7f8c8d;">JADWAL SAMPAH</div>
     <div id="clock" class="timer">00:00:00</div>
-    <small id="note" style="color:#95a5a6"></small>
   </div>
 
   <div class="card" style="text-align:center">
-    <b style="font-size:0.8rem">ID DIGITAL WARGA</b><br>
-    <img id="qrImg" src="" style="width:160px; margin-top:10px; border:1px solid #eee; border-radius:8px;">
+    <b>ID DIGITAL WARGA</b><br>
+    <img id="qrImg" src="" style="width:160px; margin-top:10px; border:1px solid #eee;">
   </div>
 
   <script>
+    /** * PETUNJUK: 
+     * 1. Deploy script ini (Deploy > New Deployment).
+     * 2. Salin URL Web App yang muncul.
+     * 3. Tempel URL tersebut di dalam tanda kutip di bawah ini.
+     */
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyDcs2h7s1SCzYsbuht8QCI4_BrBzVvwXuC7Nj5ke0QM2uX9kX-K2JomNHPoNaumIPo/exec"; 
+    const NIK_WARGA = "<?= nik ?>";
+
     function startTimer(target) {
       setInterval(() => {
         const diff = target - new Date().getTime();
@@ -59,11 +62,8 @@
     }
 
     window.onload = () => {
-      const urlParams = new URLSearchParams(window.location.search);
-      const nik = urlParams.get('nik');
-      
-      if(!nik) {
-        document.body.innerHTML = "<div style='padding:50px; text-align:center;'>Harap gunakan link NIK resmi.</div>";
+      if(!NIK_WARGA) {
+        document.body.innerHTML = "<div style='text-align:center;padding:50px;'>Akses Ditolak. Gunakan Link NIK Resmi.</div>";
         return;
       }
 
@@ -72,16 +72,15 @@
         
         document.getElementById("loader").style.display = "none";
         document.getElementById("name").innerText = data.profile.nama;
-        document.getElementById("info").innerText = "Dusun " + data.profile.dusun + " | NIK: " + nik;
+        document.getElementById("info").innerText = "Dusun " + data.profile.dusun + " | NIK: " + NIK_WARGA;
         document.getElementById("gizi").innerText = data.profile.statusGizi;
         document.getElementById("rp").innerText = "Rp " + data.trash.saldo.toLocaleString('id-ID');
         document.getElementById("kg").innerText = data.trash.kg + " Kg";
         document.getElementById("qrImg").src = data.qr;
         document.getElementById("statusLabel").innerText = data.isBuang ? "WAKTUNYA BUANG SAMPAH!" : "BELUM WAKTUNYA";
-        document.getElementById("note").innerText = data.isBuang ? "Segera bawa sampah ke bak umum" : "Siapkan sampah untuk jadwal berikutnya";
         
         startTimer(data.targetTime);
-      }).getFullDashboardData(nik);
+      }).getFullDashboardData(NIK_WARGA);
     };
   </script>
 </body>
