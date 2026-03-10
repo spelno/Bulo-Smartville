@@ -3,88 +3,33 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bulo Smartville v10.9</title>
+    <title>Bulo Smartville v11.0</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
         :root { --main-blue: #00569e; --dark-blue: #003d70; --bg-gray: #f8f9fa; }
-        
-        html, body { 
-            height: 100%; overflow: hidden; 
-            background: var(--bg-gray); font-family: 'Segoe UI', sans-serif;
-            margin: 0; padding: 0;
-        }
-
-        .page {
-            display: none; height: 100vh; width: 100%;
-            position: absolute; top: 0; left: 0; flex-direction: column;
-        }
-
-        .top-header { 
-            background: linear-gradient(135deg, var(--main-blue), var(--dark-blue)); 
-            color: white; padding: 25px 20px; 
-            border-bottom-left-radius: 25px; border-bottom-right-radius: 25px;
-            flex-shrink: 0; position: relative; z-index: 10;
-        }
-
-        .btn-logout-top {
-            position: absolute; right: 20px; top: 28px;
-            background: rgba(255, 255, 255, 0.2);
-            border: none; color: white; padding: 5px 15px;
-            border-radius: 50px; font-size: 0.75rem;
-        }
-
-        .content-area {
-            flex-grow: 1; overflow-y: auto; padding: 20px;
-            -webkit-overflow-scrolling: touch;
-        }
-
-        .info-card { 
-            background: white; border-radius: 18px; margin-top: -45px; 
-            padding: 22px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); 
-            position: relative; z-index: 11;
-        }
-
-        .menu-grid { 
-            display: grid; grid-template-columns: repeat(3, 1fr); 
-            gap: 15px; margin-top: 25px; 
-        }
-        .menu-item { 
-            background: white; border-radius: 18px; padding: 18px 5px;
-            text-align: center; font-size: 0.75rem; font-weight: 600;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1px solid #eee;
-        }
-
-        .bottom-nav { 
-            height: 75px; background: white; border-top: 1px solid #ddd;
-            display: flex; justify-content: space-around; align-items: center;
-            flex-shrink: 0;
-        }
+        html, body { height: 100%; overflow: hidden; background: var(--bg-gray); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
+        .page { display: none; height: 100vh; width: 100%; position: absolute; top: 0; left: 0; flex-direction: column; }
+        .top-header { background: linear-gradient(135deg, var(--main-blue), var(--dark-blue)); color: white; padding: 25px 20px; border-bottom-left-radius: 25px; border-bottom-right-radius: 25px; flex-shrink: 0; position: relative; z-index: 10; }
+        .btn-logout-top { position: absolute; right: 20px; top: 28px; background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 5px 15px; border-radius: 50px; font-size: 0.75rem; }
+        .content-area { flex-grow: 1; overflow-y: auto; padding: 20px; -webkit-overflow-scrolling: touch; }
+        .info-card { background: white; border-radius: 18px; margin-top: -45px; padding: 22px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); position: relative; z-index: 11; }
+        .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 25px; }
+        .menu-item { background: white; border-radius: 18px; padding: 18px 5px; text-align: center; font-size: 0.75rem; font-weight: 600; box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1px solid #eee; }
+        .bottom-nav { height: 75px; background: white; border-top: 1px solid #ddd; display: flex; justify-content: space-around; align-items: center; flex-shrink: 0; }
         .nav-link { text-align: center; color: #999; text-decoration: none; font-size: 0.7rem; }
         .nav-link.active { color: var(--main-blue); font-weight: bold; }
-
-        .btn-qr { 
-            width: 65px; height: 65px; background: var(--main-blue); 
-            border-radius: 50%; display: flex; align-items: center; 
-            justify-content: center; color: white; font-size: 1.8rem; 
-            margin-top: -45px; border: 6px solid var(--bg-gray);
-            box-shadow: 0 5px 15px rgba(0,86,158,0.3);
-        }
-
-        #loading-overlay {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: white; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; z-index: 9999;
-        }
+        .btn-qr { width: 65px; height: 65px; background: var(--main-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8rem; margin-top: -45px; border: 6px solid var(--bg-gray); box-shadow: 0 5px 15px rgba(0,86,158,0.3); }
+        #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
     </style>
 </head>
 <body>
 
     <div id="loading-overlay">
         <div class="spinner-border text-primary mb-3"></div>
-        <small class="text-muted fw-bold">Menghubungkan ke Desa...</small>
+        <small class="text-muted fw-bold">Menyinkronkan Data Desa...</small>
     </div>
 
     <div id="login-screen" class="page">
@@ -101,7 +46,7 @@
     <div id="app-home" class="page">
         <div class="top-header">
             <div>
-                <small class="opacity-75">Halo,</small>
+                <small class="opacity-75">Selamat Datang,</small>
                 <h5 class="mb-0 fw-bold" id="user-display">User</h5>
             </div>
             <button onclick="confirmLogout()" class="btn-logout-top">Keluar</button>
@@ -109,8 +54,8 @@
         <div class="content-area">
             <div class="info-card">
                 <div class="d-flex justify-content-between mb-2">
-                    <span class="small fw-bold text-muted">TABUNGAN SAMPAH</span>
-                    <span id="trash-status" class="badge rounded-pill bg-success px-3">...</span>
+                    <span class="small fw-bold text-muted text-uppercase">Bank Sampah</span>
+                    <span id="trash-status" class="badge rounded-pill bg-success px-3">BUKA</span>
                 </div>
                 <h1 class="fw-bold mb-0 text-primary" id="info-saldo">Rp 0</h1>
                 <div class="d-flex justify-content-between mt-3 pt-3 border-top small text-muted">
@@ -142,7 +87,7 @@
         </div>
         <div class="content-area">
             <div class="card border-0 shadow-sm rounded-4 p-3">
-                <p class="small text-muted mb-3">Daftar Anggota Keluarga:</p>
+                <p class="small text-muted mb-3">Daftar Anggota Keluarga (KK: <span id="kk-display"></span>):</p>
                 <div id="list-keluarga-gizi"></div>
             </div>
         </div>
@@ -156,13 +101,13 @@
             </div>
         </div>
         <div class="content-area">
-            <div class="info-card mt-0 shadow-sm mb-4">
-                <p class="small text-muted mb-1">Saldo Siap Cair</p>
+            <div class="info-card mt-0 shadow-sm mb-4 text-center">
+                <p class="small text-muted mb-1">Total Saldo Tabungan</p>
                 <h2 class="fw-bold text-success" id="detail-saldo">Rp 0</h2>
             </div>
             <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
                 <i class="bi bi-clock-history fs-1 text-muted opacity-25"></i>
-                <p class="small text-muted mt-2">Riwayat setoran belum tersedia.</p>
+                <p class="small text-muted mt-2">Riwayat transaksi belum tersedia.</p>
             </div>
         </div>
     </div>
@@ -178,7 +123,7 @@
             if(target) {
                 target.style.display = 'flex';
                 if(pageId === 'app-gizi') renderGiziList();
-                if(pageId === 'app-sampah') initDashboard();
+                if(pageId === 'app-home' || pageId === 'app-sampah') initDashboard();
             }
         }
 
@@ -198,7 +143,7 @@
                     }
                 }
             } catch (e) {
-                Swal.fire('Koneksi Gagal', 'Gagal memuat data dari server.', 'error');
+                Swal.fire('Error', 'Gagal memuat data. Periksa URL Apps Script.', 'error');
             } finally {
                 document.getElementById('loading-overlay').style.display = 'none';
             }
@@ -214,17 +159,19 @@
                 initDashboard();
                 switchPage('app-home');
             } else {
-                Swal.fire('Error', 'NIK atau Password Salah', 'error');
+                Swal.fire('Gagal', 'NIK atau Password salah.', 'error');
             }
         }
 
         function initDashboard() {
             if(!USER_SESSION) return;
             document.getElementById('user-display').innerText = USER_SESSION.nama;
+            document.getElementById('kk-display').innerText = USER_SESSION.kk;
+            
             const settings = DB_FULL.sampah_pengaturan;
             const harga = settings.find(r => r[0] === 'Harga_Beli_Warga')[1];
             document.getElementById('info-harga').innerText = `Rp ${parseInt(harga).toLocaleString()}/Kg`;
-            
+
             const saldo = DB_FULL.sampah_saldo.find(r => r[0].toString() === USER_SESSION.nik);
             if(saldo) {
                 const fmt = `Rp ${parseInt(saldo[2] || 0).toLocaleString()}`;
@@ -239,26 +186,52 @@
             document.getElementById('list-keluarga-gizi').innerHTML = keluarga.map(k => `
                 <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
                     <div><b>${k[2]}</b><br><small class="text-muted">${k[5]}</small></div>
-                    <button class="btn btn-sm btn-outline-primary rounded-pill px-3">Cek</button>
+                    <button onclick="cekAKG('${k[0]}')" class="btn btn-sm btn-primary rounded-pill px-3">Cek AKG</button>
                 </div>
             `).join('');
+        }
+
+        function cekAKG(nik) {
+            const penduduk = DB_FULL.Master_Data_Penduduk.find(r => r[0].toString() === nik);
+            const ukur = DB_FULL.pengukuran_gizi.filter(r => r[1].toString() === nik).pop();
+
+            if (!ukur) {
+                Swal.fire('Data Belum Ada', 'Belum ada data pengukuran (BB/TB) untuk warga ini.', 'info');
+                return;
+            }
+
+            const tb = parseFloat(penduduk[12]) || 0; // Kolom M
+            const bb = parseFloat(ukur[3]) || 0; // Kolom D di Pengukuran
+            const imt = (bb / ((tb/100) * (tb/100))).toFixed(1);
+
+            let status = "Normal"; let warna = "#198754";
+            if(imt < 18.5) { status = "Gizi Kurang"; warna = "#ffc107"; }
+            else if(imt >= 25) { status = "Obesitas"; warna = "#dc3545"; }
+
+            Swal.fire({
+                title: 'Analisis Gizi Otomatis',
+                html: `
+                    <div class="p-3 text-white rounded-4 shadow-sm" style="background:${warna}">
+                        <h4 class="fw-bold mb-1">${status}</h4>
+                        <small>IMT: ${imt}</small>
+                    </div>
+                    <div class="mt-3 small text-muted">TB: ${tb}cm | BB: ${bb}kg</div>
+                `,
+                confirmButtonColor: '#00569e'
+            });
         }
 
         function showQR() {
             Swal.fire({
                 title: 'ID DIGITAL',
                 imageUrl: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${USER_SESSION.nik}`,
-                imageWidth: 200, imageHeight: 200, confirmButtonColor: '#00569e'
+                confirmButtonColor: '#00569e'
             });
         }
 
         function confirmLogout() {
-            Swal.fire({
-                title: 'Logout?',
-                icon: 'warning',
-                showCancelButton: true,
-                confirmButtonText: 'Ya, Keluar'
-            }).then(r => { if(r.isConfirmed) { localStorage.clear(); location.reload(); } });
+            Swal.fire({ title: 'Keluar?', icon: 'question', showCancelButton: true, confirmButtonText: 'Ya' })
+            .then(r => { if(r.isConfirmed) { localStorage.clear(); location.reload(); } });
         }
 
         window.onload = fetchAndInit;
