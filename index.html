@@ -3,169 +3,112 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Bulo Smartville v14.3</title>
+    <title>Bulo Smartville v14.5</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     
     <style>
-        :root { 
-            --main-blue: #00569e; 
-            --dark-blue: #003d70; 
-            --bg-gray: #f4f7f9;
-            --vh: 1vh;
-        }
-        
-        html, body { 
-            height: 100vh; height: calc(var(--vh, 1vh) * 100);
-            overflow: hidden; background: white; 
-            font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; 
-            position: fixed; width: 100%;
-        }
+        :root { --main-blue: #00569e; --dark-blue: #003d70; --bg-gray: #f4f7f9; --vh: 1vh; }
+        html, body { height: 100vh; height: calc(var(--vh, 1vh) * 100); overflow: hidden; background: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; position: fixed; width: 100%; }
 
-        /* ANIMASI SPLASH SCREEN */
+        /* SPLASH SCREEN ANIMASI */
         #splash-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: white; display: flex; flex-direction: column;
             align-items: center; justify-content: center; z-index: 10000;
-            transition: opacity 0.8s cubic-bezier(0.4, 0, 0.2, 1);
+            transition: opacity 0.8s ease-in-out;
         }
-
         .splash-logo { 
-            width: 180px; height: auto; 
-            opacity: 0; transform: scale(0.8);
+            width: 180px; height: auto; opacity: 0; transform: scale(0.7);
             animation: splashIn 1.2s forwards cubic-bezier(0.175, 0.885, 0.32, 1.275);
         }
+        @keyframes splashIn { 0% { opacity: 0; transform: scale(0.5); } 100% { opacity: 1; transform: scale(1); } }
 
-        @keyframes splashIn {
-            0% { opacity: 0; transform: scale(0.5); }
-            100% { opacity: 1; transform: scale(1); }
-        }
-
-        .splash-footer { 
-            position: absolute; bottom: 60px; 
-            font-size: 0.7rem; letter-spacing: 2px; color: #aaa; 
-            font-weight: bold; text-transform: uppercase;
-            animation: fadeIn 2s forwards;
-        }
-
-        @keyframes fadeIn { from { opacity: 0; } to { opacity: 1; } }
-
-        /* PAGE BASICS */
         .page { display: none; height: 100%; width: 100%; flex-direction: column; background: var(--bg-gray); }
 
         /* LOGIN PAGE */
         .login-container { background: white; height: 100%; display: flex; flex-direction: column; justify-content: center; align-items: center; padding: 40px; }
-        .login-logo { width: 150px; height: auto; margin-bottom: 35px; }
+        .login-logo { width: 150px; height: auto; margin-bottom: 30px; }
 
-        /* DASHBOARD & NAV */
-        .top-header { 
-            background: linear-gradient(135deg, var(--main-blue), var(--dark-blue)); 
-            color: white; padding: 35px 20px 65px; 
-            border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; 
-        }
-
+        /* HEADER & CONTENT */
+        .top-header { background: linear-gradient(135deg, var(--main-blue), var(--dark-blue)); color: white; padding: 35px 20px 65px; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; }
         .content-area { flex: 1; overflow-y: auto; padding: 0 20px 120px; margin-top: -45px; }
+        .premium-card { background: white; border-radius: 24px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.04); border: none; margin-bottom: 20px; }
 
-        .premium-card {
-            background: white; border-radius: 24px; padding: 20px;
-            box-shadow: 0 12px 30px rgba(0,0,0,0.04); border: none; margin-bottom: 20px;
-        }
-
-        .bottom-nav { 
-            height: 90px; background: rgba(255,255,255,0.92); backdrop-filter: blur(15px);
-            display: flex; justify-content: space-around; align-items: center; 
-            position: absolute; bottom: 0; width: 100%; border-top: 1px solid rgba(0,0,0,0.05);
-            padding-bottom: env(safe-area-inset-bottom);
-        }
-
-        .nav-link { text-align: center; color: #bbb; text-decoration: none; font-size: 0.7rem; transition: 0.3s; }
+        /* NAV */
+        .bottom-nav { height: 85px; background: rgba(255,255,255,0.95); backdrop-filter: blur(10px); display: flex; justify-content: space-around; align-items: center; position: absolute; bottom: 0; width: 100%; border-top: 1px solid #eee; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-link { text-align: center; color: #bbb; text-decoration: none; font-size: 0.7rem; }
         .nav-link.active { color: var(--main-blue); font-weight: bold; }
-        .nav-link i { font-size: 1.7rem; display: block; margin-bottom: 4px; }
-
-        .btn-qr-center { 
-            width: 68px; height: 68px; background: var(--main-blue); 
-            border-radius: 22px; display: flex; align-items: center; justify-content: center; 
-            color: white; font-size: 1.8rem; margin-top: -65px; 
-            box-shadow: 0 10px 25px rgba(0,86,158,0.3); border: 5px solid var(--bg-gray);
-        }
+        .btn-qr-main { width: 65px; height: 65px; background: var(--main-blue); border-radius: 22px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8rem; margin-top: -60px; border: 5px solid var(--bg-gray); shadow: 0 8px 20px rgba(0,86,158,0.3); }
     </style>
 </head>
 <body onload="fetchAndInit()">
 
     <div id="splash-screen">
         <img src="Logo_UMMAN.jpg" class="splash-logo" alt="UMMAN">
-        <div class="splash-footer">Digitalisasi Desa Pilot Bulo</div>
+        <div class="fw-bold text-muted small mt-4">Digitalisasi Desa Pilot Bulo</div>
     </div>
 
     <div id="login-screen" class="page">
         <div class="login-container">
             <img src="Logo_Bulo.png" class="login-logo" alt="Logo Bulo">
-            <h3 class="fw-bold text-dark mb-1">Masuk Warga</h3>
-            <p class="text-muted mb-5 small text-center">Akses Layanan Smartville Desa Bulo</p>
-            
+            <h3 class="fw-bold text-dark mb-1 text-center">Bulo Smartville</h3>
+            <p class="text-muted mb-5 small">Silakan masuk dengan NIK Warga</p>
             <div class="w-100" style="max-width: 320px;">
-                <input type="number" id="nik" class="form-control form-control-lg rounded-pill border-0 bg-light px-4 mb-3 fs-6" placeholder="Masukkan NIK">
-                <input type="password" id="pass" class="form-control form-control-lg rounded-pill border-0 bg-light px-4 mb-4 fs-6" placeholder="Password">
-                <button onclick="handleLogin()" class="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow-lg">LOG IN</button>
+                <input type="number" id="nik" class="form-control form-control-lg rounded-pill border-0 bg-light px-4 mb-3" placeholder="NIK">
+                <input type="password" id="pass" class="form-control form-control-lg rounded-pill border-0 bg-light px-4 mb-4" placeholder="Password">
+                <button onclick="handleLogin()" class="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow-lg">MASUK</button>
             </div>
-            <p class="mt-5 small text-muted opacity-50">Notes of OD &copy; 2026</p>
         </div>
     </div>
 
     <div id="app-home" class="page">
         <div class="top-header">
             <div class="d-flex justify-content-between align-items-center">
-                <div><small class="opacity-75">Halo,</small><h5 class="mb-0 fw-bold" id="user-display">Memuat...</h5></div>
-                <div class="bg-white bg-opacity-20 rounded-circle p-2" onclick="confirmLogout()"><i class="bi bi-power text-white"></i></div>
+                <div><small class="opacity-75">Selamat Datang,</small><h5 class="mb-0 fw-bold" id="user-display">Memuat...</h5></div>
+                <div class="bg-white bg-opacity-20 rounded-circle p-2" onclick="confirmLogout()"><i class="bi bi-power"></i></div>
             </div>
         </div>
         <div class="content-area">
-            <div class="premium-card">
-                <div class="row text-center">
-                    <div class="col-6 border-end">
-                        <small class="text-muted d-block mb-1">Status Gizi</small>
-                        <span class="badge bg-success-subtle text-success px-3 py-2 rounded-pill">Normal</span>
-                    </div>
-                    <div class="col-6">
-                        <small class="text-muted d-block mb-1">Saldo Sampah</small>
-                        <h6 id="info-saldo" class="fw-bold text-primary mb-0">Rp 0</h6>
-                    </div>
+            <div class="premium-card text-center">
+                <div class="row">
+                    <div class="col-6 border-end"><small class="text-muted d-block">BMI Keluarga</small><span class="fw-bold text-primary">Normal</span></div>
+                    <div class="col-6"><small class="text-muted d-block">Saldo Bank Sampah</small><span id="info-saldo" class="fw-bold text-success">Rp 0</span></div>
                 </div>
             </div>
 
-            <h6 class="fw-bold mb-3 small"><i class="bi bi-person-badge-fill me-2 text-primary"></i>DAFTAR KELUARGA</h6>
+            <div class="row g-3 mb-4 text-center">
+                <div class="col-4"><div class="premium-card p-3 mb-0" onclick="switchPage('app-gizi')">🥗<br><small class="fw-bold">Gizi</small></div></div>
+                <div class="col-4"><div class="premium-card p-3 mb-0">♻️<br><small class="fw-bold">Sampah</small></div></div>
+                <div class="col-4"><div class="premium-card p-3 mb-0">🏢<br><small class="fw-bold">Desa</small></div></div>
+            </div>
+
+            <h6 class="fw-bold mb-3 small">ANGGOTA KELUARGA</h6>
             <div id="family-list"></div>
         </div>
-
         <div class="bottom-nav">
-            <a href="javascript:void(0)" onclick="switchPage('app-home')" class="nav-link active"><i class="bi bi-house-door-fill"></i>Beranda</a>
-            <div onclick="showQR()"><div class="btn-qr-center"><i class="bi bi-qr-code-scan"></i></div></div>
-            <a href="javascript:void(0)" onclick="switchPage('app-gizi')" class="nav-link"><i class="bi bi-calculator-fill"></i>Gizi</a>
+            <a href="javascript:void(0)" onclick="switchPage('app-home')" class="nav-link active"><i class="bi bi-house-door-fill fs-3"></i><br>Beranda</a>
+            <div onclick="showQR()"><div class="btn-qr-main"><i class="bi bi-qr-code-scan"></i></div></div>
+            <a href="javascript:void(0)" class="nav-link"><i class="bi bi-info-circle-fill fs-3"></i><br>Bantuan</a>
         </div>
     </div>
 
     <div id="app-gizi" class="page">
         <div class="top-header" style="padding-bottom: 40px;">
-            <div class="d-flex align-items-center">
-                <i class="bi bi-arrow-left fs-3 me-3" onclick="switchPage('app-home')"></i>
-                <h5 class="mb-0 fw-bold">Analisis Gizi</h5>
-            </div>
+            <div class="d-flex align-items-center"><i class="bi bi-arrow-left fs-3 me-3" onclick="switchPage('app-home')"></i><h5 class="mb-0 fw-bold">Kalkulator Gizi</h5></div>
         </div>
         <div class="content-area">
-            <div class="premium-card p-2">
-                <div class="input-group bg-light rounded-pill px-3 py-1">
+            <div class="premium-card">
+                <div class="input-group bg-light rounded-pill px-3">
                     <span class="input-group-text border-0 bg-transparent text-muted"><i class="bi bi-search"></i></span>
                     <input type="text" id="search-food" class="form-control border-0 bg-transparent" placeholder="Cari menu makanan..." onkeyup="filterFood()">
                 </div>
-                <div id="food-results" class="list-group mt-2 border-0 shadow-sm" style="display:none; max-height: 250px; overflow-y: auto; border-radius: 15px;"></div>
+                <div id="food-results" class="list-group mt-2 border-0 shadow-sm" style="display:none; max-height: 200px; overflow-y: auto;"></div>
             </div>
-
             <div id="selected-list" class="d-none">
                 <div id="current-meal-items"></div>
-                <div class="premium-card bg-primary text-white text-center py-3 mt-4" onclick="hitungGiziFinal()">
-                    <span class="fw-bold fs-6">SIMPAN LAPORAN GIZI <i class="bi bi-chevron-right ms-2"></i></span>
-                </div>
+                <button onclick="hitungGiziFinal()" class="btn btn-primary w-100 py-3 mt-4 rounded-pill fw-bold shadow">ANALISIS & SIMPAN</button>
             </div>
         </div>
     </div>
@@ -180,51 +123,83 @@
                 const result = await response.json();
                 if(result.status === 'success') {
                     DB_FULL = result.db;
-                    // Durasi splash agar animasi terlihat
                     setTimeout(() => {
                         const sp = document.getElementById('splash-screen');
                         sp.style.opacity = '0';
                         setTimeout(() => {
                             sp.style.display = 'none';
                             const saved = localStorage.getItem('bulo_user');
-                            if(saved) {
-                                USER_SESSION = JSON.parse(saved);
-                                initDashboard(); switchPage('app-home');
-                            } else { switchPage('login-screen'); }
+                            if(saved) { USER_SESSION = JSON.parse(saved); initDashboard(); switchPage('app-home'); }
+                            else { switchPage('login-screen'); }
                         }, 800);
                     }, 2800);
                 }
-            } catch (e) { Swal.fire('Error','Koneksi Terputus','error'); }
+            } catch (e) { Swal.fire('Error','Gagal memuat data desa','error'); }
         }
 
         function initDashboard() {
             document.getElementById('user-display').innerText = USER_SESSION.nama;
             const family = DB_FULL.Master_Data_Penduduk.filter(r => r[7].toString() === USER_SESSION.kk);
             document.getElementById('family-list').innerHTML = family.map(f => `
-                <div class="premium-card p-3 mb-2 d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center">
-                        <div class="bg-light rounded-circle p-2 me-3 text-primary"><i class="bi bi-person-fill"></i></div>
-                        <div><div class="fw-bold small">${f[2]}</div><small class="text-muted" style="font-size:0.65rem">${f[0]}</small></div>
-                    </div>
-                    <span class="badge bg-light text-dark rounded-pill" style="font-size:0.6rem">Warga</span>
+                <div class="premium-card p-3 mb-2 d-flex align-items-center">
+                    <div class="bg-light rounded-circle p-2 me-3 text-primary"><i class="bi bi-person-fill"></i></div>
+                    <div><div class="fw-bold small">${f[2]}</div><small class="text-muted" style="font-size:0.6rem">NIK: ${f[0]}</small></div>
                 </div>
             `).join('');
-
             const saldo = DB_FULL.sampah_saldo.find(r => r[0].toString() === USER_SESSION.nik);
             if(saldo) document.getElementById('info-saldo').innerText = `Rp ${parseInt(saldo[2] || 0).toLocaleString()}`;
         }
 
-        // --- LOGIC GIZI ---
+        async function hitungGiziFinal() {
+            let totalKal = 0; let totalFe = 0;
+            currentMeal.forEach(i => {
+                totalKal += (i.berat / 100) * i.kalDasar;
+                totalFe += (i.berat / 100) * i.feDasar;
+            });
+
+            let kesimpulan = totalKal > 1000 ? "Kelebihan Karbohidrat/Kalori" : totalKal < 400 ? "Gizi Kurang" : "Gizi Seimbang";
+            let warna = totalKal > 1000 ? "text-danger" : totalKal < 400 ? "text-warning" : "text-success";
+
+            Swal.fire({
+                title: 'Hasil Analisis Gizi',
+                html: `
+                    <div id="print-area" class="p-3 border rounded-4 text-center">
+                        <img src="Lobo_Bulo.png" style="width:40px; margin-bottom:10px;">
+                        <h6 class="fw-bold">LAPORAN GIZI BULO</h6>
+                        <hr>
+                        <h1 class="fw-bold text-primary mb-0">${totalKal.toFixed(0)}</h1>
+                        <p class="text-muted small">Total Kilokalori</p>
+                        <div class="bg-light p-2 rounded-3 mb-3">
+                            <small class="fw-bold d-block">Kesimpulan:</small>
+                            <span class="${warna} fw-bold small">${kesimpulan}</span>
+                        </div>
+                        <div class="text-start small">
+                            <b>Zat Besi:</b> ${totalFe.toFixed(2)} mg<br>
+                            <b>Menu:</b> ${currentMeal.map(m=>m.nama).join(', ')}
+                        </div>
+                    </div>
+                `,
+                showCancelButton: true, showDenyButton: true,
+                confirmButtonText: 'Simpan', denyButtonText: 'Cetak', confirmButtonColor: '#00569e'
+            }).then(r => {
+                if(r.isConfirmed) saveToDB(totalKal, totalFe);
+                else if(r.isDenied) printLaporan();
+            });
+        }
+
+        function printLaporan() {
+            const content = document.getElementById('print-area').innerHTML;
+            const win = window.open('', '_blank');
+            win.document.write(`<html><head><link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet"></head><body onload="window.print();window.close()"><div class="container p-5">${content}</div></body></html>`);
+            win.document.close();
+        }
+
         function filterFood() {
             const q = document.getElementById('search-food').value.toLowerCase();
             const res = document.getElementById('food-results');
             if(q.length < 2) { res.style.display = 'none'; return; }
             const matches = DB_FULL.master_gizi.filter(r => r[0] && r[0].toLowerCase().includes(q));
-            res.innerHTML = matches.slice(0, 5).map(m => `
-                <button onclick="addFood('${m[0]}', ${m[1]}, ${m[5]})" class="list-group-item list-group-item-action border-0 py-3 small">
-                    <i class="bi bi-plus-circle-fill me-2 text-primary"></i> ${m[0]}
-                </button>
-            `).join('');
+            res.innerHTML = matches.slice(0, 5).map(m => `<button onclick="addFood('${m[0]}', ${m[1]}, ${m[5]})" class="list-group-item list-group-item-action border-0 py-3 small"><i class="bi bi-plus-circle me-2"></i>${m[0]}</button>`).join('');
             res.style.display = 'block';
         }
 
@@ -239,41 +214,21 @@
             const div = document.getElementById('current-meal-items');
             document.getElementById('selected-list').classList.toggle('d-none', currentMeal.length === 0);
             div.innerHTML = currentMeal.map(item => `
-                <div class="premium-card mb-3 border-start border-4 border-primary">
-                    <div class="d-flex justify-content-between align-items-center mb-2">
-                        <span class="fw-bold small">${item.nama}</span>
-                        <i class="bi bi-trash3 text-danger" onclick="removeFood(${item.id})"></i>
-                    </div>
-                    <div class="d-flex align-items-center bg-light rounded-3 p-2">
-                        <input type="number" class="form-control form-control-sm border-0 bg-transparent text-center fw-bold" 
-                               style="width: 70px;" value="${item.berat}" onchange="updateBerat(${item.id}, this.value)">
-                        <small class="text-muted ms-1">Gram (g)</small>
-                    </div>
+                <div class="premium-card mb-2 p-3 border-start border-4 border-primary">
+                    <div class="d-flex justify-content-between mb-2"><span class="fw-bold small">${item.nama}</span><i class="bi bi-trash text-danger" onclick="removeFood(${item.id})"></i></div>
+                    <div class="input-group input-group-sm"><span class="input-group-text border-0 bg-light small">Berat (g)</span>
+                    <input type="number" class="form-control border-0 bg-light text-center fw-bold" value="${item.berat}" onchange="updateBerat(${item.id}, this.value)"></div>
                 </div>
             `).join('');
-        }
-
-        async function hitungGiziFinal() {
-            let totalKal = 0; let totalFe = 0;
-            currentMeal.forEach(i => {
-                totalKal += (i.berat / 100) * i.kalDasar;
-                totalFe += (i.berat / 100) * i.feDasar;
-            });
-            Swal.fire({
-                title: 'Simpan Gizi?',
-                html: `<div class="p-2"><h2 class="text-primary fw-bold mb-0">${totalKal.toFixed(0)}</h2><small>Total Kkal Terdeteksi</small></div>`,
-                showCancelButton: true, confirmButtonText: 'Ya, Simpan', confirmButtonColor: '#00569e'
-            }).then(r => { if(r.isConfirmed) saveToDB(totalKal, totalFe); });
         }
 
         async function saveToDB(k, f) {
             Swal.fire({ title: 'Menyimpan...', didOpen: () => Swal.showLoading() });
             try {
-                const data = { action: 'save_gizi', nik: USER_SESSION.nik, kalori: k, fe: f, menu: currentMeal.map(m => m.nama).join(', ') };
-                await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify(data) });
-                Swal.fire({ icon: 'success', title: 'Data Terkirim', timer: 1500, showConfirmButton: false });
+                await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'save_gizi', nik: USER_SESSION.nik, kalori: k, fe: f, menu: currentMeal.map(m => m.nama).join(', ') }) });
+                Swal.fire({ icon: 'success', title: 'Data Tersimpan', timer: 1500, showConfirmButton: false });
                 currentMeal = []; renderSelected(); switchPage('app-home');
-            } catch (e) { Swal.fire('Error','Gagal Kirim','error'); }
+            } catch (e) { Swal.fire('Error','Gagal simpan','error'); }
         }
 
         function handleLogin() {
@@ -286,11 +241,10 @@
                 initDashboard(); switchPage('app-home');
             } else { Swal.fire('Gagal','NIK atau Password salah','error'); }
         }
-
-        function updateBerat(id, val) { const item = currentMeal.find(x => x.id === id); if(item) item.berat = parseFloat(val) || 0; }
+        function updateBerat(id, v) { const i = currentMeal.find(x => x.id === id); if(i) i.berat = parseFloat(v) || 0; }
         function removeFood(id) { currentMeal = currentMeal.filter(x => x.id !== id); renderSelected(); }
         function switchPage(p) { document.querySelectorAll('.page').forEach(pg => pg.style.display = 'none'); document.getElementById(p).style.display = 'flex'; }
-        function confirmLogout() { Swal.fire({ title: 'Logout?', showCancelButton: true }).then(r => { if(r.isConfirmed) { localStorage.clear(); location.reload(); } }); }
+        function confirmLogout() { Swal.fire({ title: 'Keluar?', showCancelButton: true }).then(r => { if(r.isConfirmed) { localStorage.clear(); location.reload(); } }); }
         function showQR() { Swal.fire({ title: 'ID WARGA', imageUrl: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${USER_SESSION.nik}` }); }
     </script>
 </body>
