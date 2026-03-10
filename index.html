@@ -3,72 +3,58 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bulo Smartville v9.1 - Notes of OD</title>
+    <title>Bulo Smartville v9.5</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <script src="https://unpkg.com/html5-qrcode"></script>
     <style>
-        :root { --primary: #2563eb; --success: #059669; --danger: #dc2626; }
-        body { background: #f1f5f9; font-family: 'Inter', sans-serif; color: #1e293b; margin: 0; padding: 0; }
-        .glass-card { background: white; border-radius: 20px; border: 1px solid #e2e8f0; box-shadow: 0 4px 6px -1px rgba(0,0,0,0.1); }
-        .btn-action { border-radius: 16px; padding: 20px; border: none; transition: all 0.2s; background: white; width: 100%; box-shadow: 0 2px 4px rgba(0,0,0,0.05); }
-        .btn-action:active { transform: scale(0.96); background: #f8fafc; }
-        .trash-badge { border-radius: 10px; padding: 6px 12px; font-weight: 700; font-size: 0.75rem; text-transform: uppercase; }
-        .active-red { background: #fee2e2; color: #ef4444; border: 1px solid #fecaca; }
-        .active-blue { background: #e0f2fe; color: #0ea5e9; border: 1px solid #bae6fd; }
-        #app-content, #view-detail, #login-screen { display: none; }
-        .nav-top { background: white; border-bottom: 1px solid #e2e8f0; padding: 12px 20px; position: sticky; top: 0; z-index: 100; }
-        .btn-pill { border-radius: 50px; }
-        #reader { border-radius: 15px !important; overflow: hidden; border: none !important; }
+        :root { --p: #2563eb; --s: #059669; }
+        body { background: #f8fafc; font-family: sans-serif; }
+        .card-glass { background: white; border-radius: 20px; box-shadow: 0 4px 15px rgba(0,0,0,0.05); border: none; }
+        .btn-menu { border-radius: 15px; padding: 20px; border: none; background: white; box-shadow: 0 2px 5px rgba(0,0,0,0.05); width: 100%; transition: 0.2s; }
+        .btn-menu:active { transform: scale(0.95); }
+        #login-screen, #app-content, #view-detail { display: none; }
+        .badge-trash { border-radius: 8px; padding: 5px 10px; font-weight: bold; font-size: 0.7rem; }
+        .bg-active { background: #fee2e2; color: #ef4444; }
+        .bg-wait { background: #e0f2fe; color: #0ea5e9; }
     </style>
 </head>
 <body>
 
-<div id="login-screen" class="vh-100 d-flex align-items-center justify-content-center px-4">
-    <div class="col-md-4 w-100" style="max-width: 380px;">
+<div id="login-screen" class="vh-100 d-flex align-items-center justify-content-center p-4">
+    <div class="col-md-4 w-100" style="max-width: 400px;">
         <div class="text-center mb-4">
-            <img src="https://via.placeholder.com/80?text=BULO" width="80" class="mb-3 rounded-circle shadow">
-            <h4 class="fw-bold text-dark">Bulo Smartville</h4>
-            <p class="text-muted small">Akses Layanan Desa Digital</p>
+            <h2 class="fw-bold">Bulo Smartville</h2>
+            <p class="text-muted">Digitalisasi Desa Pilot Bulo</p>
         </div>
-        <div class="glass-card p-4">
-            <div class="mb-3">
-                <label class="small fw-bold text-muted mb-1">NIK</label>
-                <input type="number" id="nik" class="form-control py-3 border-light bg-light rounded-3" placeholder="Masukkan 16 digit NIK">
-            </div>
-            <div class="mb-4">
-                <label class="small fw-bold text-muted mb-1">PASSWORD</label>
-                <input type="password" id="pass" class="form-control py-3 border-light bg-light rounded-3" placeholder="******">
-            </div>
-            <button onclick="doLogin()" class="btn btn-primary w-100 py-3 rounded-3 fw-bold shadow-sm">Masuk Sekarang</button>
+        <div class="card-glass p-4">
+            <input type="number" id="nik" class="form-control mb-3 py-3 rounded-3" placeholder="NIK">
+            <input type="password" id="pass" class="form-control mb-4 py-3 rounded-3" placeholder="Password">
+            <button onclick="doLogin()" class="btn btn-primary w-100 py-3 rounded-3 fw-bold">MASUK</button>
         </div>
     </div>
 </div>
 
 <div id="app-content">
-    <div class="nav-top d-flex justify-content-between align-items-center shadow-sm">
-        <div>
-            <small class="text-muted d-block" style="font-size: 0.65rem; letter-spacing: 1px;">DASHBOARD</small>
-            <b class="text-dark" id="user-name">Memuat...</b>
-        </div>
-        <button onclick="doLogout()" class="btn btn-outline-danger btn-sm fw-bold border-0 px-3">Keluar</button>
+    <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center sticky-top">
+        <b id="user-display">Memuat...</b>
+        <button onclick="doLogout()" class="btn btn-sm btn-outline-danger px-3">Keluar</button>
     </div>
 
-    <div class="container py-3">
+    <div class="container py-4">
         <div id="view-dashboard">
-            <div id="status-box" class="glass-card p-4 mb-4 text-center border-0 shadow-sm">
+            <div class="card-glass p-4 mb-4 text-center">
                 <div class="d-flex justify-content-between mb-3 align-items-center">
-                    <span class="small fw-bold text-muted">TABUNGAN SAMPAH</span>
-                    <span id="dash-alarm-badge" class="trash-badge active-blue">MENGECEK...</span>
+                    <span class="small text-muted fw-bold">TABUNGAN SAMPAH</span>
+                    <span id="trash-badge" class="badge-trash">...</span>
                 </div>
-                <div class="row g-0">
+                <div class="row">
                     <div class="col-6 text-start">
-                        <h3 id="dash-saldo" class="fw-bold text-success mb-0">Rp 0</h3>
-                        <small class="text-muted">Total Saldo</small>
+                        <h4 id="dash-saldo" class="fw-bold text-success mb-0">Rp 0</h4>
+                        <small class="text-muted">Saldo Anda</small>
                     </div>
                     <div class="col-6 text-end">
-                        <h3 id="dash-timer" class="fw-bold text-dark mb-0">00:00:00</h3>
+                        <h4 id="dash-timer" class="fw-bold mb-0">00:00:00</h4>
                         <small class="text-muted">Sisa Waktu</small>
                     </div>
                 </div>
@@ -76,85 +62,52 @@
 
             <div class="row g-3">
                 <div class="col-6">
-                    <button onclick="chooseMember()" class="btn-action shadow-sm">
-                        <h1 class="mb-2">🥗</h1><b class="small d-block text-dark">Kalkulator Gizi</b>
-                    </button>
+                    <button onclick="chooseMember()" class="btn-menu"><h1>🥗</h1><b>Gizi</b></button>
                 </div>
                 <div class="col-6">
-                    <button onclick="showMyQR()" class="btn-action shadow-sm">
-                        <h1 class="mb-2">🆔</h1><b class="small d-block text-dark">ID Digital</b>
-                    </button>
+                    <button onclick="showMyQR()" class="btn-menu"><h1>🆔</h1><b>ID Digital</b></button>
                 </div>
-
-                <div id="kader-menu" class="col-12 d-none mt-3">
-                    <div class="p-3 bg-white glass-card">
-                        <p class="small fw-bold text-muted mb-3 border-bottom pb-2">MENU KHUSUS KADER</p>
-                        <div class="row g-2">
-                            <div class="col-12">
-                                <button onclick="startScanner()" class="btn btn-success w-100 py-3 rounded-3 fw-bold mb-2">📸 SCAN QR SETORAN</button>
-                            </div>
-                            <div class="col-12">
-                                <button onclick="manageFisik()" class="btn btn-outline-primary w-100 py-3 rounded-3 fw-bold">⚖️ UPDATE FISIK WARGA</button>
-                            </div>
-                        </div>
-                    </div>
+                <div id="kader-section" class="col-12 d-none">
+                    <hr>
+                    <button onclick="startScanner()" class="btn btn-success w-100 py-3 rounded-3 fw-bold mb-2">📸 SCAN QR WARGA</button>
+                    <button onclick="manageFisik()" class="btn btn-outline-primary w-100 py-3 rounded-3 fw-bold bg-white">⚖️ UPDATE DATA FISIK</button>
                 </div>
             </div>
         </div>
 
         <div id="view-detail">
-            <button onclick="goBack()" class="btn btn-light btn-sm mb-3 px-3 rounded-pill shadow-sm border">← Kembali</button>
+            <button onclick="goBack()" class="btn btn-light btn-sm mb-3 border px-3">← Kembali</button>
             <div id="detail-body"></div>
         </div>
     </div>
 </div>
 
-<div id="scanner-container" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:#000; z-index:9999; padding:20px;">
-    <div class="d-flex justify-content-between align-items-center mb-4 mt-2">
-        <h5 class="text-white fw-bold mb-0">Scanner Kader</h5>
-        <button onclick="stopScanner()" class="btn btn-sm btn-light rounded-pill px-3">Tutup</button>
-    </div>
-    <div id="reader" style="width:100%;"></div>
-    <div class="text-center mt-4">
-        <p class="text-white-50 small">Arahkan kamera ke QR Code ID Digital Warga</p>
-    </div>
+<div id="scanner-box" style="display:none; position:fixed; top:0; left:0; width:100%; height:100%; background:white; z-index:9999; p-3">
+    <div id="reader"></div>
+    <button onclick="stopScanner()" class="btn btn-danger w-100 mt-3 py-3">BATAL</button>
 </div>
 
 <script>
-// KONFIGURASI: GANTI DENGAN URL WEB APP BAPAK
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbzQVDklUxPKL4bV0QmBLK9UF73udp8d_E5QN8QWcDc5nE9qMESEuXTqiQDULaKsPEG4yw/exec"; 
-
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbxc3QGXps0_3KTCLIqNmciIedgkrKWSvk3tMpMz9saLw19CIMb11SkqWj567SlC_jCKPg/exec"; 
 let USER = null, DATA = null, piring = [], selectedMember = null, mainTimer = null, html5QrCode = null;
 
-// FUNGSI LOGIN
+// FUNGSI INTI: CALL SERVER
+async function callServer(payload) {
+    return fetch(WEB_APP_URL, {
+        method: 'POST',
+        headers: { 'Content-Type': 'text/plain;charset=utf-8' }, // Kunci agar tidak macet
+        body: JSON.stringify(payload)
+    }).then(r => r.json());
+}
+
 async function doLogin() {
     const nik = document.getElementById('nik').value;
     const pass = document.getElementById('pass').value;
+    if(!nik || !pass) return Swal.fire('Error','NIK & Pass wajib diisi','warning');
     
-    if(!nik || !pass) {
-        return Swal.fire('Oops!', 'NIK dan Password harus diisi.', 'warning');
-    }
-
-    Swal.fire({
-        title: 'Menyambungkan...',
-        allowOutsideClick: false,
-        didOpen: () => { Swal.showLoading(); }
-    });
-
+    Swal.fire({title:'Menghubungkan...', didOpen:()=>Swal.showLoading()});
     try {
-        const response = await fetch(WEB_APP_URL, {
-            method: 'POST',
-            mode: 'no-cors', // Coba mode ini jika CORS bermasalah, tapi JSON tidak akan terbaca
-            body: JSON.stringify({ action: 'login', nik: nik, password: pass })
-        });
-        
-        // Catatan: Karena Google Apps Script butuh 'follow redirect', 
-        // fetch standar kadang butuh penanganan khusus.
-        const res = await fetch(WEB_APP_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'login', nik: nik, password: pass })
-        }).then(r => r.json());
-
+        const res = await callServer({ action: 'login', nik, password: pass });
         if(res.status === 'success') {
             USER = res.user;
             localStorage.setItem('bulo_session', JSON.stringify(USER));
@@ -163,59 +116,35 @@ async function doLogin() {
         } else {
             Swal.fire('Gagal', res.message, 'error');
         }
-    } catch (err) {
-        console.error(err);
-        Swal.fire('Koneksi Gagal', 'Pastikan URL Web App benar dan Izin Anyone sudah aktif.', 'error');
-    }
+    } catch(e) { Swal.fire('Koneksi Gagal', 'Pastikan URL benar dan sudah Deploy Anyone.', 'error'); }
 }
 
-function doLogout() {
-    localStorage.removeItem('bulo_session');
-    location.reload();
-}
+function doLogout() { localStorage.removeItem('bulo_session'); location.reload(); }
 
 async function initApp() {
     document.getElementById('login-screen').style.display = 'none';
     document.getElementById('app-content').style.display = 'block';
-    document.getElementById('user-name').innerText = USER.nama;
-    
-    if(USER.role === 'admin' || USER.role === 'kader') {
-        document.getElementById('kader-menu').classList.remove('d-none');
-    }
-    
-    await refreshDashboardData();
+    document.getElementById('user-display').innerText = USER.nama;
+    if(USER.role === 'kader' || USER.role === 'admin') document.getElementById('kader-section').classList.remove('d-none');
+    refreshDash();
 }
 
-async function refreshDashboardData() {
-    try {
-        const res = await fetch(WEB_APP_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'get_dashboard', user: USER })
-        }).then(r => r.json());
-        
-        DATA = res.data;
-        
-        // Update Dashboard UI
-        document.getElementById('dash-saldo').innerText = `Rp ${DATA.sampah.saldo_rp.toLocaleString('id-ID')}`;
-        const badge = document.getElementById('dash-alarm-badge');
-        badge.innerText = DATA.alarm.status_text;
-        badge.className = DATA.alarm.is_active ? "trash-badge active-red" : "trash-badge active-blue";
-        
-        startMainTimer(DATA.alarm.target_time);
-    } catch (e) { console.error("Refresh Error", e); }
+async function refreshDash() {
+    const res = await callServer({ action: 'get_dashboard', user: USER });
+    DATA = res.data;
+    document.getElementById('dash-saldo').innerText = `Rp ${DATA.sampah.saldo_rp.toLocaleString('id-ID')}`;
+    const badge = document.getElementById('trash-badge');
+    badge.innerText = DATA.alarm.status_text;
+    badge.className = DATA.alarm.is_active ? "badge-trash bg-active" : "badge-trash bg-wait";
+    startTimer(DATA.alarm.target_time);
 }
 
-// TIMER COUNTDOWN
-function startMainTimer(target) {
+function startTimer(target) {
     if(mainTimer) clearInterval(mainTimer);
     mainTimer = setInterval(() => {
         const diff = target - new Date().getTime();
         const el = document.getElementById('dash-timer');
-        if (diff < 0 || !el) { 
-            clearInterval(mainTimer); 
-            refreshDashboardData(); 
-            return; 
-        }
+        if (diff < 0) { clearInterval(mainTimer); refreshDash(); return; }
         const h = Math.floor((diff % 86400000) / 3600000);
         const m = Math.floor((diff % 3600000) / 60000);
         const s = Math.floor((diff % 60000) / 1000);
@@ -223,119 +152,93 @@ function startMainTimer(target) {
     }, 1000);
 }
 
-// QR ID DIGITAL
 function showMyQR() {
-    const qrUrl = `https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=${USER.nik}&choe=UTF-8`;
+    const qr = `https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=${USER.nik}&choe=UTF-8`;
     Swal.fire({
-        title: 'ID DIGITAL WARGA',
-        html: `
-            <div class="p-2">
-                <img src="${qrUrl}" width="200" class="my-3 shadow border rounded-4" 
-                     onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${USER.nik}'">
-                <h5 class="fw-bold mb-0">${USER.nama}</h5>
-                <p class="text-muted small">NIK: ${USER.nik}</p>
-            </div>
-        `,
-        confirmButtonText: 'Tutup',
-        confirmButtonColor: '#2563eb'
+        title: 'ID DIGITAL',
+        html: `<img src="${qr}" width="200" class="my-3 shadow border rounded-4" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${USER.nik}'">
+               <h5>${USER.nama}</h5><small>${USER.nik}</small>`
     });
 }
 
-// SCANNER KADER
 function startScanner() {
-    document.getElementById('scanner-container').style.display = 'block';
+    document.getElementById('scanner-box').style.display = 'block';
     html5QrCode = new Html5Qrcode("reader");
-    html5QrCode.start(
-        { facingMode: "environment" }, 
-        { fps: 10, qrbox: { width: 250, height: 250 } },
-        (decodedText) => {
-            stopScanner();
-            processWarga(decodedText);
-        },
-        (errorMessage) => { /* ignore silent error */ }
-    );
+    html5QrCode.start({ facingMode: "environment" }, { fps: 10, qrbox: 250 }, (txt) => {
+        stopScanner();
+        handleScanResult(txt);
+    });
 }
 
 function stopScanner() {
-    if(html5QrCode) {
-        html5QrCode.stop().then(() => {
-            document.getElementById('scanner-container').style.display = 'none';
-        }).catch(err => console.error(err));
-    } else {
-        document.getElementById('scanner-container').style.display = 'none';
-    }
+    if(html5QrCode) html5QrCode.stop().then(() => document.getElementById('scanner-box').style.display='none');
 }
 
-async function processWarga(nikWarga) {
-    Swal.fire({title: 'Memeriksa NIK...', didOpen:()=>Swal.showLoading()});
-    try {
-        const res = await fetch(WEB_APP_URL, {
-            method: 'POST',
-            body: JSON.stringify({ action: 'get_user_by_nik', nik: nikWarga })
-        }).then(r => r.json());
-        
-        Swal.close();
-        if(res.status === 'success') {
-            Swal.fire({
-                title: 'Setoran: ' + res.nama,
-                html: `
-                    <div class="text-start small">
-                        <label class="mb-1 fw-bold">Berat Sampah (Kg)</label>
-                        <input id="sw-berat" type="number" class="form-control mb-3" placeholder="Contoh: 2.5">
-                        <label class="mb-1 fw-bold">Nilai Rupiah (Rp)</label>
-                        <input id="sw-rp" type="number" class="form-control" placeholder="Contoh: 5000">
-                    </div>
-                `,
-                confirmButtonText: 'Simpan Data',
-                showCancelButton: true,
-                cancelButtonText: 'Batal',
-                preConfirm: () => {
-                    const berat = document.getElementById('sw-berat').value;
-                    const rp = document.getElementById('sw-rp').value;
-                    if(!berat || !rp) { Swal.showValidationMessage('Isi berat dan nominal!'); }
-                    return { berat, rp };
-                }
-            }).then(async (result) => {
-                if(result.isConfirmed) {
-                    Swal.fire({title: 'Menyimpan...', didOpen:()=>Swal.showLoading()});
-                    await fetch(WEB_APP_URL, {
-                        method: 'POST',
-                        body: JSON.stringify({
-                            action: 'submit_setoran', 
-                            nik_warga: nikWarga, 
-                            berat: result.value.berat, 
-                            total_rp: result.value.rp
-                        })
-                    });
-                    Swal.fire('Berhasil!', 'Data setoran telah masuk.', 'success');
-                    refreshDashboardData();
-                }
-            });
-        } else {
-            Swal.fire('Gagal', 'Warga tidak ditemukan.', 'error');
+async function handleScanResult(nik) {
+    Swal.fire({title:'Mengecek NIK...', didOpen:()=>Swal.showLoading()});
+    const res = await callServer({ action: 'get_user_by_nik', nik });
+    Swal.close();
+    if(res.status === 'success') {
+        Swal.fire({
+            title: res.nama,
+            html: `<input id="b-kg" type="number" class="form-control mb-2" placeholder="Berat (Kg)">
+                   <input id="b-rp" type="number" class="form-control" placeholder="Rupiah (Rp)">`,
+            confirmButtonText: 'Simpan',
+            preConfirm: () => { return { berat: document.getElementById('b-kg').value, rp: document.getElementById('b-rp').value } }
+        }).then(async (r) => {
+            if(r.isConfirmed) {
+                await callServer({ action: 'submit_setoran', nik_warga: nik, berat: r.value.berat, total_rp: r.value.rp });
+                Swal.fire('Sukses', 'Setoran dicatat', 'success');
+                refreshDash();
+            }
+        });
+    } else { Swal.fire('Error', 'Warga tidak ditemukan', 'error'); }
+}
+
+function chooseMember() {
+    let opts = DATA.keluarga.map((k, i) => `<option value="${i}">${k.nama}</option>`).join('');
+    Swal.fire({ title: 'Pilih Anggota', html: `<select id="idx-mem" class="form-select mt-2">${opts}</select>`, confirmButtonText: 'Pilih' }).then(r => {
+        if(r.isConfirmed) { 
+            selectedMember = DATA.keluarga[document.getElementById('idx-mem').value]; 
+            piring = []; renderCalc(); 
+            document.getElementById('view-dashboard').style.display = 'none';
+            document.getElementById('view-detail').style.display='block'; 
         }
-    } catch (e) { Swal.fire('Error', 'Gagal menghubungi server.', 'error'); }
+    });
 }
 
-// LOGIKA GO BACK & SESSION
-function goBack() {
-    document.getElementById('view-detail').style.display = 'none';
-    document.getElementById('view-dashboard').classList.remove('d-none');
+function renderCalc() {
+    let optFood = DATA.master_gizi.map((f, i) => `<option value="${i}">${f[0]}</option>`).join('');
+    document.getElementById('detail-body').innerHTML = `
+        <div class="card-glass p-4 mb-3">
+            <b>${selectedMember.nama}</b><br><small>${selectedMember.tb}cm | ${selectedMember.bb}kg</small>
+            <div class="input-group mt-3">
+                <select id="f-sel" class="form-select">${optFood}</select>
+                <input type="number" id="f-gram" class="form-control" style="width:70px" placeholder="Gr">
+                <button onclick="addPiring()" class="btn btn-primary">Add</button>
+            </div>
+        </div>
+        <div id="piring-list" class="card-glass p-3"></div>`;
 }
 
-// AUTO LOGIN
+function addPiring() {
+    let f = DATA.master_gizi[document.getElementById('f-sel').value], g = document.getElementById('f-gram').value;
+    if(!g) return;
+    piring.push({ nama: f[0], gram: g });
+    let html = piring.map(p => `<div>• ${p.nama} (${p.gram}g)</div>`).join('');
+    document.getElementById('piring-list').innerHTML = html + `<button class="btn btn-dark btn-sm w-100 mt-2" onclick="window.print()">Cetak</button>`;
+}
+
+function goBack() { 
+    document.getElementById('view-detail').style.display = 'none'; 
+    document.getElementById('view-dashboard').style.display = 'block'; 
+}
+
 window.onload = () => {
-    const session = localStorage.getItem('bulo_session');
-    if(session) {
-        USER = JSON.parse(session);
-        initApp();
-    } else {
-        document.getElementById('login-screen').classList.add('d-flex');
-    }
+    const s = localStorage.getItem('bulo_session');
+    if(s) { USER = JSON.parse(s); initApp(); } 
+    else { document.getElementById('login-screen').style.display = 'flex'; }
 };
-
-// -- FUNGSI LAIN (Gizi & Update Fisik) silakan gunakan logika dari versi 9.0 sebelumnya --
-// (Dipersingkat agar script tetap ringan)
 </script>
 </body>
 </html>
