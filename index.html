@@ -3,17 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bulo Smartville v11.0</title>
+    <title>Bulo Smartville v11.1</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    
     <style>
         :root { --main-blue: #00569e; --dark-blue: #003d70; --bg-gray: #f8f9fa; }
         html, body { height: 100%; overflow: hidden; background: var(--bg-gray); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
         .page { display: none; height: 100vh; width: 100%; position: absolute; top: 0; left: 0; flex-direction: column; }
         .top-header { background: linear-gradient(135deg, var(--main-blue), var(--dark-blue)); color: white; padding: 25px 20px; border-bottom-left-radius: 25px; border-bottom-right-radius: 25px; flex-shrink: 0; position: relative; z-index: 10; }
-        .btn-logout-top { position: absolute; right: 20px; top: 28px; background: rgba(255, 255, 255, 0.2); border: none; color: white; padding: 5px 15px; border-radius: 50px; font-size: 0.75rem; }
         .content-area { flex-grow: 1; overflow-y: auto; padding: 20px; -webkit-overflow-scrolling: touch; }
         .info-card { background: white; border-radius: 18px; margin-top: -45px; padding: 22px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); position: relative; z-index: 11; }
         .menu-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 15px; margin-top: 25px; }
@@ -39,22 +37,21 @@
             <input type="number" id="nik" class="form-control form-control-lg rounded-pill mb-3 border-0 bg-light px-4" placeholder="NIK">
             <input type="password" id="pass" class="form-control form-control-lg rounded-pill mb-4 border-0 bg-light px-4" placeholder="Password">
             <button onclick="handleLogin()" class="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow-sm" style="background: var(--main-blue);">LOG IN</button>
-            <p class="mt-5 small text-muted">Notes of OD &copy; 2026</p>
         </div>
     </div>
 
     <div id="app-home" class="page">
         <div class="top-header">
             <div>
-                <small class="opacity-75">Selamat Datang,</small>
+                <small class="opacity-75">Halo,</small>
                 <h5 class="mb-0 fw-bold" id="user-display">User</h5>
             </div>
-            <button onclick="confirmLogout()" class="btn-logout-top">Keluar</button>
+            <button onclick="confirmLogout()" class="btn btn-sm btn-light rounded-pill position-absolute" style="right:20px; top:30px">Keluar</button>
         </div>
         <div class="content-area">
             <div class="info-card">
                 <div class="d-flex justify-content-between mb-2">
-                    <span class="small fw-bold text-muted text-uppercase">Bank Sampah</span>
+                    <span class="small fw-bold text-muted">TABUNGAN SAMPAH</span>
                     <span id="trash-status" class="badge rounded-pill bg-success px-3">BUKA</span>
                 </div>
                 <h1 class="fw-bold mb-0 text-primary" id="info-saldo">Rp 0</h1>
@@ -72,9 +69,9 @@
             </div>
         </div>
         <div class="bottom-nav">
-            <a href="javascript:void(0)" onclick="switchPage('app-home')" class="nav-link active"><i class="bi bi-house-door-fill fs-3"></i><br>Home</a>
+            <a href="#" onclick="switchPage('app-home')" class="nav-link active"><i class="bi bi-house-door-fill fs-3"></i><br>Home</a>
             <div onclick="showQR()"><div class="btn-qr"><i class="bi bi-qr-code-scan"></i></div></div>
-            <a href="javascript:void(0)" onclick="confirmLogout()" class="nav-link"><i class="bi bi-box-arrow-right fs-3"></i><br>Logout</a>
+            <a href="#" onclick="confirmLogout()" class="nav-link"><i class="bi bi-box-arrow-right fs-3"></i><br>Logout</a>
         </div>
     </div>
 
@@ -87,7 +84,7 @@
         </div>
         <div class="content-area">
             <div class="card border-0 shadow-sm rounded-4 p-3">
-                <p class="small text-muted mb-3">Daftar Anggota Keluarga (KK: <span id="kk-display"></span>):</p>
+                <p class="small text-muted mb-3">Anggota Keluarga (KK: <span id="kk-display"></span>):</p>
                 <div id="list-keluarga-gizi"></div>
             </div>
         </div>
@@ -95,19 +92,16 @@
 
     <div id="app-sampah" class="page">
         <div class="top-header">
-            <div class="d-flex align-items-center">
-                <i class="bi bi-chevron-left fs-4 me-3" onclick="switchPage('app-home')"></i>
-                <h5 class="mb-0 fw-bold">Detail Sampah</h5>
-            </div>
+            <div class="d-flex align-items-center"><i class="bi bi-chevron-left fs-4 me-3" onclick="switchPage('app-home')"></i><h5 class="mb-0 fw-bold">Detail Sampah</h5></div>
         </div>
         <div class="content-area">
             <div class="info-card mt-0 shadow-sm mb-4 text-center">
-                <p class="small text-muted mb-1">Total Saldo Tabungan</p>
+                <p class="small text-muted mb-1">Saldo Tabungan</p>
                 <h2 class="fw-bold text-success" id="detail-saldo">Rp 0</h2>
             </div>
             <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
                 <i class="bi bi-clock-history fs-1 text-muted opacity-25"></i>
-                <p class="small text-muted mt-2">Riwayat transaksi belum tersedia.</p>
+                <p class="small text-muted mt-2">Riwayat belum tersedia.</p>
             </div>
         </div>
     </div>
@@ -123,7 +117,7 @@
             if(target) {
                 target.style.display = 'flex';
                 if(pageId === 'app-gizi') renderGiziList();
-                if(pageId === 'app-home' || pageId === 'app-sampah') initDashboard();
+                if(pageId === 'app-home') initDashboard();
             }
         }
 
@@ -143,7 +137,7 @@
                     }
                 }
             } catch (e) {
-                Swal.fire('Error', 'Gagal memuat data. Periksa URL Apps Script.', 'error');
+                Swal.fire('Error', 'Koneksi Gagal', 'error');
             } finally {
                 document.getElementById('loading-overlay').style.display = 'none';
             }
@@ -193,45 +187,44 @@
 
         function cekAKG(nik) {
             const penduduk = DB_FULL.Master_Data_Penduduk.find(r => r[0].toString() === nik);
-            const ukur = DB_FULL.pengukuran_gizi.filter(r => r[1].toString() === nik).pop();
+            
+            // SESUAI GAMBAR BAPAK: TB di index 12 (Kolom M), BB di index 13 (Kolom N)
+            const tb = parseFloat(penduduk[12]) || 0; 
+            const bb = parseFloat(penduduk[13]) || 0;
 
-            if (!ukur) {
-                Swal.fire('Data Belum Ada', 'Belum ada data pengukuran (BB/TB) untuk warga ini.', 'info');
+            if (tb <= 0 || bb <= 0) {
+                Swal.fire('Data Kosong', `Data TB/BB untuk ${penduduk[2]} belum diisi di Spreadsheet (Kolom M & N).`, 'warning');
                 return;
             }
 
-            const tb = parseFloat(penduduk[12]) || 0; // Kolom M
-            const bb = parseFloat(ukur[3]) || 0; // Kolom D di Pengukuran
             const imt = (bb / ((tb/100) * (tb/100))).toFixed(1);
-
             let status = "Normal"; let warna = "#198754";
             if(imt < 18.5) { status = "Gizi Kurang"; warna = "#ffc107"; }
             else if(imt >= 25) { status = "Obesitas"; warna = "#dc3545"; }
 
             Swal.fire({
-                title: 'Analisis Gizi Otomatis',
+                title: 'Hasil Analisis Gizi',
                 html: `
-                    <div class="p-3 text-white rounded-4 shadow-sm" style="background:${warna}">
-                        <h4 class="fw-bold mb-1">${status}</h4>
+                    <div class="p-3 text-white rounded-4 mb-3" style="background:${warna}">
+                        <h4 class="fw-bold mb-0">${status}</h4>
                         <small>IMT: ${imt}</small>
                     </div>
-                    <div class="mt-3 small text-muted">TB: ${tb}cm | BB: ${bb}kg</div>
+                    <div class="row text-center small text-muted">
+                        <div class="col-6 border-end">TB: <b>${tb} cm</b></div>
+                        <div class="col-6">BB: <b>${bb} kg</b></div>
+                    </div>
                 `,
                 confirmButtonColor: '#00569e'
             });
         }
 
         function showQR() {
-            Swal.fire({
-                title: 'ID DIGITAL',
-                imageUrl: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${USER_SESSION.nik}`,
-                confirmButtonColor: '#00569e'
-            });
+            Swal.fire({ title: 'ID DIGITAL', imageUrl: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${USER_SESSION.nik}` });
         }
 
         function confirmLogout() {
-            Swal.fire({ title: 'Keluar?', icon: 'question', showCancelButton: true, confirmButtonText: 'Ya' })
-            .then(r => { if(r.isConfirmed) { localStorage.clear(); location.reload(); } });
+            localStorage.clear();
+            location.reload();
         }
 
         window.onload = fetchAndInit;
