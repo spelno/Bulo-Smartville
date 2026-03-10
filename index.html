@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Bulo Smartville v15.8</title>
+    <title>Bulo Smartville v16.0</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -12,108 +12,129 @@
     
     <style>
         :root { --main-blue: #00569e; --dark-blue: #003d70; --bg-gray: #f4f7f9; }
+        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
         html, body { height: 100vh; overflow: hidden; background: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; position: fixed; width: 100%; }
 
-        /* SPLASH SCREEN */
-        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; transition: opacity 0.8s ease; }
-        .splash-logo { width: 180px; animation: logoScale 1s ease-out forwards; }
-        .splash-text-fixed { color: #00569e; font-weight: 800; font-size: 0.95rem; letter-spacing: 2px; opacity: 0; transform: translateY(20px); animation: fadeInUp 0.8s 0.6s forwards ease-out; }
-
-        @keyframes logoScale { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
-        @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
-
-        /* LAYOUT & PAGES */
         .page { display: none; height: 100%; width: 100%; flex-direction: column; background: var(--bg-gray); }
-        .top-header { background: linear-gradient(135deg, var(--main-blue), var(--dark-blue)); color: white; padding: 40px 20px 70px; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; }
-        .content-area { flex: 1; overflow-y: auto; padding: 0 20px 140px; margin-top: -45px; }
-        .premium-card { background: white; border-radius: 24px; padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.04); border: none; margin-bottom: 15px; }
+        .top-header { background: linear-gradient(135deg, var(--main-blue), var(--dark-blue)); color: white; padding: 30px 15px 60px; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; }
+        .content-area { flex: 1; overflow-y: auto; padding: 0 15px 120px; margin-top: -40px; }
+        .premium-card { background: white; border-radius: 20px; padding: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); border: none; margin-bottom: 12px; }
 
-        /* BUTTONS & NAV */
-        .btn-bmi-action { background: var(--main-blue); color: white; border: none; padding: 8px 18px; border-radius: 50px; font-weight: bold; font-size: 0.75rem; transition: 0.3s; }
-        .bottom-nav { height: 90px; background: white; display: flex; justify-content: space-around; align-items: center; position: absolute; bottom: 0; width: 100%; border-top: 1px solid #eee; padding-bottom: env(safe-area-inset-bottom); }
-        .nav-link { text-align: center; color: #bbb; text-decoration: none; font-size: 0.7rem; }
+        /* NAV */
+        .bottom-nav { height: 80px; background: white; display: flex; justify-content: space-around; align-items: center; position: absolute; bottom: 0; width: 100%; border-top: 1px solid #eee; padding-bottom: env(safe-area-inset-bottom); }
+        .nav-link { text-align: center; color: #bbb; text-decoration: none; font-size: 0.65rem; }
         .nav-link.active { color: var(--main-blue); font-weight: bold; }
-        .btn-qr-main { width: 65px; height: 65px; background: var(--main-blue); border-radius: 22px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8rem; margin-top: -65px; border: 5px solid var(--bg-gray); }
+        .btn-qr-main { width: 60px; height: 60px; background: var(--main-blue); border-radius: 20px; display: flex; align-items: center; justify-content: center; color: white; margin-top: -50px; border: 4px solid var(--bg-gray); box-shadow: 0 4px 12px rgba(0,86,158,0.3); }
 
         /* GIZI UI */
-        .meal-item { background: #fff; padding: 15px; margin-bottom: 10px; border-radius: 15px; border-left: 5px solid var(--main-blue); display: flex; justify-content: space-between; align-items: center; }
-        .input-gram { width: 65px; border-radius: 8px; border: 1px solid #ddd; padding: 2px; text-align: center; }
+        .meal-item { background: #fff; padding: 12px; margin-bottom: 8px; border-radius: 15px; border-left: 4px solid var(--main-blue); display: flex; align-items: center; gap: 8px; }
+        .input-gram { width: 65px; border-radius: 8px; border: 1px solid #ccc; padding: 4px; text-align: center; font-size: 0.9rem; font-weight: bold; }
     </style>
 </head>
 <body onload="fetchAndInit()">
 
-    <div id="splash-screen">
-        <img src="Logo_UMMAN.jpg" class="splash-logo" alt="UMMAN">
-        <div class="splash-text-fixed text-uppercase">HEBAT, MAJU DENGAN PESAT</div>
+    <div id="splash-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:10000;">
+        <img src="Logo_UMMAN.jpg" style="width:150px;">
+        <div class="mt-3 text-primary fw-bold small">HEBAT, MAJU DENGAN PESAT</div>
     </div>
 
     <div id="login-screen" class="page">
-        <div class="d-flex flex-column align-items-center justify-content-center h-100 p-4 bg-white">
-            <img src="Lobo_Bulo.png" style="width: 90%; max-width: 350px;" class="mb-5">
-            <input type="number" id="nik" class="form-control form-control-lg rounded-pill border-0 bg-light px-4 mb-3" placeholder="NIK Warga">
-            <input type="password" id="pass" class="form-control form-control-lg rounded-pill border-0 bg-light px-4 mb-4" placeholder="Password">
-            <button onclick="handleLogin()" class="btn btn-primary w-100 py-3 fw-bold rounded-pill">MASUK</button>
+        <div class="d-flex flex-column align-items-center justify-content-center h-100 p-4">
+            <img src="Lobo_Bulo.png" style="width: 80%; max-width: 300px;" class="mb-4">
+            <input type="number" id="nik" class="form-control rounded-pill border-0 bg-light px-4 mb-2" placeholder="NIK">
+            <input type="password" id="pass" class="form-control rounded-pill border-0 bg-light px-4 mb-3" placeholder="Password">
+            <button onclick="handleLogin()" class="btn btn-primary w-100 py-2 fw-bold rounded-pill">MASUK</button>
         </div>
     </div>
 
     <div id="app-home" class="page">
-        <div class="top-header">
-            <div class="d-flex justify-content-between align-items-center">
-                <div><small class="opacity-75">Halo,</small><h5 class="mb-0 fw-bold" id="user-display">Memuat...</h5></div>
-                <div style="width:50px; height:50px; background:rgba(255,255,255,0.2); border-radius:15px; display:flex; align-items:center; justify-content:center;">
-                    <i class="bi bi-person-fill text-white fs-4"></i>
-                </div>
-            </div>
+        <div class="top-header d-flex justify-content-between align-items-center">
+            <div><small class="opacity-75">Halo,</small><h6 class="mb-0 fw-bold" id="user-display">User</h6></div>
+            <i class="bi bi-person-circle fs-4"></i>
         </div>
         <div class="content-area">
-            <div class="premium-card mb-4" id="trash-card" style="background: linear-gradient(135deg, #198754, #146c43); color: white;">
-                <div class="d-flex justify-content-between align-items-center">
+            <div class="premium-card text-white p-3 mb-3" id="trash-card" style="background: #198754;">
+                <div class="d-flex justify-content-between align-items-center" onclick="switchPage('app-sampah')">
                     <div>
-                        <h6 class="mb-1 fw-bold small" id="trash-status">MENUNGGU JADWAL</h6>
-                        <h4 id="trash-timer" class="mb-0 fw-bold">00:00:00</h4>
+                        <small class="fw-bold opacity-75" id="trash-status" style="font-size: 0.6rem;">JADWAL</small>
+                        <h5 id="trash-timer" class="mb-0 fw-bold">00:00:00</h5>
                     </div>
-                    <i class="bi bi-trash3-fill fs-1 opacity-50"></i>
+                    <i class="bi bi-trash3 fs-2"></i>
                 </div>
             </div>
-
-            <div class="row g-3 mb-4 text-center">
-                <div class="col-4"><div class="premium-card p-3 mb-0" onclick="switchPage('app-gizi')">🥗<br><small class="fw-bold">Gizi</small></div></div>
-                <div class="col-4"><div class="premium-card p-3 mb-0" onclick="switchPage('app-sampah')">♻️<br><small class="fw-bold">Sampah</small></div></div>
-                <div class="col-4"><div class="premium-card p-3 mb-0" onclick="switchPage('app-desa')">🏢<br><small class="fw-bold">Desa</small></div></div>
+            <div class="row g-2 mb-3 text-center">
+                <div class="col-4" onclick="switchPage('app-gizi')"><div class="premium-card p-2 m-0">🥗<br><small class="fw-bold small">Gizi</small></div></div>
+                <div class="col-4" onclick="switchPage('app-sampah')"><div class="premium-card p-2 m-0">♻️<br><small class="fw-bold small">Sampah</small></div></div>
+                <div class="col-4" onclick="switchPage('app-desa')"><div class="premium-card p-2 m-0">🏢<br><small class="fw-bold small">Desa</small></div></div>
             </div>
-            
-            <h6 class="fw-bold mb-3 small text-muted"><i class="bi bi-people-fill me-2"></i>ANGGOTA KELUARGA</h6>
+            <h6 class="fw-bold mb-2 small text-muted">KELUARGA</h6>
             <div id="family-list"></div>
-        </div>
-        <div class="bottom-nav">
-            <a href="javascript:void(0)" onclick="switchPage('app-home')" class="nav-link active"><i class="bi bi-house-door-fill fs-3"></i><br>Beranda</a>
-            <div onclick="showQR()"><div class="btn-qr-main"><i class="bi bi-qr-code-scan fs-2"></i></div></div>
-            <a href="javascript:void(0)" onclick="confirmLogout()" class="nav-link text-danger"><i class="bi bi-door-open-fill fs-3"></i><br>Keluar</a>
         </div>
     </div>
 
     <div id="app-gizi" class="page">
-        <div class="top-header" style="padding-bottom: 40px;">
-            <div class="d-flex align-items-center"><i class="bi bi-arrow-left fs-3 me-3" onclick="switchPage('app-home')"></i><h5 class="mb-0 fw-bold">Kalkulator Gizi</h5></div>
+        <div class="top-header d-flex align-items-center" style="padding-bottom: 30px;">
+            <i class="bi bi-chevron-left fs-4 me-3" onclick="switchPage('app-home')"></i>
+            <h6 class="mb-0 fw-bold">Kalkulator Gizi</h6>
         </div>
         <div class="content-area">
-            <div class="premium-card">
-                <input type="text" id="search-food" class="form-control rounded-pill border-0 bg-light px-4 shadow-sm" placeholder="Cari bahan makanan..." onkeyup="filterFood()">
-                <div id="food-results" class="list-group mt-2 shadow" style="display:none; max-height:200px; overflow-y:auto; border-radius: 15px;"></div>
+            <div class="premium-card p-2">
+                <input type="text" id="search-food" class="form-control rounded-pill border-0 bg-light px-3 small" placeholder="Cari makanan..." onkeyup="filterFood()">
+                <div id="food-results" class="list-group mt-2 d-none" style="max-height:180px; overflow-y:auto;"></div>
             </div>
             <div id="selected-list" class="d-none">
                 <div id="current-meal-items"></div>
-                <div class="premium-card mt-3 bg-primary text-white text-center shadow">
-                    <small>TOTAL KALORI</small><h3 class="mb-0 fw-bold" id="total-kalori">0 kkal</h3>
-                </div>
-                <button onclick="saveGizi()" class="btn btn-primary w-100 py-3 mt-3 rounded-pill fw-bold shadow">SIMPAN ANALISA</button>
+                <div class="premium-card bg-primary text-white text-center py-2"><small>TOTAL</small><h5 id="total-kalori">0 kkal</h5></div>
+                <button onclick="saveGizi()" class="btn btn-primary w-100 py-2 mt-2 rounded-pill fw-bold">SIMPAN DATA</button>
             </div>
         </div>
     </div>
 
+    <div id="app-sampah" class="page">
+        <div class="top-header d-flex align-items-center" style="padding-bottom: 30px;">
+            <i class="bi bi-chevron-left fs-4 me-3" onclick="switchPage('app-home')"></i>
+            <h6 class="mb-0 fw-bold">Layanan Sampah</h6>
+        </div>
+        <div class="content-area">
+            <div class="premium-card">
+                <h6 class="fw-bold small mb-3">Status Iuran</h6>
+                <div class="d-flex justify-content-between align-items-center">
+                    <span>Maret 2026</span>
+                    <span class="badge bg-success">LUNAS</span>
+                </div>
+            </div>
+            <div class="premium-card">
+                <h6 class="fw-bold small mb-2">Riwayat Pengangkutan</h6>
+                <div class="small text-muted border-bottom py-2">09 Mar - 19:20 WITA</div>
+                <div class="small text-muted border-bottom py-2">06 Mar - 18:45 WITA</div>
+                <div class="small text-muted border-bottom py-2">03 Mar - 19:05 WITA</div>
+            </div>
+        </div>
+    </div>
+
+    <div id="app-desa" class="page">
+        <div class="top-header d-flex align-items-center" style="padding-bottom: 30px;">
+            <i class="bi bi-chevron-left fs-4 me-3" onclick="switchPage('app-home')"></i>
+            <h6 class="mb-0 fw-bold">Informasi Desa</h6>
+        </div>
+        <div class="content-area">
+            <div class="premium-card text-center py-4">
+                <i class="bi bi-info-circle fs-1 text-primary"></i>
+                <h6 class="mt-3">Menu Informasi Desa</h6>
+                <p class="small text-muted">Fitur ini sedang dalam tahap sinkronisasi data pemerintah desa.</p>
+            </div>
+        </div>
+    </div>
+
+    <div class="bottom-nav">
+        <a href="#" onclick="switchPage('app-home')" class="nav-link active"><i class="bi bi-house-door fs-4"></i><br>Beranda</a>
+        <div onclick="showQR()"><div class="btn-qr-main"><i class="bi bi-qr-code-scan fs-3"></i></div></div>
+        <a href="#" onclick="confirmLogout()" class="nav-link text-danger"><i class="bi bi-power fs-4"></i><br>Keluar</a>
+    </div>
+
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6CKdpyg71G1jUBN5EyZWDyqsVzqUYqElkpE1XH3fh-cbiMfEjFvhxKubK-dJI74pb7A/exec";
-        let DB_FULL = null; let USER_SESSION = null; let currentMeal = [];
+        let DB_FULL = null, USER_SESSION = null, currentMeal = [];
 
         async function fetchAndInit() {
             try {
@@ -122,14 +143,11 @@
                 DB_FULL = json.db;
                 updateTrashTimer(); setInterval(updateTrashTimer, 1000);
                 setTimeout(() => {
-                    document.getElementById('splash-screen').style.opacity = '0';
-                    setTimeout(() => {
-                        document.getElementById('splash-screen').style.display = 'none';
-                        const saved = localStorage.getItem('bulo_user');
-                        if(saved) { USER_SESSION = JSON.parse(saved); initDashboard(); switchPage('app-home'); }
-                        else switchPage('login-screen');
-                    }, 800);
-                }, 3000);
+                    document.getElementById('splash-screen').style.display = 'none';
+                    const saved = localStorage.getItem('bulo_user');
+                    if(saved) { USER_SESSION = JSON.parse(saved); initDashboard(); switchPage('app-home'); }
+                    else switchPage('login-screen');
+                }, 2000);
             } catch(e) { console.error(e); }
         }
 
@@ -137,87 +155,79 @@
             document.getElementById('user-display').innerText = USER_SESSION.nama;
             const family = DB_FULL.Master_Data_Penduduk.filter(r => r[7].toString() === USER_SESSION.kk);
             document.getElementById('family-list').innerHTML = family.map(f => `
-                <div class="premium-card p-3 d-flex justify-content-between align-items-center">
-                    <div><div class="fw-bold">${f[2]}</div><small class="text-muted">Status: ${f[13] || 'Normal'}</small></div>
-                    <button class="btn-bmi-action shadow-sm" onclick="cekBMI('${f[2]}', ${f[11]||160}, ${f[12]||60})">BMI</button>
+                <div class="premium-card p-2 d-flex justify-content-between align-items-center">
+                    <div style="flex:1"><div class="fw-bold small">${f[2]}</div><small class="text-muted" style="font-size:0.6rem">Kondisi: ${f[13]||'Normal'}</small></div>
+                    <button class="btn btn-primary btn-sm rounded-pill px-3" style="font-size: 0.65rem;" onclick="cekBMI('${f[2]}', ${f[11]||160}, ${f[12]||60})">BMI</button>
                 </div>`).join('');
         }
 
-        /* --- LOGIKA COUNTDOWN SAMPAH PRESISI --- */
         function updateTrashTimer() {
-            const now = new Date();
-            const hour = now.getHours();
-            let target = new Date();
-            let status = "";
-
+            const now = new Date(), hour = now.getHours();
+            let target = new Date(), status = "", color = "";
             if (hour >= 18 || hour < 6) {
-                // RENTANG 18:00 - 06:00 -> Ke jam 06:00 Besok/Hari ini
-                status = "WAKTU ANGKUT SAMPAH";
-                document.getElementById('trash-card').style.background = "linear-gradient(135deg, #dc3545, #a71d2a)";
+                status = "JADWAL ANGKUT"; color = "#dc3545";
                 if (hour >= 18) target.setDate(now.getDate() + 1);
                 target.setHours(6, 0, 0, 0);
             } else {
-                // RENTANG 06:01 - 17:59 -> Ke jam 18:00
-                status = "MENUJU JADWAL BERIKUTNYA";
-                document.getElementById('trash-card').style.background = "linear-gradient(135deg, #198754, #146c43)";
+                status = "PERSIAPAN ANGKUT"; color = "#198754";
                 target.setHours(18, 0, 0, 0);
             }
-
-            let diff = target - now;
-            let hh = Math.floor(diff / 3600000);
-            let mm = Math.floor((diff % 3600000) / 60000);
-            let ss = Math.floor((diff % 60000) / 1000);
-            
+            let diff = target - now, hh = Math.floor(diff/3600000), mm = Math.floor((diff%3600000)/60000), ss = Math.floor((diff%60000)/1000);
             document.getElementById('trash-status').innerText = status;
-            document.getElementById('trash-timer').innerText = 
-                `${hh.toString().padStart(2,'0')}:${mm.toString().padStart(2,'0')}:${ss.toString().padStart(2,'0')}`;
+            document.getElementById('trash-card').style.background = color;
+            document.getElementById('trash-timer').innerText = `${hh.toString().padStart(2,'0')}:${mm.toString().padStart(2,'0')}:${ss.toString().padStart(2,'0')}`;
         }
 
-        function cekBMI(nama, tb, bb) {
-            const bmi = bb / ((tb/100)**2);
-            let ket = bmi < 18.5 ? "Kurus" : (bmi < 25 ? "Normal" : "Kelebihan Berat");
-            Swal.fire({
-                title: 'Status: ' + nama,
-                html: `<h2 class="fw-bold text-primary mb-0">${bmi.toFixed(1)}</h2><p class="fw-bold">${ket}</p><small class="text-muted">TB: ${tb}cm | BB: ${bb}kg</small>`,
-                confirmButtonColor: '#00569e'
-            });
+        function switchPage(p) {
+            document.querySelectorAll('.page').forEach(pg => pg.style.display='none');
+            document.getElementById(p).style.display='flex';
+            // Reset active state
+            document.querySelectorAll('.nav-link').forEach(l => l.classList.remove('active'));
+            if(p === 'app-home') document.querySelector('.nav-link:first-child').classList.add('active');
         }
 
+        /* --- GIZI LOGIC --- */
         function filterFood() {
             const q = document.getElementById('search-food').value.toLowerCase();
             const res = document.getElementById('food-results');
-            if(q.length < 2) { res.style.display = 'none'; return; }
+            if(q.length < 2) { res.classList.add('d-none'); return; }
             const matches = DB_FULL.master_gizi.filter(r => r[0] && r[0].toString().toLowerCase().includes(q));
-            res.innerHTML = matches.slice(0, 5).map(m => `
-                <button onclick="addFood('${m[0]}', ${m[1]})" class="list-group-item list-group-item-action border-0 py-3 small">
-                    ${m[0]} <span class="badge bg-light text-primary float-end">${m[1]} kkal/100g</span>
-                </button>`).join('');
-            res.style.display = 'block';
+            res.innerHTML = matches.slice(0, 5).map(m => `<button onclick="addFood('${m[0]}', ${m[1]})" class="list-group-item list-group-item-action border-0 py-2 small">${m[0]} <span class="text-primary float-end">${m[1]} kkal</span></button>`).join('');
+            res.classList.remove('d-none');
         }
 
         function addFood(n, k) {
             currentMeal.push({ id: Date.now(), nama: n, kalori: k, gram: 100 });
             document.getElementById('selected-list').classList.remove('d-none');
             document.getElementById('search-food').value = '';
-            document.getElementById('food-results').style.display = 'none';
+            document.getElementById('food-results').classList.add('d-none');
             renderMeal();
         }
 
-        function renderMeal() {
+        function updateMealValue(id, g) {
+            const item = currentMeal.find(x => x.id === id);
+            if(item) {
+                item.gram = parseFloat(g) || 0;
+                document.getElementById('cal-label-' + id).innerText = ((item.kalori * item.gram) / 100).toFixed(0) + ' kkal';
+                calculateTotal();
+            }
+        }
+
+        function calculateTotal() {
             let total = 0;
-            document.getElementById('current-meal-items').innerHTML = currentMeal.map(i => {
-                const resKal = (i.kalori * i.gram) / 100;
-                total += resKal;
-                return `
-                <div class="meal-item">
-                    <div style="flex:1"><b class="small">${i.nama}</b><br><small class="text-muted">${resKal.toFixed(0)} kkal</small></div>
-                    <div class="d-flex align-items-center">
-                        <input type="number" class="input-gram me-2" value="${i.gram}" oninput="currentMeal.find(x=>x.id===${i.id}).gram=this.value;renderMeal()">
-                        <i class="bi bi-x-circle-fill text-danger fs-5" onclick="currentMeal=currentMeal.filter(x=>x.id!==${i.id});renderMeal()"></i>
-                    </div>
-                </div>`;
-            }).join('');
+            currentMeal.forEach(i => total += (i.kalori * i.gram) / 100);
             document.getElementById('total-kalori').innerText = total.toFixed(0) + " kkal";
+        }
+
+        function renderMeal() {
+            document.getElementById('current-meal-items').innerHTML = currentMeal.map(i => `
+                <div class="meal-item">
+                    <div style="flex:1; font-size:0.8rem" class="fw-bold">${i.nama}</div>
+                    <div id="cal-label-${i.id}" class="small text-muted" style="min-width:50px">${((i.kalori*i.gram)/100).toFixed(0)} kkal</div>
+                    <input type="number" class="input-gram" value="${i.gram}" oninput="updateMealValue(${i.id}, this.value)">
+                    <i class="bi bi-trash text-danger fs-5" onclick="currentMeal=currentMeal.filter(x=>x.id!==${i.id});renderMeal();calculateTotal();"></i>
+                </div>`).join('');
+            calculateTotal();
             if(currentMeal.length === 0) document.getElementById('selected-list').classList.add('d-none');
         }
 
@@ -231,13 +241,14 @@
             } else Swal.fire('Gagal','NIK atau Password salah','error');
         }
 
-        function switchPage(p) { 
-            document.querySelectorAll('.page').forEach(pg => pg.style.display='none'); 
-            document.getElementById(p).style.display='flex'; 
+        function cekBMI(n, t, b) {
+            const bmi = b / ((t/100)**2);
+            let s = bmi < 18.5 ? "Kurus" : (bmi < 25 ? "Normal" : "Obesitas");
+            Swal.fire({ title: n, html: `<h4>${bmi.toFixed(1)}</h4><b>${s}</b>`, confirmButtonColor: '#00569e' });
         }
         function showQR() { Swal.fire({ title: 'QR DIGITAL', html: '<canvas id="qr-canvas"></canvas>', didOpen: () => new QRious({element: document.getElementById('qr-canvas'), value: USER_SESSION.nik, size: 200}) }); }
         function confirmLogout() { localStorage.clear(); location.reload(); }
-        function saveGizi() { Swal.fire('Berhasil','Data gizi harian disimpan','success'); currentMeal=[]; renderMeal(); }
+        function saveGizi() { Swal.fire('Berhasil','Data tersimpan','success'); currentMeal=[]; renderMeal(); }
     </script>
 </body>
 </html>
