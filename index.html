@@ -3,16 +3,16 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bulo Smartville v7.0 Pro</title>
+    <title>Bulo Smartville v8.0</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { background: #f8f9fa; font-family: sans-serif; }
-        .card-custom { border-radius: 20px; border: none; box-shadow: 0 5px 20px rgba(0,0,0,0.05); cursor: pointer; transition: 0.3s; }
-        .card-custom:hover { transform: translateY(-5px); }
-        .is-over { background: #dc3545 !important; color: white !important; }
+        body { background: #f4f7f6; font-family: 'Segoe UI', sans-serif; }
+        .card-custom { border-radius: 15px; border: none; box-shadow: 0 4px 10px rgba(0,0,0,0.05); cursor: pointer; }
+        .btn-pill { border-radius: 50px; }
+        .trash-active { background: #fee2e2; border: 2px solid #ef4444; color: #b91c1c; }
+        .trash-wait { background: #e0f2fe; border: 2px solid #0ea5e9; color: #0369a1; }
         #app-content, #view-detail { display: none; }
-        .trash-box { background: #e8f5e9; border-left: 5px solid #2e7d32; }
     </style>
 </head>
 <body>
@@ -20,40 +20,69 @@
 <div id="login-screen" class="vh-100 d-flex align-items-center justify-content-center bg-white">
     <div class="col-md-4 text-center p-4">
         <img src="Lobo_Bulo.png" style="width:100px" class="mb-4" onerror="this.src='https://via.placeholder.com/100?text=Bulo'">
-        <div class="card card-custom p-4 shadow">
+        <div class="card card-custom p-4 shadow-lg">
             <h5 class="fw-bold mb-3 text-primary">Bulo Smartville</h5>
-            <input type="text" id="nik" class="form-control mb-2 rounded-pill shadow-sm" placeholder="NIK">
-            <input type="password" id="pass" class="form-control mb-3 rounded-pill shadow-sm" placeholder="Password">
-            <button onclick="doLogin()" class="btn btn-primary w-100 rounded-pill fw-bold">MASUK</button>
+            <input type="text" id="nik" class="form-control mb-2 btn-pill" placeholder="NIK">
+            <input type="password" id="pass" class="form-control mb-3 btn-pill" placeholder="Password">
+            <button onclick="doLogin()" class="btn btn-primary w-100 btn-pill fw-bold">MASUK</button>
         </div>
     </div>
 </div>
 
 <div id="app-content">
-    <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center no-print">
-        <b class="text-primary">BULO SMARTVILLE PRO v7.0</b>
-        <button onclick="doLogout()" class="btn btn-sm btn-link text-danger text-decoration-none">Keluar</button>
+    <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center sticky-top">
+        <b class="text-primary">BULO SMARTVILLE PRO</b>
+        <button onclick="doLogout()" class="btn btn-sm btn-outline-danger btn-pill">Keluar</button>
     </div>
-    <div class="container py-4">
-        <div id="view-dashboard" class="row g-3">
-            <div class="col-6"><div class="card card-custom p-4 text-center shadow-sm" onclick="chooseMember()"><h1>🥗</h1><small class="fw-bold">Hitung Gizi</small></div></div>
-            <div class="col-6"><div class="card card-custom p-4 text-center shadow-sm" onclick="openTrashDashboard()"><h1>♻️</h1><small class="fw-bold">Bank Sampah</small></div></div>
-            <div id="kader-menu" class="col-12 d-none"><div class="card card-custom p-3 text-center shadow-sm bg-primary text-white" onclick="manageFisik()"><b>⚖️ UPDATE TB/BB WARGA</b></div></div>
+
+    <div class="container py-3">
+        <div id="view-dashboard">
+            <div id="trash-info-box" class="card card-custom p-3 mb-3 text-center shadow-sm">
+                <div class="row align-items-center">
+                    <div class="col-6 border-end">
+                        <small class="text-muted d-block">Saldo Sampah</small>
+                        <b id="dash-saldo" class="text-success h5">Rp 0</b>
+                    </div>
+                    <div class="col-6">
+                        <small id="dash-alarm-text" class="fw-bold small d-block">LOADING...</small>
+                        <b id="dash-timer" class="h5">00:00:00</b>
+                    </div>
+                </div>
+            </div>
+
+            <div class="row g-2 mb-3">
+                <div class="col-6">
+                    <div class="card card-custom p-4 text-center bg-white shadow-sm" onclick="chooseMember()">
+                        <h1>🥗</h1><small class="fw-bold">Hitung Gizi</small>
+                    </div>
+                </div>
+                <div class="col-6">
+                    <div class="card card-custom p-4 text-center bg-white shadow-sm" onclick="showMyQR()">
+                        <h1>🆔</h1><small class="fw-bold">ID Digital</small>
+                    </div>
+                </div>
+            </div>
+
+            <div id="kader-menu" class="d-none mb-3">
+                <button onclick="manageFisik()" class="btn btn-primary w-100 btn-pill fw-bold py-3 shadow">⚖️ UPDATE DATA FISIK WARGA</button>
+            </div>
         </div>
+
         <div id="view-detail">
-            <button onclick="goBack()" class="btn btn-light btn-sm mb-3 no-print rounded-pill border">← Kembali</button>
+            <button onclick="goBack()" class="btn btn-light btn-sm mb-3 border btn-pill">← Kembali</button>
             <div id="detail-body"></div>
         </div>
     </div>
 </div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwwLXqH-VL3u3F82AUsTu401TqckDil5LPbppfrzUS5mD4mTlCYdjxKMhGsLZx55MhBSg/exec"; 
-let USER = null, DATA = null, piring = [], selectedMember = null, trashTimer = null;
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycby2DlkplL3FHtu0ORDIieoctI2-onybWaAEMLWfjUmN6_jJcEbpac9gfIFPZiQOEO063Q/exec"; 
+let USER = null, DATA = null, piring = [], selectedMember = null, mainTimer = null;
 
 async function doLogin() {
     const nik = document.getElementById('nik').value, pass = document.getElementById('pass').value;
-    Swal.fire({title: 'Memproses...', didOpen:()=>Swal.showLoading()});
+    if(!nik || !pass) return Swal.fire('Error', 'NIK/Pass kosong', 'warning');
+    Swal.fire({title: 'Memverifikasi...', didOpen:()=>Swal.showLoading()});
     const res = await fetch(WEB_APP_URL, {method:'POST', body: JSON.stringify({action:'login', nik, password:pass})}).then(r=>r.json());
     if(res.status==='success') { USER=res.user; localStorage.setItem('bulo_session', JSON.stringify(USER)); initApp(); Swal.close(); }
     else { Swal.fire('Error', res.message, 'error'); }
@@ -65,55 +94,25 @@ async function initApp() {
     document.getElementById('login-screen').classList.replace('d-flex', 'd-none');
     document.getElementById('app-content').style.display = 'block';
     if(USER.role === 'admin' || USER.role === 'kader') document.getElementById('kader-menu').classList.remove('d-none');
+    
     const res = await fetch(WEB_APP_URL, {method:'POST', body: JSON.stringify({action:'get_dashboard', user:USER})}).then(r=>r.json());
     DATA = res.data;
+    
+    // Update Dashboard Info
+    document.getElementById('dash-saldo').innerText = `Rp ${DATA.sampah.saldo_rp.toLocaleString('id-ID')}`;
+    const box = document.getElementById('trash-info-box');
+    box.className = DATA.alarm.is_active ? "card card-custom p-3 mb-3 text-center shadow-sm trash-active" : "card card-custom p-3 mb-3 text-center shadow-sm trash-wait";
+    document.getElementById('dash-alarm-text').innerText = DATA.alarm.status_text;
+    
+    startMainTimer(DATA.alarm.target_time);
 }
 
-// --- MODUL GIZI ---
-function chooseMember() {
-    let opts = DATA.keluarga.map((k, i) => `<option value="${i}">${k.nama}</option>`).join('');
-    Swal.fire({ title: 'Pilih Anggota', html: `<select id="idx-mem" class="form-select mt-2 rounded-pill">${opts}</select>`, confirmButtonText: 'Pilih' }).then(r => {
-        if(r.isConfirmed) { selectedMember = DATA.keluarga[document.getElementById('idx-mem').value]; piring = []; renderCalc(); document.getElementById('view-dashboard').classList.add('d-none'); document.getElementById('view-detail').style.display='block'; }
-    });
-}
-
-// --- MODUL SAMPAH ---
-async function openTrashDashboard() {
-    Swal.fire({title: 'Sinkronisasi...', didOpen:()=>Swal.showLoading()});
-    const res = await fetch(WEB_APP_URL, {method:'POST', body: JSON.stringify({action:'get_trash_data', nik: USER.nik})}).then(r=>r.json());
-    Swal.close();
-    
-    const d = res.data;
-    document.getElementById('view-dashboard').classList.add('d-none');
-    document.getElementById('view-detail').style.display = 'block';
-    
-    document.getElementById('detail-body').innerHTML = `
-        <div class="card card-custom p-4 mb-3 text-center shadow-sm border-top border-success border-5">
-            <h6 class="fw-bold text-muted mb-3">SALDO BANK SAMPAH</h6>
-            <div class="row">
-                <div class="col-6 border-end"><small>Tabungan</small><h4 class="fw-bold text-primary">${d.tabungan_kg} Kg</h4></div>
-                <div class="col-6"><small>Saldo Rp</small><h4 class="fw-bold text-success">Rp ${d.saldo_rp.toLocaleString('id-ID')}</h4></div>
-            </div>
-        </div>
-        <div class="card card-custom p-4 mb-3 text-center border-start border-danger border-5">
-            <small class="fw-bold text-muted">${d.alarm.status_text}</small>
-            <div id="trash-clock" class="h2 fw-bold text-danger my-2">00:00:00</div>
-            <small class="text-muted">${d.alarm.is_active ? 'Bawa sampah plastik ke titik kumpul.' : 'Siapkan sampah untuk jadwal berikutnya.'}</small>
-        </div>
-        <div class="card card-custom p-4 text-center shadow-sm">
-            <small class="fw-bold d-block mb-2">ID DIGITAL WARGA</small>
-            <img src="${d.qr_url}" class="img-fluid mx-auto" style="max-width:150px">
-        </div>`;
-    
-    startTrashTimer(d.alarm.target_time);
-}
-
-function startTrashTimer(target) {
-    if(trashTimer) clearInterval(trashTimer);
-    trashTimer = setInterval(() => {
+function startMainTimer(target) {
+    if(mainTimer) clearInterval(mainTimer);
+    mainTimer = setInterval(() => {
         const diff = target - new Date().getTime();
-        const el = document.getElementById('trash-clock');
-        if (diff < 0 || !el) { clearInterval(trashTimer); return; }
+        const el = document.getElementById('dash-timer');
+        if (diff < 0 || !el) { clearInterval(mainTimer); location.reload(); return; }
         const h = Math.floor((diff % 86400000) / 3600000);
         const m = Math.floor((diff % 3600000) / 60000);
         const s = Math.floor((diff % 60000) / 1000);
@@ -121,14 +120,78 @@ function startTrashTimer(target) {
     }, 1000);
 }
 
-// --- FUNGSI GLOBAL ---
+function showMyQR() {
+    const qrUrl = `https://chart.googleapis.com/chart?chs=300x300&cht=qr&chl=${USER.nik}&choe=UTF-8`;
+    Swal.fire({
+        title: 'ID DIGITAL WARGA',
+        html: `<img src="${qrUrl}" class="img-fluid my-3" style="width:200px" onerror="this.src='https://api.qrserver.com/v1/create-qr-code/?size=300x300&data=${USER.nik}'">
+               <h5 class="fw-bold mb-0">${USER.nama}</h5><small>${USER.nik}</small>`,
+        confirmButtonText: 'Tutup', confirmButtonColor: '#3498db'
+    });
+}
+
+function chooseMember() {
+    let opts = DATA.keluarga.map((k, i) => `<option value="${i}">${k.nama}</option>`).join('');
+    Swal.fire({ title: 'Pilih Anggota', html: `<select id="idx-mem" class="form-select mt-2 rounded-pill">${opts}</select>`, confirmButtonText: 'Pilih' }).then(r => {
+        if(r.isConfirmed) { 
+            selectedMember = DATA.keluarga[document.getElementById('idx-mem').value]; 
+            piring = []; renderCalc(); 
+            document.getElementById('view-dashboard').classList.add('d-none'); 
+            document.getElementById('view-detail').style.display='block'; 
+        }
+    });
+}
+
+function renderCalc() {
+    let optFood = DATA.master_gizi.map((f, i) => `<option value="${i}">${f[0]}</option>`).join('');
+    let total = { kal:0, pro:0, lem:0, kar:0, fe:0 };
+    piring.forEach(p => { total.kal += p.kal; total.pro += p.pro; total.lem += p.lem; total.kar += p.kar; total.fe += p.fe; });
+    let t = selectedMember.target;
+    let alerts = [];
+    if(total.lem > t.lem) alerts.push("🚫 Lemak Berlebih");
+    if(total.fe < t.fe) alerts.push("🔴 Kurang Zat Besi");
+
+    document.getElementById('detail-body').innerHTML = `
+        <div class="card card-custom p-4 mb-3 border-start border-primary border-5 bg-white shadow-sm">
+            <h5 class="fw-bold mb-0">${selectedMember.nama}</h5>
+            <small class="text-muted d-block mb-3">📏 ${selectedMember.tb}cm | ⚖️ ${selectedMember.bb}kg</small>
+            <div class="row g-2 text-center mb-3 small">
+                <div class="col-3 p-2 border rounded"><small>KAL</small><br><b>${total.kal.toFixed(0)}</b></div>
+                <div class="col-3 p-2 border rounded"><small>PRO</small><br><b>${total.pro.toFixed(1)}</b></div>
+                <div class="col-3 p-2 border rounded"><small>FE</small><br><b>${total.fe.toFixed(1)}</b></div>
+                <div class="col-3 p-2 border rounded"><small>KAR</small><br><b>${total.kar.toFixed(0)}</b></div>
+            </div>
+            <div class="input-group input-group-sm mb-2">
+                <select id="f-sel" class="form-select bg-light">${optFood}</select>
+                <input type="number" id="f-gram" class="form-control" placeholder="Gram">
+                <button onclick="addPiring()" class="btn btn-primary fw-bold">TAMBAH</button>
+            </div>
+        </div>
+        <div class="p-3 bg-white card-custom border small shadow-sm">
+            <div class="alert alert-${alerts.length?'warning':'success'} p-2 mb-2">${alerts.length?alerts.join(', '):'✅ Gizi Seimbang'}</div>
+            <table class="table table-sm">
+                <thead><tr><th>Menu</th><th>Gr</th><th>Pro</th><th>Fe</th></tr></thead>
+                <tbody>${piring.map(p=>`<tr><td>${p.nama}</td><td>${p.gram}</td><td>${p.pro.toFixed(1)}</td><td>${p.fe.toFixed(1)}</td></tr>`).join('')}</tbody>
+            </table>
+            <button onclick="window.print()" class="btn btn-dark btn-sm w-100 btn-pill mt-2">Cetak Laporan</button>
+        </div>`;
+}
+
+function addPiring() {
+    let f = DATA.master_gizi[document.getElementById('f-sel').value], g = document.getElementById('f-gram').value;
+    if(!g || g <= 0) return;
+    let r = parseFloat(g) / 100;
+    piring.push({ nama: f[0], gram: g, kal: (Number(f[1])||0)*r, pro: (Number(f[2])||0)*r, lem: (Number(f[3])||0)*r, kar: (Number(f[4])||0)*r, fe: (Number(f[5])||0)*r });
+    document.getElementById('f-gram').value = ""; renderCalc();
+}
+
 function manageFisik() {
     let opts = DATA.keluarga.map((k, i) => `<option value="${i}">${k.nama}</option>`).join('');
     Swal.fire({
         title: 'Update TB/BB',
-        html: `<select id="upd-idx" class="form-select mb-2 rounded-pill">${opts}</select>
-               <input id="upd-tb" type="number" class="form-control mb-2 rounded-pill" placeholder="Tinggi (cm)">
-               <input id="upd-bb" type="number" class="form-control rounded-pill" placeholder="Berat (kg)">`,
+        html: `<select id="upd-idx" class="form-select mb-2 btn-pill">${opts}</select>
+               <input id="upd-tb" type="number" class="form-control mb-2 btn-pill" placeholder="Tinggi (cm)">
+               <input id="upd-bb" type="number" class="form-control btn-pill" placeholder="Berat (kg)">`,
         confirmButtonText: 'Simpan',
         preConfirm: () => {
             let m = DATA.keluarga[document.getElementById('upd-idx').value];
@@ -143,62 +206,7 @@ function manageFisik() {
     });
 }
 
-function renderCalc() {
-    let optFood = DATA.master_gizi.map((f, i) => `<option value="${i}">${f[0]}</option>`).join('');
-    let total = { kal:0, pro:0, lem:0, kar:0, fe:0 };
-    piring.forEach(p => { total.kal += p.kal; total.pro += p.pro; total.lem += p.lem; total.kar += p.kar; total.fe += p.fe; });
-    let t = selectedMember.target;
-    let alerts = [];
-    if(total.lem > t.lem) alerts.push("🚫 <b>LEBIH LEMAK!</b>");
-    if(total.kar > t.kar) alerts.push("🍞 <b>LEBIH KARBOHIDRAT!</b>");
-    if(total.kal > t.kal + 200) alerts.push("🛑 <b>KALORI BERLEBIH!</b>");
-    if(total.fe < t.fe) alerts.push("🔴 <b>FE KURANG!</b>");
-
-    document.getElementById('detail-body').innerHTML = `
-        <div class="card card-custom p-4 mb-4 no-print bg-white shadow-sm border-start border-primary border-5">
-            <h5 class="fw-bold mb-0">${selectedMember.nama}</h5>
-            <small class="text-muted mb-3 d-block">📏 ${selectedMember.tb}cm | ⚖️ ${selectedMember.bb}kg</small>
-            <div class="row g-2 text-center mb-4">
-                <div class="col-3 p-2 border rounded ${total.kal > t.kal ? 'is-over':''}"><small>KAL</small><br><b>${total.kal.toFixed(0)}</b></div>
-                <div class="col-3 p-2 border rounded ${total.kar > t.kar ? 'is-over':''}"><small>KAR</small><br><b>${total.kar.toFixed(1)}</b></div>
-                <div class="col-3 p-2 border rounded"><small>PRO</small><br><b>${total.pro.toFixed(1)}</b></div>
-                <div class="col-3 p-2 border rounded"><small>FE</small><br><b>${total.fe.toFixed(1)}</b></div>
-            </div>
-            <div class="input-group mb-2 shadow-sm">
-                <select id="f-sel" class="form-select border-0 bg-light rounded-start-pill">${optFood}</select>
-                <input type="number" id="f-gram" class="form-control border-0 bg-light" placeholder="Gr">
-                <button onclick="addPiring()" class="btn btn-primary rounded-end-pill px-4 fw-bold">TAMBAH</button>
-            </div>
-        </div>
-        <div class="print-area p-4 bg-white card-custom border shadow-sm">
-            <div class="alert alert-${alerts.length ? 'warning' : 'success'} small py-2">${alerts.length ? alerts.join('<br>') : '✅ Gizi Seimbang!'}</div>
-            <table class="table table-sm small">
-                <thead><tr class="table-light"><th>Bahan</th><th>Gr</th><th>Pro</th><th>Kar</th><th>Fe</th></tr></thead>
-                <tbody>
-                    ${piring.map(p => `<tr><td>${p.nama}</td><td>${p.gram}g</td><td>${p.pro.toFixed(1)}</td><td>${p.kar.toFixed(1)}</td><td>${p.fe.toFixed(1)}</td></tr>`).join('')}
-                    <tr class="table-dark fw-bold"><td>TOTAL</td><td></td><td>${total.pro.toFixed(1)}g</td><td>${total.kar.toFixed(1)}g</td><td>${total.fe.toFixed(1)}mg</td></tr>
-                </tbody>
-            </table>
-            <button onclick="window.print()" class="btn btn-dark btn-sm w-100 mt-3 rounded-pill no-print shadow-sm fw-bold">CETAK LAPORAN</button>
-        </div>`;
-}
-
-function addPiring() {
-    let f = DATA.master_gizi[document.getElementById('f-sel').value];
-    let g = document.getElementById('f-gram').value;
-    if(!g || g <= 0) return;
-    let r = parseFloat(g) / 100;
-    piring.push({ nama: f[0], gram: g, kal: (Number(f[1])||0)*r, pro: (Number(f[2])||0)*r, lem: (Number(f[3])||0)*r, kar: (Number(f[4])||0)*r, fe: (Number(f[5])||0)*r });
-    document.getElementById('f-gram').value = ""; renderCalc();
-}
-
-function goBack() { 
-    if(trashTimer) clearInterval(trashTimer);
-    document.getElementById('view-detail').style.display='none'; 
-    document.getElementById('view-dashboard').classList.remove('d-none'); 
-}
-
-// Auto-login session
+function goBack() { document.getElementById('view-detail').style.display='none'; document.getElementById('view-dashboard').classList.remove('d-none'); }
 if(localStorage.getItem('bulo_session')) { USER = JSON.parse(localStorage.getItem('bulo_session')); initApp(); }
 </script>
 </body>
