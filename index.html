@@ -3,22 +3,23 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bulo Smartville v6.4 Pro</title>
+    <title>Bulo Smartville v7.0 Pro</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { background: #f8f9fa; font-family: sans-serif; }
-        .card-custom { border-radius: 20px; border: none; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
+        .card-custom { border-radius: 20px; border: none; box-shadow: 0 5px 20px rgba(0,0,0,0.05); cursor: pointer; transition: 0.3s; }
+        .card-custom:hover { transform: translateY(-5px); }
         .is-over { background: #dc3545 !important; color: white !important; }
         #app-content, #view-detail { display: none; }
-        @media print { .no-print { display: none !important; } .print-area { box-shadow: none !important; border: 1px solid #eee !important; } }
+        .trash-box { background: #e8f5e9; border-left: 5px solid #2e7d32; }
     </style>
 </head>
 <body>
 
 <div id="login-screen" class="vh-100 d-flex align-items-center justify-content-center bg-white">
     <div class="col-md-4 text-center p-4">
-        <img src="Lobo_Bulo.png" style="width:120px" class="mb-4">
+        <img src="Lobo_Bulo.png" style="width:100px" class="mb-4" onerror="this.src='https://via.placeholder.com/100?text=Bulo'">
         <div class="card card-custom p-4 shadow">
             <h5 class="fw-bold mb-3 text-primary">Bulo Smartville</h5>
             <input type="text" id="nik" class="form-control mb-2 rounded-pill shadow-sm" placeholder="NIK">
@@ -30,13 +31,14 @@
 
 <div id="app-content">
     <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center no-print">
-        <b class="text-primary">BULO SMARTVILLE PRO</b>
+        <b class="text-primary">BULO SMARTVILLE PRO v7.0</b>
         <button onclick="doLogout()" class="btn btn-sm btn-link text-danger text-decoration-none">Keluar</button>
     </div>
     <div class="container py-4">
         <div id="view-dashboard" class="row g-3">
             <div class="col-6"><div class="card card-custom p-4 text-center shadow-sm" onclick="chooseMember()"><h1>🥗</h1><small class="fw-bold">Hitung Gizi</small></div></div>
-            <div id="kader-menu" class="col-6 d-none"><div class="card card-custom p-4 text-center shadow-sm" onclick="manageFisik()"><h1>⚖️</h1><small class="fw-bold">Update TB/BB</small></div></div>
+            <div class="col-6"><div class="card card-custom p-4 text-center shadow-sm" onclick="openTrashDashboard()"><h1>♻️</h1><small class="fw-bold">Bank Sampah</small></div></div>
+            <div id="kader-menu" class="col-12 d-none"><div class="card card-custom p-3 text-center shadow-sm bg-primary text-white" onclick="manageFisik()"><b>⚖️ UPDATE TB/BB WARGA</b></div></div>
         </div>
         <div id="view-detail">
             <button onclick="goBack()" class="btn btn-light btn-sm mb-3 no-print rounded-pill border">← Kembali</button>
@@ -46,8 +48,8 @@
 </div>
 
 <script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbyUhTXkFf-ATJV5KM8j-l5ETdpMRP3yZo8C1pOZBQSXTJi_YnK6vFlvM9ROW2pE-yGa1A/exec"; 
-let USER = null, DATA = null, piring = [], selectedMember = null;
+const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbwwLXqH-VL3u3F82AUsTu401TqckDil5LPbppfrzUS5mD4mTlCYdjxKMhGsLZx55MhBSg/exec"; 
+let USER = null, DATA = null, piring = [], selectedMember = null, trashTimer = null;
 
 async function doLogin() {
     const nik = document.getElementById('nik').value, pass = document.getElementById('pass').value;
@@ -67,6 +69,7 @@ async function initApp() {
     DATA = res.data;
 }
 
+// --- MODUL GIZI ---
 function chooseMember() {
     let opts = DATA.keluarga.map((k, i) => `<option value="${i}">${k.nama}</option>`).join('');
     Swal.fire({ title: 'Pilih Anggota', html: `<select id="idx-mem" class="form-select mt-2 rounded-pill">${opts}</select>`, confirmButtonText: 'Pilih' }).then(r => {
@@ -74,6 +77,51 @@ function chooseMember() {
     });
 }
 
+// --- MODUL SAMPAH ---
+async function openTrashDashboard() {
+    Swal.fire({title: 'Sinkronisasi...', didOpen:()=>Swal.showLoading()});
+    const res = await fetch(WEB_APP_URL, {method:'POST', body: JSON.stringify({action:'get_trash_data', nik: USER.nik})}).then(r=>r.json());
+    Swal.close();
+    
+    const d = res.data;
+    document.getElementById('view-dashboard').classList.add('d-none');
+    document.getElementById('view-detail').style.display = 'block';
+    
+    document.getElementById('detail-body').innerHTML = `
+        <div class="card card-custom p-4 mb-3 text-center shadow-sm border-top border-success border-5">
+            <h6 class="fw-bold text-muted mb-3">SALDO BANK SAMPAH</h6>
+            <div class="row">
+                <div class="col-6 border-end"><small>Tabungan</small><h4 class="fw-bold text-primary">${d.tabungan_kg} Kg</h4></div>
+                <div class="col-6"><small>Saldo Rp</small><h4 class="fw-bold text-success">Rp ${d.saldo_rp.toLocaleString('id-ID')}</h4></div>
+            </div>
+        </div>
+        <div class="card card-custom p-4 mb-3 text-center border-start border-danger border-5">
+            <small class="fw-bold text-muted">${d.alarm.status_text}</small>
+            <div id="trash-clock" class="h2 fw-bold text-danger my-2">00:00:00</div>
+            <small class="text-muted">${d.alarm.is_active ? 'Bawa sampah plastik ke titik kumpul.' : 'Siapkan sampah untuk jadwal berikutnya.'}</small>
+        </div>
+        <div class="card card-custom p-4 text-center shadow-sm">
+            <small class="fw-bold d-block mb-2">ID DIGITAL WARGA</small>
+            <img src="${d.qr_url}" class="img-fluid mx-auto" style="max-width:150px">
+        </div>`;
+    
+    startTrashTimer(d.alarm.target_time);
+}
+
+function startTrashTimer(target) {
+    if(trashTimer) clearInterval(trashTimer);
+    trashTimer = setInterval(() => {
+        const diff = target - new Date().getTime();
+        const el = document.getElementById('trash-clock');
+        if (diff < 0 || !el) { clearInterval(trashTimer); return; }
+        const h = Math.floor((diff % 86400000) / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        el.innerText = `${h<10?'0':''}${h}:${m<10?'0':''}${m}:${s<10?'0':''}${s}`;
+    }, 1000);
+}
+
+// --- FUNGSI GLOBAL ---
 function manageFisik() {
     let opts = DATA.keluarga.map((k, i) => `<option value="${i}">${k.nama}</option>`).join('');
     Swal.fire({
@@ -95,31 +143,10 @@ function manageFisik() {
     });
 }
 
-function addPiring() {
-    let f = DATA.master_gizi[document.getElementById('f-sel').value];
-    let g = document.getElementById('f-gram').value;
-    if(!g || g <= 0) return;
-    let r = parseFloat(g) / 100;
-    
-    // PEMETAAN TKPI: 1:Kal, 2:Pro, 3:Lem, 4:Kar, 5:Fe
-    piring.push({ 
-        nama: f[0], gram: g, 
-        kal: (Number(f[1]) || 0) * r, 
-        pro: (Number(f[2]) || 0) * r, 
-        lem: (Number(f[3]) || 0) * r,
-        kar: (Number(f[4]) || 0) * r, 
-        fe: (Number(f[5]) || 0) * r 
-    });
-    document.getElementById('f-gram').value = ""; renderCalc();
-}
-
 function renderCalc() {
     let optFood = DATA.master_gizi.map((f, i) => `<option value="${i}">${f[0]}</option>`).join('');
     let total = { kal:0, pro:0, lem:0, kar:0, fe:0 };
-    piring.forEach(p => { 
-        total.kal += p.kal; total.pro += p.pro; total.lem += p.lem; total.kar += p.kar; total.fe += p.fe; 
-    });
-
+    piring.forEach(p => { total.kal += p.kal; total.pro += p.pro; total.lem += p.lem; total.kar += p.kar; total.fe += p.fe; });
     let t = selectedMember.target;
     let alerts = [];
     if(total.lem > t.lem) alerts.push("🚫 <b>LEBIH LEMAK!</b>");
@@ -128,7 +155,7 @@ function renderCalc() {
     if(total.fe < t.fe) alerts.push("🔴 <b>FE KURANG!</b>");
 
     document.getElementById('detail-body').innerHTML = `
-        <div class="card card-custom p-4 mb-4 no-print bg-white shadow-sm">
+        <div class="card card-custom p-4 mb-4 no-print bg-white shadow-sm border-start border-primary border-5">
             <h5 class="fw-bold mb-0">${selectedMember.nama}</h5>
             <small class="text-muted mb-3 d-block">📏 ${selectedMember.tb}cm | ⚖️ ${selectedMember.bb}kg</small>
             <div class="row g-2 text-center mb-4">
@@ -139,31 +166,40 @@ function renderCalc() {
             </div>
             <div class="input-group mb-2 shadow-sm">
                 <select id="f-sel" class="form-select border-0 bg-light rounded-start-pill">${optFood}</select>
-                <input type="number" id="f-gram" class="form-control border-0 bg-light" placeholder="Gram">
+                <input type="number" id="f-gram" class="form-control border-0 bg-light" placeholder="Gr">
                 <button onclick="addPiring()" class="btn btn-primary rounded-end-pill px-4 fw-bold">TAMBAH</button>
             </div>
         </div>
         <div class="print-area p-4 bg-white card-custom border shadow-sm">
-            <div class="text-center mb-3">
-                <img src="Lobo_Bulo.png" style="width:50px">
-                <h6 class="fw-bold mt-2 m-0 text-uppercase">Laporan Gizi Harian</h6>
-                <small class="text-muted">Bulo Smartville v6.4</small>
-            </div>
-            <div class="alert alert-${alerts.length ? 'warning' : 'success'} small py-2">
-                ${alerts.length ? alerts.join('<br>') : '✅ Gizi Seimbang!'}
-            </div>
+            <div class="alert alert-${alerts.length ? 'warning' : 'success'} small py-2">${alerts.length ? alerts.join('<br>') : '✅ Gizi Seimbang!'}</div>
             <table class="table table-sm small">
-                <thead><tr class="table-light"><th>Bahan</th><th>Gram</th><th>Pro</th><th>Lem</th><th>Kar</th><th>Fe</th></tr></thead>
+                <thead><tr class="table-light"><th>Bahan</th><th>Gr</th><th>Pro</th><th>Kar</th><th>Fe</th></tr></thead>
                 <tbody>
-                    ${piring.map(p => `<tr><td>${p.nama}</td><td>${p.gram}g</td><td>${p.pro.toFixed(1)}</td><td>${p.lem.toFixed(1)}</td><td>${p.kar.toFixed(1)}</td><td>${p.fe.toFixed(1)}</td></tr>`).join('')}
-                    <tr class="table-dark fw-bold text-white"><td>TOTAL</td><td></td><td>${total.pro.toFixed(1)}g</td><td>${total.lem.toFixed(1)}g</td><td>${total.kar.toFixed(1)}g</td><td>${total.fe.toFixed(1)}mg</td></tr>
+                    ${piring.map(p => `<tr><td>${p.nama}</td><td>${p.gram}g</td><td>${p.pro.toFixed(1)}</td><td>${p.kar.toFixed(1)}</td><td>${p.fe.toFixed(1)}</td></tr>`).join('')}
+                    <tr class="table-dark fw-bold"><td>TOTAL</td><td></td><td>${total.pro.toFixed(1)}g</td><td>${total.kar.toFixed(1)}g</td><td>${total.fe.toFixed(1)}mg</td></tr>
                 </tbody>
             </table>
             <button onclick="window.print()" class="btn btn-dark btn-sm w-100 mt-3 rounded-pill no-print shadow-sm fw-bold">CETAK LAPORAN</button>
         </div>`;
 }
 
-function goBack() { document.getElementById('view-detail').style.display='none'; document.getElementById('view-dashboard').classList.remove('d-none'); }
+function addPiring() {
+    let f = DATA.master_gizi[document.getElementById('f-sel').value];
+    let g = document.getElementById('f-gram').value;
+    if(!g || g <= 0) return;
+    let r = parseFloat(g) / 100;
+    piring.push({ nama: f[0], gram: g, kal: (Number(f[1])||0)*r, pro: (Number(f[2])||0)*r, lem: (Number(f[3])||0)*r, kar: (Number(f[4])||0)*r, fe: (Number(f[5])||0)*r });
+    document.getElementById('f-gram').value = ""; renderCalc();
+}
+
+function goBack() { 
+    if(trashTimer) clearInterval(trashTimer);
+    document.getElementById('view-detail').style.display='none'; 
+    document.getElementById('view-dashboard').classList.remove('d-none'); 
+}
+
+// Auto-login session
+if(localStorage.getItem('bulo_session')) { USER = JSON.parse(localStorage.getItem('bulo_session')); initApp(); }
 </script>
 </body>
 </html>
