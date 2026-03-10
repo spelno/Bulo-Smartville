@@ -3,10 +3,11 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bulo Smartville v11.2</title>
+    <title>Bulo Smartville v12.1</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <style>
         :root { --main-blue: #00569e; --dark-blue: #003d70; --bg-gray: #f8f9fa; }
         html, body { height: 100%; overflow: hidden; background: var(--bg-gray); font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; }
@@ -21,13 +22,14 @@
         .nav-link.active { color: var(--main-blue); font-weight: bold; }
         .btn-qr { width: 65px; height: 65px; background: var(--main-blue); border-radius: 50%; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8rem; margin-top: -45px; border: 6px solid var(--bg-gray); box-shadow: 0 5px 15px rgba(0,86,158,0.3); }
         #loading-overlay { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 9999; }
+        .food-search-res { position: absolute; width: 100%; z-index: 100; max-height: 200px; overflow-y: auto; }
     </style>
 </head>
 <body>
 
     <div id="loading-overlay">
         <div class="spinner-border text-primary mb-3"></div>
-        <small class="text-muted fw-bold">Menyinkronkan Data Desa...</small>
+        <small class="text-muted fw-bold">Menghubungkan ke Desa Bulo...</small>
     </div>
 
     <div id="login-screen" class="page">
@@ -37,6 +39,7 @@
             <input type="number" id="nik" class="form-control form-control-lg rounded-pill mb-3 border-0 bg-light px-4" placeholder="NIK">
             <input type="password" id="pass" class="form-control form-control-lg rounded-pill mb-4 border-0 bg-light px-4" placeholder="Password">
             <button onclick="handleLogin()" class="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow-sm" style="background: var(--main-blue);">LOG IN</button>
+            <p class="mt-5 small text-muted">Notes of OD &copy; 2026</p>
         </div>
     </div>
 
@@ -49,26 +52,26 @@
             <div class="info-card">
                 <div class="d-flex justify-content-between mb-2">
                     <span class="small fw-bold text-muted">TABUNGAN SAMPAH</span>
-                    <span id="trash-status" class="badge rounded-pill bg-success px-3">BUKA</span>
+                    <span id="trash-status" class="badge rounded-pill bg-success px-3">...</span>
                 </div>
                 <h1 class="fw-bold mb-0 text-primary" id="info-saldo">Rp 0</h1>
                 <div class="d-flex justify-content-between mt-3 pt-3 border-top small text-muted">
                     <span>Total: <b id="info-kg">0 Kg</b></span>
-                    <span>Harga: <b id="info-harga">Rp 3.000/Kg</b></span>
+                    <span>Harga: <b id="info-harga">...</b></span>
                 </div>
             </div>
             <div class="menu-grid">
-                <div class="menu-item" onclick="switchPage('app-gizi')"><span class="menu-icon">🥗</span>Gizi AKG</div>
-                <div class="menu-item" onclick="switchPage('app-sampah')"><span class="menu-icon">♻️</span>Sampah</div>
-                <div class="menu-item"><span class="menu-icon">📖</span>Edukasi</div>
-                <div class="menu-item"><span class="menu-icon">📊</span>Statistik</div>
-                <div class="menu-item"><span class="menu-icon">🏢</span>Desa</div>
+                <div class="menu-item" onclick="switchPage('app-gizi')"><span class="menu-icon d-block fs-3">🥗</span>Gizi AKG</div>
+                <div class="menu-item" onclick="switchPage('app-sampah')"><span class="menu-icon d-block fs-3">♻️</span>Sampah</div>
+                <div class="menu-item" onclick="Swal.fire('Edukasi','Fitur segera hadir!','info')"><span class="menu-icon d-block fs-3">📖</span>Edukasi</div>
+                <div class="menu-item" onclick="Swal.fire('Statistik','Fitur segera hadir!','info')"><span class="menu-icon d-block fs-3">📊</span>Statistik</div>
+                <div class="menu-item" onclick="Swal.fire('Desa','Informasi Desa Bulo','info')"><span class="menu-icon d-block fs-3">🏢</span>Desa</div>
             </div>
         </div>
         <div class="bottom-nav">
-            <a href="#" onclick="switchPage('app-home')" class="nav-link active"><i class="bi bi-house-door-fill fs-3"></i><br>Home</a>
+            <a href="javascript:void(0)" onclick="switchPage('app-home')" class="nav-link active"><i class="bi bi-house-door-fill fs-3"></i><br>Home</a>
             <div onclick="showQR()"><div class="btn-qr"><i class="bi bi-qr-code-scan"></i></div></div>
-            <a href="#" onclick="confirmLogout()" class="nav-link"><i class="bi bi-box-arrow-right fs-3"></i><br>Logout</a>
+            <a href="javascript:void(0)" onclick="confirmLogout()" class="nav-link"><i class="bi bi-box-arrow-right fs-3"></i><br>Logout</a>
         </div>
     </div>
 
@@ -77,38 +80,74 @@
             <div class="d-flex align-items-center"><i class="bi bi-chevron-left fs-4 me-3" onclick="switchPage('app-home')"></i><h5 class="mb-0 fw-bold">Kalkulator Gizi</h5></div>
         </div>
         <div class="content-area">
-            <div class="card border-0 shadow-sm rounded-4 p-3">
-                <p class="small text-muted mb-3">Anggota Keluarga (KK: <span id="kk-display"></span>):</p>
-                <div id="list-keluarga-gizi"></div>
+            <ul class="nav nav-pills nav-fill mb-3 bg-white p-1 rounded-pill shadow-sm">
+                <li class="nav-item"><a class="nav-link active rounded-pill" id="tab-manual" href="javascript:void(0)" onclick="toggleGiziMode('manual')">Manual</a></li>
+                <li class="nav-item"><a class="nav-link rounded-pill" id="tab-ai" href="javascript:void(0)" onclick="toggleGiziMode('ai')">AI Foto</a></li>
+            </ul>
+
+            <div id="mode-manual">
+                <div class="card border-0 shadow-sm rounded-4 p-3 mb-3 position-relative">
+                    <label class="small fw-bold text-muted mb-2">Cari Makanan:</label>
+                    <input type="text" id="search-food" class="form-control rounded-pill border-light bg-light" placeholder="Ketik ikan, nasi, dll..." onkeyup="filterFood()">
+                    <div id="food-results" class="list-group food-search-res mt-1 shadow rounded-3 border-0" style="display:none"></div>
+                </div>
+            </div>
+
+            <div id="mode-ai" style="display:none">
+                <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
+                    <i class="bi bi-camera fs-1 text-primary mb-3"></i>
+                    <h6>Deteksi AI Bulo</h6>
+                    <p class="small text-muted">Foto makanan Anda untuk hitung otomatis.</p>
+                    <input type="file" id="camera-input" accept="image/*" capture="environment" class="d-none" onchange="processAIPhoto(this)">
+                    <button onclick="document.getElementById('camera-input').click()" class="btn btn-outline-primary rounded-pill w-100">Ambil Foto</button>
+                    <div id="ai-loading" class="mt-3 d-none"><div class="spinner-border spinner-border-sm text-primary"></div> <small>AI sedang menganalisis...</small></div>
+                </div>
+            </div>
+
+            <div id="selected-list" class="mt-4 d-none">
+                <h6 class="fw-bold px-2">Piring Makan Anda:</h6>
+                <div id="current-meal-items" class="px-2"></div>
+                <button onclick="hitungGiziFinal()" class="btn btn-primary w-100 mt-3 rounded-pill shadow">Simpan & Cek AKG</button>
+            </div>
+            
+            <div class="mt-4 card border-0 p-3 bg-white rounded-4 shadow-sm">
+                 <h6 class="fw-bold mb-3 small">Status Pertumbuhan BB/TB</h6>
+                 <div id="list-keluarga-gizi"></div>
             </div>
         </div>
     </div>
 
     <div id="app-sampah" class="page">
         <div class="top-header">
-            <div class="d-flex align-items-center"><i class="bi bi-chevron-left fs-4 me-3" onclick="switchPage('app-home')"></i><h5 class="mb-0 fw-bold">Detail Sampah</h5></div>
+            <div class="d-flex align-items-center"><i class="bi bi-chevron-left fs-4 me-3" onclick="switchPage('app-home')"></i><h5 class="mb-0 fw-bold">Tabungan Sampah</h5></div>
         </div>
         <div class="content-area">
-            <div class="info-card mt-0 shadow-sm mb-4 text-center">
-                <p class="small text-muted mb-1">Saldo Tabungan</p>
+            <div class="info-card mt-0 text-center">
+                <p class="small text-muted mb-1">Saldo Rupiah</p>
                 <h2 class="fw-bold text-success" id="detail-saldo">Rp 0</h2>
+                <hr>
+                <div class="row small text-muted">
+                    <div class="col-6 border-end">Sisa Plastik<br><b id="detail-kg">0 Kg</b></div>
+                    <div class="col-6">Kurs Hari Ini<br><b id="detail-kurs">Rp 0</b></div>
+                </div>
             </div>
         </div>
     </div>
 
     <script>
+        // --- KONFIGURASI ---
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6CKdpyg71G1jUBN5EyZWDyqsVzqUYqElkpE1XH3fh-cbiMfEjFvhxKubK-dJI74pb7A/exec"; 
+        const GEMINI_API_KEY = "AIzaSyD82WFXe5G1SnMIS0mjIvmfv6yQF1JZvqM"; 
+        
         let DB_FULL = null;
         let USER_SESSION = null;
+        let currentMeal = [];
 
         function switchPage(pageId) {
             document.querySelectorAll('.page').forEach(p => p.style.display = 'none');
-            const target = document.getElementById(pageId);
-            if(target) {
-                target.style.display = 'flex';
-                if(pageId === 'app-gizi') renderGiziList();
-                if(pageId === 'app-home') initDashboard();
-            }
+            document.getElementById(pageId).style.display = 'flex';
+            if(pageId === 'app-gizi') renderGiziList();
+            if(pageId === 'app-home' || pageId === 'app-sampah') initDashboard();
         }
 
         async function fetchAndInit() {
@@ -127,7 +166,7 @@
                     }
                 }
             } catch (e) {
-                Swal.fire('Error', 'Koneksi Gagal', 'error');
+                Swal.fire('Koneksi Gagal', 'Gagal memuat data dari server Google Sheets.', 'error');
             } finally {
                 document.getElementById('loading-overlay').style.display = 'none';
             }
@@ -143,83 +182,137 @@
                 initDashboard();
                 switchPage('app-home');
             } else {
-                Swal.fire('Gagal', 'NIK atau Password salah.', 'error');
+                Swal.fire('Login Gagal', 'NIK atau Password salah.', 'error');
             }
         }
 
         function initDashboard() {
             if(!USER_SESSION) return;
             document.getElementById('user-display').innerText = USER_SESSION.nama;
-            document.getElementById('kk-display').innerText = USER_SESSION.kk;
             
-            const settings = DB_FULL.sampah_pengaturan;
-            const harga = settings.find(r => r[0] === 'Harga_Beli_Warga')[1];
-            document.getElementById('info-harga').innerText = `Rp ${parseInt(harga).toLocaleString()}/Kg`;
-
+            const set = DB_FULL.sampah_pengaturan;
+            const hrg = set.find(r => r[0] === 'Harga_Beli_Warga')[1];
+            const statusLayanan = set.find(r => r[0] === 'Status_Layanan')[1];
+            
+            document.getElementById('info-harga').innerText = `Rp ${parseInt(hrg).toLocaleString()}/Kg`;
+            document.getElementById('detail-kurs').innerText = `Rp ${parseInt(hrg).toLocaleString()}`;
+            document.getElementById('trash-status').innerText = statusLayanan.toUpperCase();
+            
             const saldo = DB_FULL.sampah_saldo.find(r => r[0].toString() === USER_SESSION.nik);
             if(saldo) {
                 const fmt = `Rp ${parseInt(saldo[2] || 0).toLocaleString()}`;
                 document.getElementById('info-saldo').innerText = fmt;
                 document.getElementById('detail-saldo').innerText = fmt;
                 document.getElementById('info-kg').innerText = `${saldo[3] || 0} Kg`;
+                document.getElementById('detail-kg').innerText = `${saldo[3] || 0} Kg`;
             }
         }
 
-        function renderGiziList() {
-            const keluarga = DB_FULL.Master_Data_Penduduk.filter(r => r[7].toString() === USER_SESSION.kk);
-            document.getElementById('list-keluarga-gizi').innerHTML = keluarga.map(k => `
-                <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
-                    <div><b>${k[2]}</b><br><small class="text-muted">${k[5]}</small></div>
-                    <button onclick="cekAKG('${k[0]}')" class="btn btn-sm btn-primary rounded-pill px-3">Cek AKG</button>
+        // --- GIZI LOGIC ---
+        function toggleGiziMode(mode) {
+            document.getElementById('mode-manual').style.display = mode === 'manual' ? 'block' : 'none';
+            document.getElementById('mode-ai').style.display = mode === 'ai' ? 'block' : 'none';
+            document.getElementById('tab-manual').classList.toggle('active', mode === 'manual');
+            document.getElementById('tab-ai').classList.toggle('active', mode === 'ai');
+        }
+
+        function filterFood() {
+            const q = document.getElementById('search-food').value.toLowerCase();
+            const res = document.getElementById('food-results');
+            if(q.length < 2) { res.style.display = 'none'; return; }
+            const matches = DB_FULL.master_gizi.filter(r => r[0] && r[0].toLowerCase().includes(q) && r[1] !== "");
+            if(matches.length > 0) {
+                res.innerHTML = matches.slice(0, 10).map(m => `
+                    <button onclick="addFood('${m[0]}', ${m[1]}, ${m[5]})" class="list-group-item list-group-item-action border-0 py-3">
+                        ${m[0]} <span class="badge bg-light text-muted float-end">${m[1]} kkal</span>
+                    </button>
+                `).join('');
+                res.style.display = 'block';
+            } else { res.style.display = 'none'; }
+        }
+
+        function addFood(nama, kal, fe) {
+            currentMeal.push({ nama, kal, fe });
+            renderSelected();
+            document.getElementById('search-food').value = "";
+            document.getElementById('food-results').style.display = 'none';
+        }
+
+        function renderSelected() {
+            const div = document.getElementById('current-meal-items');
+            document.getElementById('selected-list').classList.remove('d-none');
+            div.innerHTML = currentMeal.map((item, idx) => `
+                <div class="d-flex justify-content-between align-items-center mb-2 p-3 bg-white border rounded-3 shadow-sm">
+                    <span class="small fw-bold">${item.nama}</span>
+                    <i class="bi bi-trash text-danger" onclick="currentMeal.splice(${idx},1); renderSelected()"></i>
                 </div>
             `).join('');
         }
 
-        function cekAKG(nik) {
-            const penduduk = DB_FULL.Master_Data_Penduduk.find(r => r[0].toString() === nik);
-            // Ambil data pengukuran terbaru dari sheet pengukuran_gizi (Kolom D adalah BB)
-            const listUkur = DB_FULL.pengukuran_gizi.filter(r => r[1].toString() === nik);
-            const ukurTerakhir = listUkur.length > 0 ? listUkur[listUkur.length - 1] : null;
+        async function processAIPhoto(input) {
+            if(!input.files || !input.files[0]) return;
+            document.getElementById('ai-loading').classList.remove('d-none');
+            const reader = new FileReader();
+            reader.onload = async () => {
+                const base64 = reader.result.split(',')[1];
+                const prompt = `Identifikasi makanan ini berdasarkan daftar lokal Bulo: ${DB_FULL.master_gizi.map(r => r[0]).join(', ')}. Berikan JSON array saja berisi nama yang cocok.`;
+                try {
+                    const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
+                        method: 'POST', headers: {'Content-Type': 'application/json'},
+                        body: JSON.stringify({ contents: [{ parts: [{ text: prompt }, { inline_data: { mime_type: "image/jpeg", data: base64 } }] }] })
+                    });
+                    const data = await resp.json();
+                    const text = data.candidates[0].content.parts[0].text;
+                    const matchedNames = JSON.parse(text.match(/\[.*\]/s)[0]);
+                    matchedNames.forEach(n => {
+                        const m = DB_FULL.master_gizi.find(r => r[0] === n);
+                        if(m) currentMeal.push({ nama: m[0], kal: m[1], fe: m[5] });
+                    });
+                    renderSelected();
+                    toggleGiziMode('manual');
+                    Swal.fire('AI Terdeteksi', `Menemukan: ${matchedNames.join(', ')}`, 'success');
+                } catch (e) { Swal.fire('Error AI', 'Gagal memproses gambar.', 'error'); }
+                finally { document.getElementById('ai-loading').classList.add('d-none'); }
+            };
+            reader.readAsDataURL(input.files[0]);
+        }
 
-            const tb = parseFloat(penduduk[12]) || 0; 
-            const bb = ukurTerakhir ? parseFloat(ukurTerakhir[3]) : 0;
-            const tglUkur = ukurTerakhir ? ukurTerakhir[2] : "-";
-
-            if (tb <= 0 || bb <= 0) {
-                Swal.fire('Data Kosong', `Data pengukuran terbaru untuk ${penduduk[2]} tidak ditemukan.`, 'warning');
-                return;
-            }
-
-            const imt = (bb / ((tb/100) * (tb/100))).toFixed(1);
-            let status = "Normal"; let warna = "#198754";
-            if(imt < 18.5) { status = "Gizi Kurang"; warna = "#ffc107"; }
-            else if(imt >= 25) { status = "Obesitas"; warna = "#dc3545"; }
-
+        function hitungGiziFinal() {
+            const user = DB_FULL.Master_Data_Penduduk.find(r => r[0].toString() === USER_SESSION.nik);
+            const role = (user[6] === "Hamil") ? "Ibu Hamil" : (user[3] === "L" ? "Ayah / Lansia" : "Ibu Rumah Tangga");
+            const ref = DB_FULL.referensi_akg.find(r => r[0] === role) || DB_FULL.referensi_akg[0];
+            const targetFe = parseFloat(ref[3]) || 0;
+            const tFe = currentMeal.reduce((s, i) => s + parseFloat(i.fe || 0), 0);
+            const tKal = currentMeal.reduce((s, i) => s + parseFloat(i.kal || 0), 0);
+            
             Swal.fire({
-                title: 'Kalkulator Gizi Checkpoint',
-                html: `
-                    <div class="p-3 text-white rounded-4 mb-3" style="background:${warna}">
-                        <h4 class="fw-bold mb-0">${status}</h4>
-                        <small>IMT: ${imt}</small>
-                    </div>
-                    <div class="text-start small p-2 bg-light rounded-3">
-                        <p class="mb-1"><b>Tinggi Badan:</b> ${tb} cm</p>
-                        <p class="mb-1"><b>Berat Badan:</b> ${bb} kg</p>
-                        <p class="mb-0 text-muted"><i>Terakhir diukur: ${tglUkur}</i></p>
-                    </div>
-                `,
-                confirmButtonColor: '#00569e'
-            });
+                title: 'Hasil Gizi Harian',
+                html: `<div class='text-start'>Energi: <b>${tKal} kkal</b><br>Zat Besi: <b>${tFe} mg</b> / ${targetFe} mg<div class='progress mt-2'><div class='progress-bar' style='width:${(tFe/targetFe*100)}%'></div></div></div>`,
+                confirmButtonText: 'Simpan Ke Riwayat'
+            }).then(() => { currentMeal = []; renderSelected(); switchPage('app-home'); });
         }
 
-        function showQR() {
-            Swal.fire({ title: 'ID DIGITAL', imageUrl: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${USER_SESSION.nik}` });
+        function renderGiziList() {
+            const kel = DB_FULL.Master_Data_Penduduk.filter(r => r[7].toString() === USER_SESSION.kk);
+            document.getElementById('list-keluarga-gizi').innerHTML = kel.map(k => `
+                <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
+                    <div><b>${k[2]}</b><br><small class="text-muted">TB: ${k[12]}cm | BB: ${k[13]}kg</small></div>
+                    <button onclick="cekStatusIMT('${k[0]}')" class="btn btn-sm btn-outline-primary rounded-pill">Status</button>
+                </div>
+            `).join('');
         }
 
-        function confirmLogout() {
-            localStorage.clear();
-            location.reload();
+        function cekStatusIMT(nik) {
+            const p = DB_FULL.Master_Data_Penduduk.find(r => r[0].toString() === nik);
+            const tb = parseFloat(p[12]); const bb = parseFloat(p[13]);
+            if(!tb || !bb) { Swal.fire('Data Kosong','BB/TB belum lengkap di Master.','warning'); return; }
+            const imt = (bb / ((tb/100)*(tb/100))).toFixed(1);
+            let s = "Normal"; let w = "#198754"; if(imt < 18.5) { s="Kurus"; w="#ffc107"; } else if(imt >= 25) { s="Overweight"; w="#dc3545"; }
+            Swal.fire({ title: p[2], html: `<div class='p-3 text-white rounded-3' style='background:${w}'>${s} (IMT: ${imt})</div>` });
         }
+
+        function showQR() { Swal.fire({ title: 'ID WARGA', imageUrl: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${USER_SESSION.nik}`, imageWidth: 200 }); }
+        function confirmLogout() { Swal.fire({ title: 'Logout?', showCancelButton: true }).then(r => { if(r.isConfirmed) { localStorage.clear(); location.reload(); } }); }
 
         window.onload = fetchAndInit;
     </script>
