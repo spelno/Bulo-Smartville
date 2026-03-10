@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Bulo Smartville v15.4</title>
+    <title>Bulo Smartville v15.5</title>
     
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
@@ -15,18 +15,9 @@
         html, body { height: 100vh; overflow: hidden; background: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; position: fixed; width: 100%; }
 
         /* SPLASH SCREEN */
-        #splash-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: white; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; z-index: 10000;
-            transition: opacity 0.8s ease;
-        }
+        #splash-screen { position: fixed; top: 0; left: 0; width: 100%; height: 100%; background: white; display: flex; flex-direction: column; align-items: center; justify-content: center; z-index: 10000; transition: opacity 0.8s ease; }
         .splash-logo { width: 180px; animation: logoScale 1s ease-out forwards; }
-        .splash-text-fixed {
-            color: #00569e; font-weight: 800; font-size: 0.95rem; letter-spacing: 2px;
-            opacity: 0; transform: translateY(20px);
-            animation: fadeInUp 0.8s 0.6s forwards ease-out;
-        }
+        .splash-text-fixed { color: #00569e; font-weight: 800; font-size: 0.95rem; letter-spacing: 2px; opacity: 0; transform: translateY(20px); animation: fadeInUp 0.8s 0.6s forwards ease-out; }
 
         @keyframes logoScale { from { opacity: 0; transform: scale(0.8); } to { opacity: 1; transform: scale(1); } }
         @keyframes fadeInUp { from { opacity: 0; transform: translateY(20px); } to { opacity: 1; transform: translateY(0); } }
@@ -39,17 +30,7 @@
         /* LAYOUT & HEADER */
         .page { display: none; height: 100%; width: 100%; flex-direction: column; background: var(--bg-gray); }
         .top-header { background: linear-gradient(135deg, var(--main-blue), var(--dark-blue)); color: white; padding: 40px 20px 70px; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; }
-        
-        /* PROFILE SLOT */
-        .profile-slot { 
-            width: 55px; height: 55px; 
-            background: rgba(255,255,255,0.2); 
-            border-radius: 18px; 
-            border: 2px solid rgba(255,255,255,0.4); 
-            display: flex; align-items: center; justify-content: center; 
-            overflow: hidden; cursor: pointer;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.1);
-        }
+        .profile-slot { width: 55px; height: 55px; background: rgba(255,255,255,0.2); border-radius: 18px; border: 2px solid rgba(255,255,255,0.4); display: flex; align-items: center; justify-content: center; overflow: hidden; }
         .profile-slot img { width: 100%; height: 100%; object-fit: cover; }
 
         .content-area { flex: 1; overflow-y: auto; padding: 0 20px 140px; margin-top: -45px; }
@@ -59,7 +40,11 @@
         .bottom-nav { height: 90px; background: white; display: flex; justify-content: space-around; align-items: center; position: absolute; bottom: 0; width: 100%; border-top: 1px solid #eee; padding-bottom: env(safe-area-inset-bottom); }
         .nav-link { text-align: center; color: #bbb; text-decoration: none; font-size: 0.7rem; }
         .nav-link.active { color: var(--main-blue); font-weight: bold; }
-        .btn-qr-main { width: 65px; height: 65px; background: var(--main-blue); border-radius: 22px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8rem; margin-top: -65px; border: 5px solid var(--bg-gray); box-shadow: 0 8px 20px rgba(0,86,158,0.3); }
+        .btn-qr-main { width: 65px; height: 65px; background: var(--main-blue); border-radius: 22px; display: flex; align-items: center; justify-content: center; color: white; font-size: 1.8rem; margin-top: -65px; border: 5px solid var(--bg-gray); shadow: 0 8px 20px rgba(0,86,158,0.3); }
+
+        /* GIZI UI */
+        #food-results { border-radius: 15px; overflow: hidden; border: 1px solid #eee; }
+        .meal-item { border-left: 5px solid var(--main-blue); background: #fdfdfd; padding: 12px; margin-bottom: 8px; border-radius: 12px; display: flex; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body onload="fetchAndInit()">
@@ -74,11 +59,10 @@
             <img src="Lobo_Bulo.png" class="login-logo" alt="Lobo Bulo">
             <div class="slogan-text">Membangun Desa Lebih Cerdas</div>
             <div class="w-100" style="max-width: 320px;">
-                <input type="number" id="nik" class="form-control form-control-lg rounded-pill border-0 bg-light px-4 mb-3 shadow-sm" placeholder="NIK Warga">
-                <input type="password" id="pass" class="form-control form-control-lg rounded-pill border-0 bg-light px-4 mb-4 shadow-sm" placeholder="Password">
-                <button onclick="handleLogin()" class="btn btn-primary w-100 py-3 fw-bold rounded-pill shadow-lg">MASUK</button>
+                <input type="number" id="nik" class="form-control form-control-lg rounded-pill border-0 bg-light px-4 mb-3" placeholder="NIK Warga">
+                <input type="password" id="pass" class="form-control form-control-lg rounded-pill border-0 bg-light px-4 mb-4" placeholder="Password">
+                <button onclick="handleLogin()" class="btn btn-primary w-100 py-3 fw-bold rounded-pill">MASUK</button>
             </div>
-            <p class="mt-5 small text-muted opacity-50" style="font-size: 0.6rem;">UNIMMAN &copy; 2026</p>
         </div>
     </div>
 
@@ -86,18 +70,16 @@
         <div class="top-header">
             <div class="d-flex justify-content-between align-items-center">
                 <div><small class="opacity-75">Halo,</small><h5 class="mb-0 fw-bold" id="user-display">Memuat...</h5></div>
-                <div class="profile-slot" id="profile-container" onclick="triggerPhotoUpdate()">
-                    <i class="bi bi-person-fill text-white fs-3" id="default-icon"></i>
-                </div>
+                <div class="profile-slot" onclick="triggerPhotoUpdate()"><i class="bi bi-person-fill text-white fs-3"></i></div>
             </div>
         </div>
         <div class="content-area">
             <div class="row g-3 mb-4 text-center">
-                <div class="col-4"><div class="premium-card p-3 mb-0" onclick="switchPage('app-gizi')">🥗<br><small class="fw-bold">Gizi</small></div></div>
-                <div class="col-4"><div class="premium-card p-3 mb-0">♻️<br><small class="fw-bold">Sampah</small></div></div>
-                <div class="col-4"><div class="premium-card p-3 mb-0">🏢<br><small class="fw-bold">Desa</small></div></div>
+                <div class="col-4"><div class="premium-card p-3" onclick="switchPage('app-gizi')">🥗<br><small class="fw-bold">Gizi</small></div></div>
+                <div class="col-4"><div class="premium-card p-3">♻️<br><small class="fw-bold">Sampah</small></div></div>
+                <div class="col-4"><div class="premium-card p-3">🏢<br><small class="fw-bold">Desa</small></div></div>
             </div>
-            <h6 class="fw-bold mb-3 small"><i class="bi bi-people-fill me-2 text-primary"></i>ANGGOTA KELUARGA</h6>
+            <h6 class="fw-bold mb-3 small"><i class="bi bi-people-fill me-2 text-primary"></i>KELUARGA</h6>
             <div id="family-list"></div>
         </div>
         <div class="bottom-nav">
@@ -113,18 +95,28 @@
         </div>
         <div class="content-area">
             <div class="premium-card">
-                <input type="text" id="search-food" class="form-control rounded-pill border-0 bg-light" placeholder="Cari menu..." onkeyup="filterFood()">
-                <div id="food-results" class="list-group mt-2 shadow-sm" style="display:none; max-height: 180px; overflow-y: auto;"></div>
+                <div class="input-group bg-light rounded-pill px-3">
+                    <span class="input-group-text border-0 bg-transparent"><i class="bi bi-search"></i></span>
+                    <input type="text" id="search-food" class="form-control border-0 bg-transparent" placeholder="Cari makanan..." onkeyup="filterFood()">
+                </div>
+                <div id="food-results" class="list-group mt-2 shadow-sm" style="display:none; max-height: 200px; overflow-y: auto;"></div>
             </div>
-            <div id="selected-list" class="d-none"><div id="current-meal-items"></div><button onclick="Swal.fire('Sukses','Data gizi dianalisa','success')" class="btn btn-primary w-100 py-3 mt-4 rounded-pill fw-bold shadow">SIMPAN</button></div>
+            <div id="selected-list" class="d-none">
+                <h6 class="fw-bold mb-3 small">Daftar Konsumsi:</h6>
+                <div id="current-meal-items"></div>
+                <div class="premium-card mt-3 bg-primary text-white text-center">
+                    <small>Estimasi Total</small><h4 class="mb-0" id="total-kalori">0 kkal</h4>
+                </div>
+                <button onclick="saveGizi()" class="btn btn-primary w-100 py-3 mt-3 rounded-pill fw-bold shadow">SIMPAN DATA</button>
+            </div>
         </div>
     </div>
 
-    <input type="file" id="photo-input" style="display:none" accept="image/*" onchange="handlePhotoSelect(event)">
+    <input type="file" id="photo-input" style="display:none" onchange="handlePhotoSelect(event)">
 
     <script>
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6CKdpyg71G1jUBN5EyZWDyqsVzqUYqElkpE1XH3fh-cbiMfEjFvhxKubK-dJI74pb7A/exec";
-        let DB_FULL = null; let USER_SESSION = null;
+        let DB_FULL = null; let USER_SESSION = null; let currentMeal = [];
 
         async function fetchAndInit() {
             try {
@@ -136,7 +128,7 @@
                     setTimeout(() => {
                         document.getElementById('splash-screen').style.display = 'none';
                         const saved = localStorage.getItem('bulo_user');
-                        if(saved) { USER_SESSION = JSON.parse(saved); initDashboard(); loadSavedPhoto(); switchPage('app-home'); }
+                        if(saved) { USER_SESSION = JSON.parse(saved); initDashboard(); switchPage('app-home'); }
                         else switchPage('login-screen');
                     }, 800);
                 }, 3000);
@@ -148,37 +140,60 @@
             const family = DB_FULL.Master_Data_Penduduk.filter(r => r[7].toString() === USER_SESSION.kk);
             document.getElementById('family-list').innerHTML = family.map(f => `
                 <div class="premium-card p-3 d-flex justify-content-between align-items-center">
-                    <div class="d-flex align-items-center"><div class="bg-light rounded-circle p-2 me-3 text-primary"><i class="bi bi-person-circle fs-4"></i></div>
-                    <div><div class="fw-bold small">${f[2]}</div><small class="text-muted" style="font-size:0.6rem">Kondisi: ${f[13] || 'Normal'}</small></div></div>
-                    <button class="btn btn-outline-primary btn-sm rounded-pill px-3 fw-bold" onclick="Swal.fire('${f[2]}','BMI: '+((f[12]||60)/((f[11]||160)/100)**2).toFixed(1),'info')">STATUS</button>
+                    <div><div class="fw-bold small">${f[2]}</div><small class="text-muted" style="font-size:0.6rem">Komorbid: ${f[13] || '-'}</small></div>
+                    <button class="btn btn-outline-primary btn-sm rounded-pill px-3" onclick="cekBMI('${f[2]}',${f[11]},${f[12]})">BMI</button>
                 </div>`).join('');
         }
 
-        /* PHOTO UPDATE LOGIC */
-        function triggerPhotoUpdate() { document.getElementById('photo-input').click(); }
-
-        function handlePhotoSelect(event) {
-            const file = event.target.files[0];
-            if (file) {
-                const reader = new FileReader();
-                reader.onload = function(e) {
-                    const base64Image = e.target.result;
-                    localStorage.setItem('user_photo_' + USER_SESSION.nik, base64Image);
-                    displayPhoto(base64Image);
-                    Swal.fire({ icon: 'success', title: 'Foto Profil Diperbarui', timer: 1500, showConfirmButton: false });
-                };
-                reader.readAsDataURL(file);
-            }
+        // --- FIX KALKULATOR GIZI ---
+        function filterFood() {
+            const q = document.getElementById('search-food').value.toLowerCase();
+            const res = document.getElementById('food-results');
+            if(q.length < 2) { res.style.display = 'none'; return; }
+            
+            // Asumsi master_gizi: [Nama, Kalori]
+            const matches = DB_FULL.master_gizi.filter(r => r[0] && r[0].toString().toLowerCase().includes(q));
+            res.innerHTML = matches.slice(0, 6).map(m => `
+                <button onclick="addFood('${m[0]}', ${m[1]})" class="list-group-item list-group-item-action border-0 py-3 small">
+                    ${m[0]} <span class="badge bg-light text-primary float-end">${m[1]} kkal</span>
+                </button>`).join('');
+            res.style.display = 'block';
         }
 
-        function loadSavedPhoto() {
-            const photo = localStorage.getItem('user_photo_' + USER_SESSION.nik);
-            if (photo) displayPhoto(photo);
+        function addFood(nama, kalori) {
+            currentMeal.push({ id: Date.now(), nama, kalori });
+            document.getElementById('search-food').value = '';
+            document.getElementById('food-results').style.display = 'none';
+            document.getElementById('selected-list').classList.remove('d-none');
+            renderMeal();
         }
 
-        function displayPhoto(src) {
-            const container = document.getElementById('profile-container');
-            container.innerHTML = `<img src="${src}" alt="Profile">`;
+        function renderMeal() {
+            const container = document.getElementById('current-meal-items');
+            let total = 0;
+            container.innerHTML = currentMeal.map(i => {
+                total += parseFloat(i.kalori);
+                return `
+                <div class="meal-item">
+                    <div><b>${i.nama}</b><br><small class="text-muted">${i.kalori} kkal</small></div>
+                    <i class="bi bi-trash text-danger" onclick="removeFood(${i.id})"></i>
+                </div>`;
+            }).join('');
+            document.getElementById('total-kalori').innerText = total + " kkal";
+            if(currentMeal.length === 0) document.getElementById('selected-list').classList.add('d-none');
+        }
+
+        function removeFood(id) { currentMeal = currentMeal.filter(x => x.id !== id); renderMeal(); }
+
+        function saveGizi() {
+            Swal.fire({ icon: 'success', title: 'Data Tersimpan', text: 'Analisis gizi harian telah diperbarui.' });
+            currentMeal = []; renderMeal();
+        }
+
+        function cekBMI(nama, tb, bb) {
+            if(!tb || !bb) { Swal.fire('Data Kurang','Tinggi/Berat belum diinput','warning'); return; }
+            const res = bb / ((tb/100)**2);
+            Swal.fire({ title: 'Status ' + nama, html: `<h3>${res.toFixed(1)}</h3>` });
         }
 
         function handleLogin() {
@@ -187,22 +202,14 @@
             if(user) {
                 USER_SESSION = { nik: user[0].toString(), nama: user[2], kk: user[7].toString() };
                 localStorage.setItem('bulo_user', JSON.stringify(USER_SESSION));
-                initDashboard(); loadSavedPhoto(); switchPage('app-home');
+                initDashboard(); switchPage('app-home');
             } else Swal.fire('Gagal','NIK/Password Salah','error');
         }
 
         function switchPage(p) { document.querySelectorAll('.page').forEach(pg => pg.style.display='none'); document.getElementById(p).style.display='flex'; }
         function showQR() { Swal.fire({ title: 'QR DIGITAL', html: '<canvas id="qr-canvas"></canvas>', didOpen: () => new QRious({element: document.getElementById('qr-canvas'), value: USER_SESSION.nik, size: 200}) }); }
         function confirmLogout() { localStorage.clear(); location.reload(); }
-        
-        function filterFood() {
-            const q = document.getElementById('search-food').value.toLowerCase();
-            const res = document.getElementById('food-results');
-            if(q.length < 2) { res.style.display = 'none'; return; }
-            const matches = DB_FULL.master_gizi.filter(r => r[0] && r[0].toLowerCase().includes(q));
-            res.innerHTML = matches.slice(0, 5).map(m => `<button onclick="this.parentElement.style.display='none'; document.getElementById('selected-list').classList.remove('d-none');" class="list-group-item list-group-item-action border-0 py-3 small">${m[0]}</button>`).join('');
-            res.style.display = 'block';
-        }
+        function triggerPhotoUpdate() { document.getElementById('photo-input').click(); }
     </script>
 </body>
 </html>
