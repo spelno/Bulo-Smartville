@@ -1,169 +1,223 @@
 <!DOCTYPE html>
-<html lang="id">
+<html>
 <head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bulo Smartville v6.3 Pro</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <style>
-        body { background: #f8f9fa; font-family: sans-serif; }
-        .card-custom { border-radius: 20px; border: none; box-shadow: 0 5px 20px rgba(0,0,0,0.05); }
-        .is-over { background: #dc3545 !important; color: white !important; }
-        #app-content, #view-detail { display: none; }
-        @media print { .no-print { display: none !important; } .print-area { box-shadow: none !important; border: 1px solid #eee !important; } }
-    </style>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --primary: #2ecc71; --secondary: #3498db; --danger: #e74c3c; --dark: #2c3e50; --light: #f4f7f6; }
+    body { font-family: 'Inter', sans-serif; background-color: var(--light); margin: 0; padding: 15px; }
+    .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .profile-section { border-left: 5px solid var(--secondary); }
+    .profile-info h2 { margin: 0; font-size: 1.2rem; }
+    .profile-info p { margin: 2px 0; color: #7f8c8d; font-size: 0.85rem; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+    .stat-box { text-align: center; padding: 15px; border-radius: 12px; color: white; }
+    .bg-green { background: var(--primary); }
+    .bg-blue { background: var(--secondary); }
+    .stat-label { font-size: 0.7rem; opacity: 0.9; }
+    .stat-value { font-size: 1rem; font-weight: bold; margin-top: 5px; }
+    .alarm-card { text-align: center; }
+    .alarm-active { border: 2px solid var(--danger); background: #fff5f5; }
+    .alarm-timer { font-size: 1.8rem; font-weight: 700; color: var(--danger); margin: 5px 0; }
+    .qr-container { text-align: center; }
+    .qr-image { width: 160px; height: 160px; margin: 10px auto; border: 3px solid #eee; border-radius: 10px; }
+    #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:white; display:flex; justify-content:center; align-items:center; z-index:99; }
+  </style>
 </head>
 <body>
 
-<div id="login-screen" class="vh-100 d-flex align-items-center justify-content-center bg-white">
-    <div class="col-md-4 text-center p-4">
-        <img src="Lobo_Bulo.png" style="width:150px" class="mb-4">
-        <div class="card card-custom p-4 shadow">
-            <h5 class="fw-bold mb-3">Login Bulo Smartville</h5>
-            <input type="text" id="nik" class="form-control mb-2 rounded-pill" placeholder="NIK">
-            <input type="password" id="pass" class="form-control mb-3 rounded-pill" placeholder="Password">
-            <button onclick="doLogin()" class="btn btn-primary w-100 rounded-pill fw-bold">MASUK</button>
-        </div>
+  <div id="loader">Memuat Data...</div>
+
+  <div class="card profile-section">
+    <div class="profile-info">
+      <h2 id="userName">-</h2>
+      <p id="userDusun">Dusun -</p>
+      <p id="userNIK">NIK: -</p>
+      <div style="margin-top:8px;">
+        <span style="background:#e8f5e9; color:#2e7d32; padding:4px 10px; border-radius:15px; font-size:0.75rem; font-weight:bold;">
+          Status Gizi: <span id="userGizi">-</span>
+        </span>
+      </div>
     </div>
-</div>
+  </div>
 
-<div id="app-content">
-    <div class="p-3 bg-white border-bottom d-flex justify-content-between align-items-center no-print">
-        <b class="text-primary">BULO SMARTVILLE PRO</b>
-        <button onclick="doLogout()" class="btn btn-sm btn-link text-danger">Keluar</button>
+  <div class="stats-grid">
+    <div class="stat-box bg-green">
+      <div class="stat-label">Saldo Siap Cair</div>
+      <div id="saldoRp" class="stat-value">Rp 0</div>
     </div>
-    <div class="container py-4">
-        <div id="view-dashboard" class="row g-3">
-            <div class="col-6"><div class="card card-custom p-4 text-center shadow-sm" onclick="chooseMember()"><h1>🥗</h1><small class="fw-bold">Hitung Gizi</small></div></div>
-            <div id="kader-menu" class="col-6 d-none"><div class="card card-custom p-4 text-center shadow-sm" onclick="manageFisik()"><h1>⚖️</h1><small class="fw-bold">Update TB/BB</small></div></div>
-        </div>
-        <div id="view-detail">
-            <button onclick="goBack()" class="btn btn-light btn-sm mb-3 no-print rounded-pill border">← Kembali</button>
-            <div id="detail-body"></div>
-        </div>
+    <div class="stat-box bg-blue">
+      <div class="stat-label">Tabungan Sampah</div>
+      <div id="tabunganKg" class="stat-value">0 Kg</div>
     </div>
-</div>
+  </div>
 
-<script>
-const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbywGMF9Q7YUBjIg2awgrihcZSAYV1VZDtaH6VKMZHduoAoWhoQ-VabH1AAGJ_ob_nWqHg/exec"; 
-let USER = null, DATA = null, piring = [], selectedMember = null;
+  <div id="alarmCard" class="card alarm-card">
+    <div id="alarmLabel" class="stat-label" style="color:#7f8c8d;">Memuat Jadwal...</div>
+    <div id="timer" class="alarm-timer">00:00:00</div>
+    <p id="alarmNote" style="font-size: 0.75rem; margin: 0; color: #95a5a6;"></p>
+  </div>
 
-async function doLogin() {
-    const nik = document.getElementById('nik').value, pass = document.getElementById('pass').value;
-    Swal.fire({title: 'Memproses...', didOpen:()=>Swal.showLoading()});
-    const res = await fetch(WEB_APP_URL, {method:'POST', body: JSON.stringify({action:'login', nik, password:pass})}).then(r=>r.json());
-    if(res.status==='success') { USER=res.user; localStorage.setItem('bulo_session', JSON.stringify(USER)); initApp(); Swal.close(); }
-    else { Swal.fire('Error', res.message, 'error'); }
-}
+  <div class="card qr-container">
+    <div style="font-size: 0.8rem; font-weight:bold;">ID DIGITAL WARGA (SCAN KADER)</div>
+    <img id="qrImg" class="qr-image" src="" alt="QR">
+    <p style="font-size: 0.7rem; color: #7f8c8d;">Gunakan untuk setor plastik (Pukul 10.00+)</p>
+  </div>
 
-function doLogout() { localStorage.removeItem('bulo_session'); location.reload(); }
+  <script>
+    function startTimer(targetTime) {
+      setInterval(function() {
+        const now = new Date().getTime();
+        const distance = targetTime - now;
+        const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((distance % (1000 * 60)) / 1000);
+        document.getElementById("timer").innerHTML = (h<10?"0":"")+h+":"+(m<10?"0":"")+m+":"+(s<10?"0":"")+s;
+        if (distance < 0) location.reload();
+      }, 1000);
+    }
 
-async function initApp() {
-    document.getElementById('login-screen').classList.replace('d-flex', 'd-none');
-    document.getElementById('app-content').style.display = 'block';
-    if(USER.role === 'admin' || USER.role === 'kader') document.getElementById('kader-menu').classList.remove('d-none');
-    const res = await fetch(WEB_APP_URL, {method:'POST', body: JSON.stringify({action:'get_dashboard', user:USER})}).then(r=>r.json());
-    DATA = res.data;
-}
+    window.onload = function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const nik = urlParams.get('nik');
+      
+      if(!nik) {
+        document.body.innerHTML = "<div style='padding:20px; text-align:center;'>Harap masukkan NIK pada URL (?nik=xxx)</div>";
+        return;
+      }
 
-function chooseMember() {
-    let opts = DATA.keluarga.map((k, i) => `<option value="${i}">${k.nama}</option>`).join('');
-    Swal.fire({ title: 'Pilih Anggota', html: `<select id="idx-mem" class="form-select mt-2 rounded-pill">${opts}</select>`, confirmButtonText: 'Pilih' }).then(r => {
-        if(r.isConfirmed) { selectedMember = DATA.keluarga[document.getElementById('idx-mem').value]; piring = []; renderCalc(); document.getElementById('view-dashboard').classList.add('d-none'); document.getElementById('view-detail').style.display='block'; }
-    });
-}
-
-function manageFisik() {
-    let opts = DATA.keluarga.map((k, i) => `<option value="${i}">${k.nama}</option>`).join('');
-    Swal.fire({
-        title: 'Update TB/BB Kader',
-        html: `<select id="upd-idx" class="form-select mb-2 rounded-pill">${opts}</select>
-               <input id="upd-tb" type="number" class="form-control mb-2 rounded-pill" placeholder="Tinggi (cm)">
-               <input id="upd-bb" type="number" class="form-control rounded-pill" placeholder="Berat (kg)">`,
-        confirmButtonText: 'Simpan',
-        preConfirm: () => {
-            let m = DATA.keluarga[document.getElementById('upd-idx').value];
-            return { nik: m.nik, tb: document.getElementById('upd-tb').value, bb: document.getElementById('upd-bb').value };
+      google.script.run.withSuccessHandler(function(data) {
+        if(data.error) {
+          document.body.innerHTML = "<div style='padding:20px; text-align:center;'>" + data.error + "</div>";
+          return;
         }
-    }).then(async r => {
-        if(r.isConfirmed && r.value.tb && r.value.bb) {
-            Swal.fire({title:'Menyimpan...', didOpen:()=>Swal.showLoading()});
-            await fetch(WEB_APP_URL, {method:'POST', body: JSON.stringify({action:'update_fisik', ...r.value})});
-            initApp(); Swal.fire('Berhasil', 'Data fisik diperbarui', 'success');
+        document.getElementById("loader").style.display = "none";
+        document.getElementById("userName").innerText = data.profile.nama;
+        document.getElementById("userDusun").innerText = "Dusun " + data.profile.dusun;
+        document.getElementById("userNIK").innerText = "NIK: " + nik;
+        document.getElementById("userGizi").innerText = data.profile.statusGizi;
+        document.getElementById("saldoRp").innerText = "Rp " + data.trash.saldoUang.toLocaleString('id-ID');
+        document.getElementById("tabunganKg").innerText = data.trash.tabunganKg + " Kg";
+        document.getElementById("qrImg").src = data.qrUrl;
+        
+        const alarm = data.alarm;
+        document.getElementById("alarmLabel").innerText = alarm.status;
+        if(alarm.isActive) document.getElementById("alarmCard").classList.add("alarm-active");
+        startTimer(alarm.targetTime);
+      }).getFullWargaDashboard(nik);
+    };
+  </script>
+</body>
+</html><!DOCTYPE html>
+<html>
+<head>
+  <base target="_top">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root { --primary: #2ecc71; --secondary: #3498db; --danger: #e74c3c; --dark: #2c3e50; --light: #f4f7f6; }
+    body { font-family: 'Inter', sans-serif; background-color: var(--light); margin: 0; padding: 15px; }
+    .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
+    .profile-section { border-left: 5px solid var(--secondary); }
+    .profile-info h2 { margin: 0; font-size: 1.2rem; }
+    .profile-info p { margin: 2px 0; color: #7f8c8d; font-size: 0.85rem; }
+    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
+    .stat-box { text-align: center; padding: 15px; border-radius: 12px; color: white; }
+    .bg-green { background: var(--primary); }
+    .bg-blue { background: var(--secondary); }
+    .stat-label { font-size: 0.7rem; opacity: 0.9; }
+    .stat-value { font-size: 1rem; font-weight: bold; margin-top: 5px; }
+    .alarm-card { text-align: center; }
+    .alarm-active { border: 2px solid var(--danger); background: #fff5f5; }
+    .alarm-timer { font-size: 1.8rem; font-weight: 700; color: var(--danger); margin: 5px 0; }
+    .qr-container { text-align: center; }
+    .qr-image { width: 160px; height: 160px; margin: 10px auto; border: 3px solid #eee; border-radius: 10px; }
+    #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:white; display:flex; justify-content:center; align-items:center; z-index:99; }
+  </style>
+</head>
+<body>
+
+  <div id="loader">Memuat Data...</div>
+
+  <div class="card profile-section">
+    <div class="profile-info">
+      <h2 id="userName">-</h2>
+      <p id="userDusun">Dusun -</p>
+      <p id="userNIK">NIK: -</p>
+      <div style="margin-top:8px;">
+        <span style="background:#e8f5e9; color:#2e7d32; padding:4px 10px; border-radius:15px; font-size:0.75rem; font-weight:bold;">
+          Status Gizi: <span id="userGizi">-</span>
+        </span>
+      </div>
+    </div>
+  </div>
+
+  <div class="stats-grid">
+    <div class="stat-box bg-green">
+      <div class="stat-label">Saldo Siap Cair</div>
+      <div id="saldoRp" class="stat-value">Rp 0</div>
+    </div>
+    <div class="stat-box bg-blue">
+      <div class="stat-label">Tabungan Sampah</div>
+      <div id="tabunganKg" class="stat-value">0 Kg</div>
+    </div>
+  </div>
+
+  <div id="alarmCard" class="card alarm-card">
+    <div id="alarmLabel" class="stat-label" style="color:#7f8c8d;">Memuat Jadwal...</div>
+    <div id="timer" class="alarm-timer">00:00:00</div>
+    <p id="alarmNote" style="font-size: 0.75rem; margin: 0; color: #95a5a6;"></p>
+  </div>
+
+  <div class="card qr-container">
+    <div style="font-size: 0.8rem; font-weight:bold;">ID DIGITAL WARGA (SCAN KADER)</div>
+    <img id="qrImg" class="qr-image" src="" alt="QR">
+    <p style="font-size: 0.7rem; color: #7f8c8d;">Gunakan untuk setor plastik (Pukul 10.00+)</p>
+  </div>
+
+  <script>
+    function startTimer(targetTime) {
+      setInterval(function() {
+        const now = new Date().getTime();
+        const distance = targetTime - now;
+        const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
+        const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
+        const s = Math.floor((distance % (1000 * 60)) / 1000);
+        document.getElementById("timer").innerHTML = (h<10?"0":"")+h+":"+(m<10?"0":"")+m+":"+(s<10?"0":"")+s;
+        if (distance < 0) location.reload();
+      }, 1000);
+    }
+
+    window.onload = function() {
+      const urlParams = new URLSearchParams(window.location.search);
+      const nik = urlParams.get('nik');
+      
+      if(!nik) {
+        document.body.innerHTML = "<div style='padding:20px; text-align:center;'>Harap masukkan NIK pada URL (?nik=xxx)</div>";
+        return;
+      }
+
+      google.script.run.withSuccessHandler(function(data) {
+        if(data.error) {
+          document.body.innerHTML = "<div style='padding:20px; text-align:center;'>" + data.error + "</div>";
+          return;
         }
-    });
-}
-
-function addPiring() {
-    let f = DATA.master_gizi[document.getElementById('f-sel').value];
-    let g = document.getElementById('f-gram').value;
-    if(!g || g <= 0) return;
-    let r = parseFloat(g) / 100;
-    
-    // PEMETAAN KOLOM: 1:Kal, 2:Pro, 3:Lem, 4:Kar, 5:Fe
-    piring.push({ 
-        nama: f[0], gram: g, 
-        kal: (Number(f[1]) || 0) * r, 
-        pro: (Number(f[2]) || 0) * r, 
-        lem: (Number(f[3]) || 0) * r,
-        kar: (Number(f[4]) || 0) * r, 
-        fe: (Number(f[5]) || 0) * r 
-    });
-    document.getElementById('f-gram').value = ""; renderCalc();
-}
-
-function renderCalc() {
-    let optFood = DATA.master_gizi.map((f, i) => `<option value="${i}">${f[0]}</option>`).join('');
-    let total = { kal:0, pro:0, lem:0, kar:0, fe:0 };
-    piring.forEach(p => { 
-        total.kal += p.kal; total.pro += p.pro; total.lem += p.lem; total.kar += p.kar; total.fe += p.fe; 
-    });
-
-    let t = selectedMember.target;
-    let alerts = [];
-    if(total.lem > t.lem) alerts.push("🚫 <b>LEBIH LEMAK!</b>");
-    if(total.kar > t.kar) alerts.push("🍞 <b>LEBIH KARBOHIDRAT!</b>");
-    if(total.kal > t.kal + 200) alerts.push("🛑 <b>KALORI BERLEBIH!</b>");
-    if(total.fe < t.fe) alerts.push("🔴 <b>FE KURANG!</b>");
-
-    document.getElementById('detail-body').innerHTML = `
-        <div class="card card-custom p-4 mb-4 no-print bg-white shadow-sm">
-            <h5 class="fw-bold mb-0">${selectedMember.nama}</h5>
-            <small class="text-muted mb-3 d-block">📏 ${selectedMember.tb}cm | ⚖️ ${selectedMember.bb}kg</small>
-            <div class="row g-2 text-center mb-4">
-                <div class="col-3 p-2 border rounded ${total.kal > t.kal ? 'is-over':''}"><small>KAL</small><br><b>${total.kal.toFixed(0)}</b></div>
-                <div class="col-3 p-2 border rounded ${total.kar > t.kar ? 'is-over':''}"><small>KAR</small><br><b>${total.kar.toFixed(1)}</b></div>
-                <div class="col-3 p-2 border rounded"><small>PRO</small><br><b>${total.pro.toFixed(1)}</b></div>
-                <div class="col-3 p-2 border rounded"><small>FE</small><br><b>${total.fe.toFixed(1)}</b></div>
-            </div>
-            <div class="input-group mb-2 shadow-sm">
-                <select id="f-sel" class="form-select border-0 bg-light rounded-start-pill">${optFood}</select>
-                <input type="number" id="f-gram" class="form-control border-0 bg-light" placeholder="Gram">
-                <button onclick="addPiring()" class="btn btn-primary rounded-end-pill px-4 fw-bold">TAMBAH</button>
-            </div>
-        </div>
-        <div class="print-area p-4 bg-white card-custom border">
-            <div class="text-center mb-3">
-                <img src="Lobo_Bulo.png" style="width:60px">
-                <h6 class="fw-bold mt-2 m-0 text-uppercase">Laporan Gizi Harian</h6>
-                <small class="text-muted">Bulo Smartville v6.3</small>
-            </div>
-            <div class="alert alert-${alerts.length ? 'warning' : 'success'} small py-2">
-                ${alerts.length ? alerts.join('<br>') : '✅ Gizi Seimbang!'}
-            </div>
-            <table class="table table-sm small">
-                <thead><tr class="table-light"><th>Bahan</th><th>Berat</th><th>Pro</th><th>Lem</th><th>Kar</th><th>Fe</th></tr></thead>
-                <tbody>
-                    ${piring.map(p => `<tr><td>${p.nama}</td><td>${p.gram}g</td><td>${p.pro.toFixed(1)}</td><td>${p.lem.toFixed(1)}</td><td>${p.kar.toFixed(1)}</td><td>${p.fe.toFixed(1)}</td></tr>`).join('')}
-                    <tr class="table-dark fw-bold"><td>TOTAL</td><td></td><td>${total.pro.toFixed(1)}g</td><td>${total.lem.toFixed(1)}g</td><td>${total.kar.toFixed(1)}g</td><td>${total.fe.toFixed(1)}mg</td></tr>
-                </tbody>
-            </table>
-            <button onclick="window.print()" class="btn btn-dark btn-sm w-100 mt-3 rounded-pill no-print shadow">CETAK LAPORAN</button>
-        </div>`;
-}
-
-function goBack() { document.getElementById('view-detail').style.display='none'; document.getElementById('view-dashboard').classList.remove('d-none'); }
-</script>
+        document.getElementById("loader").style.display = "none";
+        document.getElementById("userName").innerText = data.profile.nama;
+        document.getElementById("userDusun").innerText = "Dusun " + data.profile.dusun;
+        document.getElementById("userNIK").innerText = "NIK: " + nik;
+        document.getElementById("userGizi").innerText = data.profile.statusGizi;
+        document.getElementById("saldoRp").innerText = "Rp " + data.trash.saldoUang.toLocaleString('id-ID');
+        document.getElementById("tabunganKg").innerText = data.trash.tabunganKg + " Kg";
+        document.getElementById("qrImg").src = data.qrUrl;
+        
+        const alarm = data.alarm;
+        document.getElementById("alarmLabel").innerText = alarm.status;
+        if(alarm.isActive) document.getElementById("alarmCard").classList.add("alarm-active");
+        startTimer(alarm.targetTime);
+      }).getFullWargaDashboard(nik);
+    };
+  </script>
 </body>
 </html>
