@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bulo Smartville v12.1</title>
+    <title>Bulo Smartville v12.2</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
@@ -82,13 +82,13 @@
         <div class="content-area">
             <ul class="nav nav-pills nav-fill mb-3 bg-white p-1 rounded-pill shadow-sm">
                 <li class="nav-item"><a class="nav-link active rounded-pill" id="tab-manual" href="javascript:void(0)" onclick="toggleGiziMode('manual')">Manual</a></li>
-                <li class="nav-item"><a class="nav-link rounded-pill" id="tab-ai" href="javascript:void(0)" onclick="toggleGiziMode('ai')">AI Foto</a></li>
+                <li class="nav-item"><a class="nav-link rounded-pill" id="tab-ai" href="javascript:void(0)" onclick="toggleGiziMode('ai')">Foto Pintar</a></li>
             </ul>
 
             <div id="mode-manual">
                 <div class="card border-0 shadow-sm rounded-4 p-3 mb-3 position-relative">
-                    <label class="small fw-bold text-muted mb-2">Cari Makanan:</label>
-                    <input type="text" id="search-food" class="form-control rounded-pill border-light bg-light" placeholder="Ketik ikan, nasi, dll..." onkeyup="filterFood()">
+                    <label class="small fw-bold text-muted mb-2">Pilih Makanan:</label>
+                    <input type="text" id="search-food" class="form-control rounded-pill border-light bg-light px-3" placeholder="Contoh: Ikan Cakalang..." onkeyup="filterFood()">
                     <div id="food-results" class="list-group food-search-res mt-1 shadow rounded-3 border-0" style="display:none"></div>
                 </div>
             </div>
@@ -96,21 +96,23 @@
             <div id="mode-ai" style="display:none">
                 <div class="card border-0 shadow-sm rounded-4 p-4 text-center">
                     <i class="bi bi-camera fs-1 text-primary mb-3"></i>
-                    <h6>Deteksi AI Bulo</h6>
-                    <p class="small text-muted">Foto makanan Anda untuk hitung otomatis.</p>
+                    <h6>Hitung Otomatis</h6>
+                    <p class="small text-muted">Foto piring makan Anda, sistem akan mencocokkan dengan data gizi lokal secara otomatis.</p>
                     <input type="file" id="camera-input" accept="image/*" capture="environment" class="d-none" onchange="processAIPhoto(this)">
-                    <button onclick="document.getElementById('camera-input').click()" class="btn btn-outline-primary rounded-pill w-100">Ambil Foto</button>
-                    <div id="ai-loading" class="mt-3 d-none"><div class="spinner-border spinner-border-sm text-primary"></div> <small>AI sedang menganalisis...</small></div>
+                    <button onclick="document.getElementById('camera-input').click()" class="btn btn-outline-primary rounded-pill w-100 py-2">Ambil Foto Makanan</button>
+                    <div id="ai-loading" class="mt-3 d-none"><div class="spinner-border spinner-border-sm text-primary"></div> <small class="ms-2">Sedang mengenali menu makanan...</small></div>
                 </div>
             </div>
 
             <div id="selected-list" class="mt-4 d-none">
-                <h6 class="fw-bold px-2">Piring Makan Anda:</h6>
+                <h6 class="fw-bold px-2">Menu di Piring Anda:</h6>
                 <div id="current-meal-items" class="px-2"></div>
-                <button onclick="hitungGiziFinal()" class="btn btn-primary w-100 mt-3 rounded-pill shadow">Simpan & Cek AKG</button>
+                <button onclick="hitungGiziFinal()" class="btn btn-primary w-100 mt-3 rounded-pill shadow fw-bold py-2">SIMPAN & CEK HASIL</button>
             </div>
             
-            <div class="mt-4 card border-0 p-3 bg-white rounded-4 shadow-sm">
+            <hr class="my-4">
+            
+            <div class="card border-0 p-3 bg-white rounded-4 shadow-sm mb-4">
                  <h6 class="fw-bold mb-3 small">Status Pertumbuhan BB/TB</h6>
                  <div id="list-keluarga-gizi"></div>
             </div>
@@ -135,7 +137,7 @@
     </div>
 
     <script>
-        // --- KONFIGURASI ---
+        // --- KONFIGURASI UTAMA ---
         const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6CKdpyg71G1jUBN5EyZWDyqsVzqUYqElkpE1XH3fh-cbiMfEjFvhxKubK-dJI74pb7A/exec"; 
         const GEMINI_API_KEY = "AIzaSyD82WFXe5G1SnMIS0mjIvmfv6yQF1JZvqM"; 
         
@@ -166,7 +168,7 @@
                     }
                 }
             } catch (e) {
-                Swal.fire('Koneksi Gagal', 'Gagal memuat data dari server Google Sheets.', 'error');
+                Swal.fire('Gagal Memuat Data', 'Pastikan koneksi internet stabil dan URL Apps Script benar.', 'error');
             } finally {
                 document.getElementById('loading-overlay').style.display = 'none';
             }
@@ -208,7 +210,7 @@
             }
         }
 
-        // --- GIZI LOGIC ---
+        // --- LOGIKA KALKULATOR GIZI ---
         function toggleGiziMode(mode) {
             document.getElementById('mode-manual').style.display = mode === 'manual' ? 'block' : 'none';
             document.getElementById('mode-ai').style.display = mode === 'ai' ? 'block' : 'none';
@@ -222,8 +224,8 @@
             if(q.length < 2) { res.style.display = 'none'; return; }
             const matches = DB_FULL.master_gizi.filter(r => r[0] && r[0].toLowerCase().includes(q) && r[1] !== "");
             if(matches.length > 0) {
-                res.innerHTML = matches.slice(0, 10).map(m => `
-                    <button onclick="addFood('${m[0]}', ${m[1]}, ${m[5]})" class="list-group-item list-group-item-action border-0 py-3">
+                res.innerHTML = matches.slice(0, 8).map(m => `
+                    <button onclick="addFood('${m[0]}', ${m[1]}, ${m[5]})" class="list-group-item list-group-item-action border-0 py-3 small">
                         ${m[0]} <span class="badge bg-light text-muted float-end">${m[1]} kkal</span>
                     </button>
                 `).join('');
@@ -240,22 +242,24 @@
 
         function renderSelected() {
             const div = document.getElementById('current-meal-items');
-            document.getElementById('selected-list').classList.remove('d-none');
+            document.getElementById('selected-list').classList.toggle('d-none', currentMeal.length === 0);
             div.innerHTML = currentMeal.map((item, idx) => `
                 <div class="d-flex justify-content-between align-items-center mb-2 p-3 bg-white border rounded-3 shadow-sm">
                     <span class="small fw-bold">${item.nama}</span>
-                    <i class="bi bi-trash text-danger" onclick="currentMeal.splice(${idx},1); renderSelected()"></i>
+                    <i class="bi bi-x-circle-fill text-danger fs-5" onclick="currentMeal.splice(${idx},1); renderSelected()"></i>
                 </div>
             `).join('');
         }
 
+        // FUNGSI HITUNG PINTAR (FOTO)
         async function processAIPhoto(input) {
             if(!input.files || !input.files[0]) return;
             document.getElementById('ai-loading').classList.remove('d-none');
             const reader = new FileReader();
             reader.onload = async () => {
                 const base64 = reader.result.split(',')[1];
-                const prompt = `Identifikasi makanan ini berdasarkan daftar lokal Bulo: ${DB_FULL.master_gizi.map(r => r[0]).join(', ')}. Berikan JSON array saja berisi nama yang cocok.`;
+                // Mengarahkan AI untuk mencari hanya di database lokal Bulo
+                const prompt = `Identifikasi makanan ini berdasarkan daftar lokal: ${DB_FULL.master_gizi.map(r => r[0]).join(', ')}. Berikan JSON array berisi nama yang cocok saja.`;
                 try {
                     const resp = await fetch(`https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${GEMINI_API_KEY}`, {
                         method: 'POST', headers: {'Content-Type': 'application/json'},
@@ -270,8 +274,8 @@
                     });
                     renderSelected();
                     toggleGiziMode('manual');
-                    Swal.fire('AI Terdeteksi', `Menemukan: ${matchedNames.join(', ')}`, 'success');
-                } catch (e) { Swal.fire('Error AI', 'Gagal memproses gambar.', 'error'); }
+                    Swal.fire('Berhasil!', `Berhasil mengenali: ${matchedNames.join(', ')}`, 'success');
+                } catch (e) { Swal.fire('Gagal Mengenali', 'Coba foto kembali dengan cahaya yang lebih terang.', 'warning'); }
                 finally { document.getElementById('ai-loading').classList.add('d-none'); }
             };
             reader.readAsDataURL(input.files[0]);
@@ -286,9 +290,17 @@
             const tKal = currentMeal.reduce((s, i) => s + parseFloat(i.kal || 0), 0);
             
             Swal.fire({
-                title: 'Hasil Gizi Harian',
-                html: `<div class='text-start'>Energi: <b>${tKal} kkal</b><br>Zat Besi: <b>${tFe} mg</b> / ${targetFe} mg<div class='progress mt-2'><div class='progress-bar' style='width:${(tFe/targetFe*100)}%'></div></div></div>`,
-                confirmButtonText: 'Simpan Ke Riwayat'
+                title: 'Laporan Gizi Anda',
+                html: `
+                    <div class='text-start small'>
+                        <p class="mb-2">Energi: <b>${tKal.toFixed(0)} kkal</b></p>
+                        <p class="mb-1">Zat Besi (Fe): <b>${tFe.toFixed(1)} mg</b> dari target ${targetFe} mg</p>
+                        <div class='progress mt-2' style='height:12px;'>
+                            <div class='progress-bar bg-primary' style='width:${Math.min((tFe/targetFe*100), 100)}%'></div>
+                        </div>
+                        <p class="mt-3 text-center text-success"><b>Hebat! Terus jaga pola makan sehat di Bulo.</b></p>
+                    </div>`,
+                confirmButtonText: 'TUTUP & SIMPAN'
             }).then(() => { currentMeal = []; renderSelected(); switchPage('app-home'); });
         }
 
@@ -297,7 +309,7 @@
             document.getElementById('list-keluarga-gizi').innerHTML = kel.map(k => `
                 <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
                     <div><b>${k[2]}</b><br><small class="text-muted">TB: ${k[12]}cm | BB: ${k[13]}kg</small></div>
-                    <button onclick="cekStatusIMT('${k[0]}')" class="btn btn-sm btn-outline-primary rounded-pill">Status</button>
+                    <button onclick="cekStatusIMT('${k[0]}')" class="btn btn-sm btn-outline-primary rounded-pill px-3">Status</button>
                 </div>
             `).join('');
         }
@@ -305,14 +317,16 @@
         function cekStatusIMT(nik) {
             const p = DB_FULL.Master_Data_Penduduk.find(r => r[0].toString() === nik);
             const tb = parseFloat(p[12]); const bb = parseFloat(p[13]);
-            if(!tb || !bb) { Swal.fire('Data Kosong','BB/TB belum lengkap di Master.','warning'); return; }
+            if(!tb || !bb) { Swal.fire('Data Belum Lengkap','Berat dan Tinggi Badan belum terisi di Master Penduduk.','warning'); return; }
             const imt = (bb / ((tb/100)*(tb/100))).toFixed(1);
-            let s = "Normal"; let w = "#198754"; if(imt < 18.5) { s="Kurus"; w="#ffc107"; } else if(imt >= 25) { s="Overweight"; w="#dc3545"; }
-            Swal.fire({ title: p[2], html: `<div class='p-3 text-white rounded-3' style='background:${w}'>${s} (IMT: ${imt})</div>` });
+            let s = "Normal"; let w = "#198754"; 
+            if(imt < 18.5) { s="Berat Badan Kurang"; w="#ffc107"; } 
+            else if(imt >= 25) { s="Berat Badan Berlebih"; w="#dc3545"; }
+            Swal.fire({ title: p[2], html: `<div class='p-3 text-white rounded-3 mt-2' style='background:${w}'>${s}<br><small>(IMT: ${imt})</small></div>` });
         }
 
-        function showQR() { Swal.fire({ title: 'ID WARGA', imageUrl: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${USER_SESSION.nik}`, imageWidth: 200 }); }
-        function confirmLogout() { Swal.fire({ title: 'Logout?', showCancelButton: true }).then(r => { if(r.isConfirmed) { localStorage.clear(); location.reload(); } }); }
+        function showQR() { Swal.fire({ title: 'KARTU WARGA', imageUrl: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${USER_SESSION.nik}`, imageWidth: 200 }); }
+        function confirmLogout() { Swal.fire({ title: 'Ingin Keluar?', text: 'Anda harus login kembali nanti.', showCancelButton: true }).then(r => { if(r.isConfirmed) { localStorage.clear(); location.reload(); } }); }
 
         window.onload = fetchAndInit;
     </script>
