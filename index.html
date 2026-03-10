@@ -3,100 +3,98 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
-    <title>Bulo Smartville v10.2</title>
+    <title>Bulo Smartville v10.3</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        :root { --main-blue: #00569e; --soft-gray: #f7f9fb; }
+        :root { --main-blue: #00569e; --dark-blue: #003d70; --bg-gray: #f8f9fa; }
         
-        /* Mengunci Layar Agar Tidak Geser-Geser */
+        /* Mengunci Layar Utama Agar Tidak Bisa Di-scroll Secara Liar */
         html, body { 
-            height: 100%; 
-            overflow: hidden; 
-            background: var(--soft-gray); 
-            font-family: 'Segoe UI', sans-serif;
+            height: 100%; overflow: hidden; 
+            background: var(--bg-gray); font-family: 'Segoe UI', Roboto, sans-serif;
         }
 
-        /* Container Halaman */
+        /* Container per Halaman */
         .page {
-            display: none;
-            height: 100vh;
-            width: 100%;
-            position: absolute;
-            top: 0; left: 0;
-            flex-direction: column;
+            display: none; height: 100vh; width: 100%;
+            position: absolute; top: 0; left: 0; flex-direction: column;
         }
         .page.active { display: flex; }
 
         /* Header Statis */
         .top-header { 
-            background: linear-gradient(135deg, var(--main-blue), #003d70); 
+            background: linear-gradient(135deg, var(--main-blue), var(--dark-blue)); 
             color: white; padding: 20px; 
             border-bottom-left-radius: 25px; border-bottom-right-radius: 25px;
-            flex-shrink: 0;
+            flex-shrink: 0; position: relative;
         }
 
-        /* Area Konten yang Bisa di-Scroll (Hanya di dalam sini) */
+        /* Tombol Logout Pojok Kanan Atas */
+        .btn-logout-top {
+            position: absolute; right: 20px; top: 25px;
+            background: rgba(255, 255, 255, 0.2);
+            border: none; color: white; padding: 5px 12px;
+            border-radius: 50px; font-size: 0.75rem; font-weight: bold;
+        }
+
+        /* Area Konten (Hanya bagian ini yang bisa di-scroll) */
         .content-area {
-            flex-grow: 1;
-            overflow-y: auto;
-            padding: 20px;
+            flex-grow: 1; overflow-y: auto; padding: 20px;
             -webkit-overflow-scrolling: touch;
         }
 
         .info-card { 
-            background: white; border-radius: 15px; margin-top: -35px; 
-            padding: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.05); 
+            background: white; border-radius: 18px; margin-top: -40px; 
+            padding: 20px; box-shadow: 0 10px 25px rgba(0,0,0,0.08); 
         }
 
         /* Menu Grid */
         .menu-grid { 
             display: grid; grid-template-columns: repeat(3, 1fr); 
-            gap: 15px; margin-top: 20px; 
+            gap: 12px; margin-top: 25px; 
         }
         .menu-item { 
-            background: white; border-radius: 18px; padding: 15px 10px;
-            text-align: center; font-size: 0.75rem; font-weight: 600;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.03);
-            border: 1px solid #f0f0f0;
+            background: white; border-radius: 15px; padding: 15px 5px;
+            text-align: center; font-size: 0.7rem; font-weight: 600;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.03); border: 1px solid #eee;
+            transition: 0.2s;
         }
-        .menu-icon { font-size: 1.8rem; margin-bottom: 5px; display: block; }
+        .menu-item:active { background: #f0f0f0; transform: scale(0.95); }
+        .menu-icon { font-size: 1.7rem; margin-bottom: 5px; display: block; }
 
-        /* Navbar Bawah m-Banking Style */
+        /* Navigation Bawah */
         .bottom-nav { 
-            height: 75px; background: white; border-top: 1px solid #eee;
+            height: 70px; background: white; border-top: 1px solid #ddd;
             display: flex; justify-content: space-around; align-items: center;
             flex-shrink: 0; padding-bottom: env(safe-area-inset-bottom);
         }
-        .nav-link { text-align: center; color: #999; text-decoration: none; font-size: 0.7rem; }
+        .nav-link { text-align: center; color: #999; text-decoration: none; font-size: 0.65rem; }
         .nav-link.active { color: var(--main-blue); font-weight: bold; }
 
         /* Tombol QR Tengah */
         .btn-qr { 
-            width: 65px; height: 65px; background: var(--main-blue); 
+            width: 62px; height: 62px; background: var(--main-blue); 
             border-radius: 50%; display: flex; align-items: center; 
             justify-content: center; color: white; font-size: 1.8rem; 
-            margin-top: -45px; border: 6px solid var(--soft-gray);
+            margin-top: -40px; border: 5px solid var(--bg-gray);
             box-shadow: 0 5px 15px rgba(0,86,158,0.3);
         }
 
-        /* Login Screen */
-        #login-screen { 
-            background: white; display: flex; align-items: center; justify-content: center; 
-        }
+        #login-screen { background: white; z-index: 2000; }
     </style>
 </head>
 <body>
 
 <div id="login-screen" class="page active">
-    <div class="w-100 p-4 text-center" style="max-width: 380px;">
+    <div class="w-100 p-4 text-center" style="max-width: 400px;">
         <h2 class="fw-bold text-primary mb-1">Bulo Smartville</h2>
         <p class="text-muted small mb-5">Digitalisasi Desa Pilot Bulo</p>
         
         <div class="mb-3 text-start">
             <label class="small fw-bold text-muted px-2">Access Code (NIK)</label>
-            <input type="number" id="nik" class="form-control form-control-lg rounded-pill border-0 bg-light px-4" placeholder="16 Digit NIK">
+            <input type="number" id="nik" class="form-control form-control-lg rounded-pill border-0 bg-light px-4" placeholder="NIK Anda">
         </div>
         <div class="mb-4 text-start">
             <label class="small fw-bold text-muted px-2">Password</label>
@@ -108,15 +106,13 @@
 
 <div id="app-home" class="page">
     <div class="top-header">
-        <div class="d-flex justify-content-between align-items-center">
-            <div>
-                <small class="opacity-75">Selamat Datang,</small>
-                <h5 class="mb-0 fw-bold" id="user-display">Nama User</h5>
-            </div>
-            <div class="bg-white bg-opacity-25 rounded-circle p-2">
-                <i class="bi bi-person-fill fs-5"></i>
-            </div>
+        <div>
+            <small class="opacity-75">Selamat Datang,</small>
+            <h5 class="mb-0 fw-bold" id="user-display">User</h5>
         </div>
+        <button onclick="confirmLogout()" class="btn-logout-top">
+            <i class="bi bi-box-arrow-right"></i> Keluar
+        </button>
     </div>
 
     <div class="content-area">
@@ -133,19 +129,19 @@
         </div>
 
         <div class="menu-grid">
-            <div class="menu-item" onclick="switchPage('app-gizi')"><span class="menu-icon">🥗</span>Gizi & AKG</div>
+            <div class="menu-item" onclick="switchPage('app-gizi')"><span class="menu-icon">🥗</span>Gizi AKG</div>
             <div class="menu-item"><span class="menu-icon">♻️</span>Bank Sampah</div>
             <div class="menu-item"><span class="menu-icon">📖</span>Edukasi</div>
-            <div class="menu-item"><span class="menu-icon">📈</span>Statistik</div>
-            <div class="menu-item"><span class="menu-icon">📞</span>Kontak</div>
-            <div class="menu-item" onclick="logout()"><span class="menu-icon text-danger">🚪</span>Keluar</div>
+            <div class="menu-item"><span class="menu-icon">📊</span>Statistik</div>
+            <div class="menu-item"><span class="menu-icon">🏢</span>Profil Desa</div>
+            <div class="menu-item" onclick="confirmLogout()"><span class="menu-icon text-danger">🚪</span>Logout</div>
         </div>
     </div>
 
     <div class="bottom-nav">
         <a href="javascript:void(0)" onclick="switchPage('app-home')" class="nav-link active"><i class="bi bi-house-door-fill fs-3"></i><br>Home</a>
         <div onclick="showQR()"><div class="btn-qr"><i class="bi bi-qr-code-scan"></i></div></div>
-        <a href="javascript:void(0)" class="nav-link"><i class="bi bi-grid-fill fs-3"></i><br>Menu</a>
+        <a href="javascript:void(0)" onclick="confirmLogout()" class="nav-link"><i class="bi bi-box-arrow-right fs-3"></i><br>Keluar</a>
     </div>
 </div>
 
@@ -153,19 +149,19 @@
     <div class="top-header">
         <div class="d-flex align-items-center">
             <i class="bi bi-chevron-left fs-4 me-3" onclick="switchPage('app-home')"></i>
-            <h5 class="mb-0 fw-bold">Kalkulator Gizi AKG</h5>
+            <h5 class="mb-0 fw-bold">Kalkulator Gizi</h5>
         </div>
     </div>
     <div class="content-area">
-        <div class="card border-0 shadow-sm rounded-4 p-3 mb-3">
-            <p class="small text-muted mb-2">Pilih Anggota Keluarga:</p>
+        <div class="card border-0 shadow-sm rounded-4 p-3">
+            <p class="small text-muted mb-2">Anggota Keluarga (Berdasarkan No KK):</p>
             <div id="list-keluarga-gizi"></div>
         </div>
     </div>
     <div class="bottom-nav">
         <a href="javascript:void(0)" onclick="switchPage('app-home')" class="nav-link"><i class="bi bi-house-door-fill fs-3"></i><br>Home</a>
         <div onclick="showQR()"><div class="btn-qr"><i class="bi bi-qr-code-scan"></i></div></div>
-        <a href="javascript:void(0)" class="nav-link active"><i class="bi bi-grid-fill fs-3"></i><br>Menu</a>
+        <a href="javascript:void(0)" class="nav-link active"><i class="bi bi-egg-fried fs-3"></i><br>Gizi</a>
     </div>
 </div>
 
@@ -174,7 +170,6 @@ const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6CKdpyg71G1jUBN5E
 let DB_FULL = null;
 let USER_SESSION = null;
 
-// Fungsi Pindah Halaman (Tanpa Scroll Geser)
 function switchPage(pageId) {
     document.querySelectorAll('.page').forEach(p => p.classList.remove('active'));
     document.getElementById(pageId).classList.add('active');
@@ -186,18 +181,17 @@ async function fetchAllData() {
         const response = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'read_all' }) });
         const result = await response.json();
         if(result.status === 'success') DB_FULL = result.db;
-    } catch (e) { console.log(e); }
+    } catch (e) { console.error("Gagal ambil data", e); }
 }
 
 function handleLogin() {
     const nik = document.getElementById('nik').value.toString().trim();
     const pass = document.getElementById('pass').value.toString().trim();
     
-    if(!DB_FULL) return Swal.fire('Tunggu', 'Mengambil data...', 'info');
+    if(!DB_FULL) return Swal.fire('Tunggu', 'Sedang menyinkronkan data...', 'info');
 
-    const userFound = DB_FULL.Master_Data_Penduduk.find(r => 
-        r[0].toString().trim() === nik && r[1].toString().trim() === pass
-    );
+    const master = DB_FULL.Master_Data_Penduduk;
+    const userFound = master.find(r => r[0].toString().trim() === nik && r[1].toString().trim() === pass);
 
     if(userFound) {
         USER_SESSION = { nik: userFound[0], nama: userFound[2], kk: userFound[7] };
@@ -205,7 +199,7 @@ function handleLogin() {
         initDashboard();
         switchPage('app-home');
     } else {
-        Swal.fire('Error', 'Akses Ditolak!', 'error');
+        Swal.fire('Gagal', 'Akses Ditolak. Periksa NIK/Password.', 'error');
     }
 }
 
@@ -226,22 +220,36 @@ function renderGiziList() {
     const keluarga = DB_FULL.Master_Data_Penduduk.filter(r => r[7].toString() === USER_SESSION.kk.toString());
     document.getElementById('list-keluarga-gizi').innerHTML = keluarga.map(k => `
         <div class="d-flex justify-content-between align-items-center p-3 border-bottom">
-            <div><b class="d-block">${k[2]}</b><small class="text-muted">${k[5]}</small></div>
-            <button class="btn btn-sm btn-primary rounded-pill px-3">Cek Gizi</button>
+            <div><b>${k[2]}</b><br><small class="text-muted">${k[5]}</small></div>
+            <button class="btn btn-sm btn-outline-primary rounded-pill">Detail</button>
         </div>
     `).join('');
 }
 
 function showQR() {
     Swal.fire({
-        title: 'ID DIGITAL',
+        title: 'IDENTITY QR',
         imageUrl: `https://api.qrserver.com/v1/create-qr-code/?size=200x200&data=${USER_SESSION.nik}`,
-        imageWidth: 200, imageHeight: 200,
-        confirmButtonColor: '#00569e'
+        imageWidth: 200, imageHeight: 200, confirmButtonText: 'Tutup'
     });
 }
 
-function logout() { localStorage.removeItem('bulo_user'); location.reload(); }
+function confirmLogout() {
+    Swal.fire({
+        title: 'Keluar?',
+        text: "Anda harus login kembali nanti.",
+        icon: 'warning',
+        showCancelButton: true,
+        confirmButtonColor: '#00569e',
+        cancelButtonColor: '#d33',
+        confirmButtonText: 'Ya, Keluar'
+    }).then((result) => {
+        if (result.isConfirmed) {
+            localStorage.removeItem('bulo_user');
+            location.reload();
+        }
+    });
+}
 
 window.onload = async () => {
     await fetchAllData();
