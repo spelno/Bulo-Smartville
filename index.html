@@ -3,220 +3,85 @@
 <head>
   <base target="_top">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
   <style>
-    :root { --primary: #2ecc71; --secondary: #3498db; --danger: #e74c3c; --dark: #2c3e50; --light: #f4f7f6; }
-    body { font-family: 'Inter', sans-serif; background-color: var(--light); margin: 0; padding: 15px; }
-    .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-    .profile-section { border-left: 5px solid var(--secondary); }
-    .profile-info h2 { margin: 0; font-size: 1.2rem; }
-    .profile-info p { margin: 2px 0; color: #7f8c8d; font-size: 0.85rem; }
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-    .stat-box { text-align: center; padding: 15px; border-radius: 12px; color: white; }
-    .bg-green { background: var(--primary); }
-    .bg-blue { background: var(--secondary); }
-    .stat-label { font-size: 0.7rem; opacity: 0.9; }
-    .stat-value { font-size: 1rem; font-weight: bold; margin-top: 5px; }
-    .alarm-card { text-align: center; }
-    .alarm-active { border: 2px solid var(--danger); background: #fff5f5; }
-    .alarm-timer { font-size: 1.8rem; font-weight: 700; color: var(--danger); margin: 5px 0; }
-    .qr-container { text-align: center; }
-    .qr-image { width: 160px; height: 160px; margin: 10px auto; border: 3px solid #eee; border-radius: 10px; }
-    #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:white; display:flex; justify-content:center; align-items:center; z-index:99; }
+    body { font-family: -apple-system, sans-serif; background: #f4f7f6; margin: 0; padding: 15px; }
+    .card { background: white; border-radius: 12px; padding: 15px; margin-bottom: 12px; box-shadow: 0 2px 5px rgba(0,0,0,0.1); }
+    .header-card { border-left: 5px solid #3498db; }
+    .grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 12px; }
+    .stat-box { padding: 15px; border-radius: 10px; color: white; text-align: center; }
+    .bg-green { background: #2ecc71; }
+    .bg-blue { background: #3498db; }
+    .timer { font-size: 1.8rem; font-weight: bold; color: #e74c3c; margin: 10px 0; }
+    #loader { position: fixed; inset: 0; background: white; display: flex; align-items: center; justify-content: center; z-index: 100; font-weight: bold; }
+    .status-badge { background: #e8f5e9; color: #2e7d32; padding: 4px 10px; border-radius: 15px; font-size: 0.8rem; font-weight: bold; }
   </style>
 </head>
 <body>
 
-  <div id="loader">Memuat Data...</div>
+  <div id="loader">Sinkronisasi Data...</div>
 
-  <div class="card profile-section">
-    <div class="profile-info">
-      <h2 id="userName">-</h2>
-      <p id="userDusun">Dusun -</p>
-      <p id="userNIK">NIK: -</p>
-      <div style="margin-top:8px;">
-        <span style="background:#e8f5e9; color:#2e7d32; padding:4px 10px; border-radius:15px; font-size:0.75rem; font-weight:bold;">
-          Status Gizi: <span id="userGizi">-</span>
-        </span>
-      </div>
-    </div>
+  <div class="card header-card">
+    <h2 id="name" style="margin:0">-</h2>
+    <p id="info" style="color:gray; margin:5px 0; font-size:0.9rem"></p>
+    <span class="status-badge">Status Gizi: <span id="gizi">-</span></span>
   </div>
 
-  <div class="stats-grid">
+  <div class="grid">
     <div class="stat-box bg-green">
-      <div class="stat-label">Saldo Siap Cair</div>
-      <div id="saldoRp" class="stat-value">Rp 0</div>
+      <small>SALDO TUNAI</small><br><b id="rp" style="font-size:1.1rem">Rp 0</b>
     </div>
     <div class="stat-box bg-blue">
-      <div class="stat-label">Tabungan Sampah</div>
-      <div id="tabunganKg" class="stat-value">0 Kg</div>
+      <small>TABUNGAN KG</small><br><b id="kg" style="font-size:1.1rem">0 Kg</b>
     </div>
   </div>
 
-  <div id="alarmCard" class="card alarm-card">
-    <div id="alarmLabel" class="stat-label" style="color:#7f8c8d;">Memuat Jadwal...</div>
-    <div id="timer" class="alarm-timer">00:00:00</div>
-    <p id="alarmNote" style="font-size: 0.75rem; margin: 0; color: #95a5a6;"></p>
+  <div class="card" style="text-align:center">
+    <div id="statusLabel" style="font-size:0.8rem; font-weight:bold; color:#7f8c8d;">JADWAL SAMPAH</div>
+    <div id="clock" class="timer">00:00:00</div>
+    <small id="note" style="color:#95a5a6"></small>
   </div>
 
-  <div class="card qr-container">
-    <div style="font-size: 0.8rem; font-weight:bold;">ID DIGITAL WARGA (SCAN KADER)</div>
-    <img id="qrImg" class="qr-image" src="" alt="QR">
-    <p style="font-size: 0.7rem; color: #7f8c8d;">Gunakan untuk setor plastik (Pukul 10.00+)</p>
+  <div class="card" style="text-align:center">
+    <b style="font-size:0.8rem">ID DIGITAL WARGA</b><br>
+    <img id="qrImg" src="" style="width:160px; margin-top:10px; border:1px solid #eee; border-radius:8px;">
   </div>
 
   <script>
-    function startTimer(targetTime) {
-      setInterval(function() {
-        const now = new Date().getTime();
-        const distance = targetTime - now;
-        const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const s = Math.floor((distance % (1000 * 60)) / 1000);
-        document.getElementById("timer").innerHTML = (h<10?"0":"")+h+":"+(m<10?"0":"")+m+":"+(s<10?"0":"")+s;
-        if (distance < 0) location.reload();
+    function startTimer(target) {
+      setInterval(() => {
+        const diff = target - new Date().getTime();
+        const h = Math.floor((diff % 86400000) / 3600000);
+        const m = Math.floor((diff % 3600000) / 60000);
+        const s = Math.floor((diff % 60000) / 1000);
+        document.getElementById("clock").innerText = `${h<10?'0':''}${h}:${m<10?'0':''}${m}:${s<10?'0':''}${s}`;
+        if (diff < 0) location.reload();
       }, 1000);
     }
 
-    window.onload = function() {
+    window.onload = () => {
       const urlParams = new URLSearchParams(window.location.search);
       const nik = urlParams.get('nik');
       
       if(!nik) {
-        document.body.innerHTML = "<div style='padding:20px; text-align:center;'>Harap masukkan NIK pada URL (?nik=xxx)</div>";
+        document.body.innerHTML = "<div style='padding:50px; text-align:center;'>Harap gunakan link NIK resmi.</div>";
         return;
       }
 
-      google.script.run.withSuccessHandler(function(data) {
-        if(data.error) {
-          document.body.innerHTML = "<div style='padding:20px; text-align:center;'>" + data.error + "</div>";
-          return;
-        }
-        document.getElementById("loader").style.display = "none";
-        document.getElementById("userName").innerText = data.profile.nama;
-        document.getElementById("userDusun").innerText = "Dusun " + data.profile.dusun;
-        document.getElementById("userNIK").innerText = "NIK: " + nik;
-        document.getElementById("userGizi").innerText = data.profile.statusGizi;
-        document.getElementById("saldoRp").innerText = "Rp " + data.trash.saldoUang.toLocaleString('id-ID');
-        document.getElementById("tabunganKg").innerText = data.trash.tabunganKg + " Kg";
-        document.getElementById("qrImg").src = data.qrUrl;
+      google.script.run.withSuccessHandler(data => {
+        if(data.error) { document.body.innerHTML = data.error; return; }
         
-        const alarm = data.alarm;
-        document.getElementById("alarmLabel").innerText = alarm.status;
-        if(alarm.isActive) document.getElementById("alarmCard").classList.add("alarm-active");
-        startTimer(alarm.targetTime);
-      }).getFullWargaDashboard(nik);
-    };
-  </script>
-</body>
-</html><!DOCTYPE html>
-<html>
-<head>
-  <base target="_top">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;600;700&display=swap" rel="stylesheet">
-  <style>
-    :root { --primary: #2ecc71; --secondary: #3498db; --danger: #e74c3c; --dark: #2c3e50; --light: #f4f7f6; }
-    body { font-family: 'Inter', sans-serif; background-color: var(--light); margin: 0; padding: 15px; }
-    .card { background: white; border-radius: 15px; padding: 20px; margin-bottom: 15px; box-shadow: 0 4px 6px rgba(0,0,0,0.05); }
-    .profile-section { border-left: 5px solid var(--secondary); }
-    .profile-info h2 { margin: 0; font-size: 1.2rem; }
-    .profile-info p { margin: 2px 0; color: #7f8c8d; font-size: 0.85rem; }
-    .stats-grid { display: grid; grid-template-columns: 1fr 1fr; gap: 10px; margin-bottom: 15px; }
-    .stat-box { text-align: center; padding: 15px; border-radius: 12px; color: white; }
-    .bg-green { background: var(--primary); }
-    .bg-blue { background: var(--secondary); }
-    .stat-label { font-size: 0.7rem; opacity: 0.9; }
-    .stat-value { font-size: 1rem; font-weight: bold; margin-top: 5px; }
-    .alarm-card { text-align: center; }
-    .alarm-active { border: 2px solid var(--danger); background: #fff5f5; }
-    .alarm-timer { font-size: 1.8rem; font-weight: 700; color: var(--danger); margin: 5px 0; }
-    .qr-container { text-align: center; }
-    .qr-image { width: 160px; height: 160px; margin: 10px auto; border: 3px solid #eee; border-radius: 10px; }
-    #loader { position: fixed; top:0; left:0; width:100%; height:100%; background:white; display:flex; justify-content:center; align-items:center; z-index:99; }
-  </style>
-</head>
-<body>
-
-  <div id="loader">Memuat Data...</div>
-
-  <div class="card profile-section">
-    <div class="profile-info">
-      <h2 id="userName">-</h2>
-      <p id="userDusun">Dusun -</p>
-      <p id="userNIK">NIK: -</p>
-      <div style="margin-top:8px;">
-        <span style="background:#e8f5e9; color:#2e7d32; padding:4px 10px; border-radius:15px; font-size:0.75rem; font-weight:bold;">
-          Status Gizi: <span id="userGizi">-</span>
-        </span>
-      </div>
-    </div>
-  </div>
-
-  <div class="stats-grid">
-    <div class="stat-box bg-green">
-      <div class="stat-label">Saldo Siap Cair</div>
-      <div id="saldoRp" class="stat-value">Rp 0</div>
-    </div>
-    <div class="stat-box bg-blue">
-      <div class="stat-label">Tabungan Sampah</div>
-      <div id="tabunganKg" class="stat-value">0 Kg</div>
-    </div>
-  </div>
-
-  <div id="alarmCard" class="card alarm-card">
-    <div id="alarmLabel" class="stat-label" style="color:#7f8c8d;">Memuat Jadwal...</div>
-    <div id="timer" class="alarm-timer">00:00:00</div>
-    <p id="alarmNote" style="font-size: 0.75rem; margin: 0; color: #95a5a6;"></p>
-  </div>
-
-  <div class="card qr-container">
-    <div style="font-size: 0.8rem; font-weight:bold;">ID DIGITAL WARGA (SCAN KADER)</div>
-    <img id="qrImg" class="qr-image" src="" alt="QR">
-    <p style="font-size: 0.7rem; color: #7f8c8d;">Gunakan untuk setor plastik (Pukul 10.00+)</p>
-  </div>
-
-  <script>
-    function startTimer(targetTime) {
-      setInterval(function() {
-        const now = new Date().getTime();
-        const distance = targetTime - now;
-        const h = Math.floor((distance % (1000 * 60 * 60 * 24)) / (1000 * 60 * 60));
-        const m = Math.floor((distance % (1000 * 60 * 60)) / (1000 * 60));
-        const s = Math.floor((distance % (1000 * 60)) / 1000);
-        document.getElementById("timer").innerHTML = (h<10?"0":"")+h+":"+(m<10?"0":"")+m+":"+(s<10?"0":"")+s;
-        if (distance < 0) location.reload();
-      }, 1000);
-    }
-
-    window.onload = function() {
-      const urlParams = new URLSearchParams(window.location.search);
-      const nik = urlParams.get('nik');
-      
-      if(!nik) {
-        document.body.innerHTML = "<div style='padding:20px; text-align:center;'>Harap masukkan NIK pada URL (?nik=xxx)</div>";
-        return;
-      }
-
-      google.script.run.withSuccessHandler(function(data) {
-        if(data.error) {
-          document.body.innerHTML = "<div style='padding:20px; text-align:center;'>" + data.error + "</div>";
-          return;
-        }
         document.getElementById("loader").style.display = "none";
-        document.getElementById("userName").innerText = data.profile.nama;
-        document.getElementById("userDusun").innerText = "Dusun " + data.profile.dusun;
-        document.getElementById("userNIK").innerText = "NIK: " + nik;
-        document.getElementById("userGizi").innerText = data.profile.statusGizi;
-        document.getElementById("saldoRp").innerText = "Rp " + data.trash.saldoUang.toLocaleString('id-ID');
-        document.getElementById("tabunganKg").innerText = data.trash.tabunganKg + " Kg";
-        document.getElementById("qrImg").src = data.qrUrl;
+        document.getElementById("name").innerText = data.profile.nama;
+        document.getElementById("info").innerText = "Dusun " + data.profile.dusun + " | NIK: " + nik;
+        document.getElementById("gizi").innerText = data.profile.statusGizi;
+        document.getElementById("rp").innerText = "Rp " + data.trash.saldo.toLocaleString('id-ID');
+        document.getElementById("kg").innerText = data.trash.kg + " Kg";
+        document.getElementById("qrImg").src = data.qr;
+        document.getElementById("statusLabel").innerText = data.isBuang ? "WAKTUNYA BUANG SAMPAH!" : "BELUM WAKTUNYA";
+        document.getElementById("note").innerText = data.isBuang ? "Segera bawa sampah ke bak umum" : "Siapkan sampah untuk jadwal berikutnya";
         
-        const alarm = data.alarm;
-        document.getElementById("alarmLabel").innerText = alarm.status;
-        if(alarm.isActive) document.getElementById("alarmCard").classList.add("alarm-active");
-        startTimer(alarm.targetTime);
-      }).getFullWargaDashboard(nik);
+        startTimer(data.targetTime);
+      }).getFullDashboardData(nik);
     };
   </script>
 </body>
