@@ -1,277 +1,119 @@
-<!DOCTYPE html>
-<html lang="id">
-<head>
-    <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no, viewport-fit=cover">
-    <title>Bulo Smartville v16.3</title>
-    
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
-    <script src="https://cdnjs.cloudflare.com/ajax/libs/qrious/4.0.2/qrious.min.js"></script>
-    
-    <style>
-        :root { --main-blue: #00569e; --dark-blue: #003d70; --bg-gray: #f4f7f9; }
-        * { box-sizing: border-box; -webkit-tap-highlight-color: transparent; }
-        html, body { height: 100svh; overflow: hidden; background: white; font-family: 'Segoe UI', sans-serif; margin: 0; padding: 0; position: fixed; width: 100%; }
-
-        .page { display: none; height: 100svh; width: 100%; flex-direction: column; background: var(--bg-gray); }
-        .top-header { background: linear-gradient(135deg, var(--main-blue), var(--dark-blue)); color: white; padding: 25px 15px 55px; border-bottom-left-radius: 30px; border-bottom-right-radius: 30px; }
-        .content-area { flex: 1; overflow-y: auto; padding: 0 15px 180px; margin-top: -35px; }
-        .premium-card { background: white; border-radius: 20px; padding: 15px; box-shadow: 0 5px 15px rgba(0,0,0,0.03); border: none; margin-bottom: 12px; }
-
-        /* NAVIGASI BAWAH - FIX UNTUK ANDROID NAV BAR */
-        .bottom-nav { height: 75px; background: white; display: flex; justify-content: space-around; align-items: center; position: absolute; bottom: 20px; left: 15px; right: 15px; border-radius: 25px; box-shadow: 0 10px 30px rgba(0,0,0,0.15); z-index: 2000; }
-        .nav-link { text-align: center; color: #bbb; text-decoration: none; font-size: 0.65rem; }
-        .nav-link.active { color: var(--main-blue); font-weight: bold; }
-        .btn-qr-main { width: 55px; height: 55px; background: var(--main-blue); border-radius: 18px; display: flex; align-items: center; justify-content: center; color: white; margin-top: -45px; border: 4px solid white; box-shadow: 0 4px 12px rgba(0,86,158,0.3); }
-
-        .badge-role { font-size: 0.6rem; padding: 3px 10px; border-radius: 50px; background: rgba(255,255,255,0.2); border: 1px solid rgba(255,255,255,0.4); text-transform: uppercase; }
+<div id="app-gizi" class="page">
+    <div class="top-header d-flex align-items-center" style="padding-bottom: 30px;">
+        <i class="bi bi-chevron-left fs-4 me-3" onclick="switchPage('app-home')"></i>
+        <h6 class="mb-0 fw-bold">Analisa Gizi Harian</h6>
+    </div>
+    <div class="content-area">
+        <div class="premium-card p-2">
+            <input type="text" id="search-food" class="form-control rounded-pill border-0 bg-light px-3 small" placeholder="Cari makanan (Nasi, Ikan, dll)..." onkeyup="filterFood()">
+            <div id="food-results" class="list-group mt-2 d-none shadow-sm" style="max-height:180px; overflow-y:auto; border-radius:15px;"></div>
+        </div>
         
-        /* GIZI INPUT STYLING */
-        .input-gram { width: 70px; border-radius: 10px; border: 1px solid #ddd; text-align: center; font-weight: bold; }
-    </style>
-</head>
-<body onload="fetchAndInit()">
-
-    <div id="splash-screen" style="position:fixed; top:0; left:0; width:100%; height:100%; background:white; display:flex; flex-direction:column; align-items:center; justify-content:center; z-index:10000;">
-        <img src="Logo_UMMAN.jpg" style="width:130px;">
-        <div class="mt-3 text-primary fw-bold small">HEBAT, MAJU DENGAN PESAT</div>
-    </div>
-
-    <div id="login-screen" class="page">
-        <div class="d-flex flex-column align-items-center justify-content-center h-100 p-4">
-            <img src="Lobo_Bulo.png" style="width: 70%; max-width: 250px;" class="mb-4">
-            <input type="number" id="nik" class="form-control rounded-pill border-0 bg-light px-4 mb-2" placeholder="NIK">
-            <input type="password" id="pass" class="form-control rounded-pill border-0 bg-light px-4 mb-3" placeholder="Password">
-            <button onclick="handleLogin()" class="btn btn-primary w-100 py-2 fw-bold rounded-pill shadow">MASUK</button>
-        </div>
-    </div>
-
-    <div id="app-home" class="page">
-        <div class="top-header d-flex justify-content-between align-items-start">
-            <div>
-                <small class="opacity-75">Halo,</small>
-                <h6 class="mb-1 fw-bold" id="user-display">User</h6>
-                <span id="user-role" class="badge-role">ROLE</span>
-            </div>
-            <i class="bi bi-person-circle fs-4 text-white"></i>
-        </div>
-        <div class="content-area">
-            <div class="premium-card text-white p-3 mb-3" id="trash-card">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <small class="fw-bold opacity-75" id="trash-status" style="font-size: 0.6rem;">JADWAL</small>
-                        <h5 id="trash-timer" class="mb-0 fw-bold">00:00:00</h5>
-                    </div>
-                    <i class="bi bi-recycle fs-2"></i>
-                </div>
-            </div>
-
-            <div class="row g-2 mb-3 text-center" id="main-menu-container"></div>
+        <div id="selected-list" class="d-none">
+            <h6 class="small fw-bold text-muted mb-2">Daftar Konsumsi:</h6>
+            <div id="current-meal-items"></div>
             
-            <h6 class="fw-bold mb-2 small text-muted">DATA PENDUDUK/KELUARGA</h6>
-            <div id="family-list"></div>
-        </div>
-    </div>
-
-    <div id="app-gizi" class="page">
-        <div class="top-header d-flex align-items-center" style="padding-bottom: 30px;">
-            <i class="bi bi-chevron-left fs-4 me-3" onclick="switchPage('app-home')"></i>
-            <h6 class="mb-0 fw-bold">Kalkulator Gizi</h6>
-        </div>
-        <div class="content-area">
-            <div class="premium-card p-2">
-                <input type="text" id="search-food" class="form-control rounded-pill border-0 bg-light px-3 small" placeholder="Cari makanan..." onkeyup="filterFood()">
-                <div id="food-results" class="list-group mt-2 d-none shadow-sm" style="max-height:180px; overflow-y:auto; border-radius:15px;"></div>
+            <div class="premium-card bg-primary text-white text-center py-3 shadow">
+                <small class="opacity-75">ESTIMASI TOTAL</small>
+                <h4 class="mb-0 fw-bold" id="total-kalori">0 kkal</h4>
             </div>
-            <div id="selected-list" class="d-none">
-                <div id="current-meal-items"></div>
-                <div class="premium-card bg-primary text-white text-center py-2"><small>TOTAL</small><h5 id="total-kalori">0 kkal</h5></div>
-                <button onclick="saveGizi()" class="btn btn-primary w-100 py-2 mt-2 rounded-pill fw-bold">SIMPAN DATA</button>
-            </div>
-        </div>
-    </div>
-
-    <div id="app-sampah" class="page">
-        <div class="top-header d-flex align-items-center" style="padding-bottom: 30px;">
-            <i class="bi bi-chevron-left fs-4 me-3" onclick="switchPage('app-home')"></i>
-            <h6 class="mb-0 fw-bold">Setoran Sampah Plastik</h6>
-        </div>
-        <div class="content-area">
-            <div class="premium-card">
-                <h6 class="fw-bold small mb-2 text-primary">Input Berat Sampah</h6>
-                <div class="input-group mb-2">
-                    <input type="number" id="plastic-weight" class="form-control border-0 bg-light px-3" placeholder="0.0">
-                    <span class="input-group-text border-0 bg-light fw-bold">Kg</span>
-                </div>
-                <button onclick="savePlastic()" class="btn btn-success w-100 rounded-pill fw-bold">SIMPAN SETORAN</button>
-            </div>
-            <div id="admin-trash-view" class="d-none">
-                <div class="premium-card bg-light">
-                    <h6 class="fw-bold small">Total Rekap Desa</h6>
-                    <h4 class="fw-bold">1,240 Kg</h4>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <div class="bottom-nav" id="main-nav" style="display: none;">
-        <a href="#" onclick="switchPage('app-home')" id="nav-home" class="nav-link active"><i class="bi bi-house-door fs-4"></i><br>Beranda</a>
-        <div onclick="showQR()" id="nav-qr"><div class="btn-qr-main shadow"><i class="bi bi-qr-code-scan fs-3"></i></div></div>
-        <a href="#" onclick="confirmLogout()" class="nav-link text-danger"><i class="bi bi-power fs-4"></i><br>Keluar</a>
-    </div>
-
-    <script>
-        const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6CKdpyg71G1jUBN5EyZWDyqsVzqUYqElkpE1XH3fh-cbiMfEjFvhxKubK-dJI74pb7A/exec";
-        let DB_FULL = null, USER_SESSION = null, currentMeal = [];
-
-        async function fetchAndInit() {
-            try {
-                const res = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'read_all' }) });
-                const json = await res.json();
-                DB_FULL = json.db;
-                updateTrashTimer(); setInterval(updateTrashTimer, 1000);
-                
-                const saved = localStorage.getItem('bulo_user');
-                setTimeout(() => {
-                    document.getElementById('splash-screen').style.display = 'none';
-                    if(saved) { USER_SESSION = JSON.parse(saved); initDashboard(); switchPage('app-home'); }
-                    else switchPage('login-screen');
-                }, 2000);
-            } catch(e) { console.error(e); }
-        }
-
-        function handleLogin() {
-            const nik = document.getElementById('nik').value, pass = document.getElementById('pass').value;
-            const user = DB_FULL.Master_Data_Penduduk.find(r => r[0].toString() === nik && r[1].toString() === pass);
             
-            if(user) {
-                // Kolom J (Indeks 9) adalah Role
-                USER_SESSION = { 
-                    nik: user[0].toString(), 
-                    nama: user[2], 
-                    kk: user[7].toString(),
-                    role: user[9] ? user[9].toLowerCase().trim() : 'warga'
-                };
-                localStorage.setItem('bulo_user', JSON.stringify(USER_SESSION));
-                initDashboard(); switchPage('app-home');
-            } else Swal.fire('Gagal','NIK atau Password tidak ditemukan','error');
+            <button onclick="prosesAnalisaGizi()" class="btn btn-dark w-100 py-3 mt-2 rounded-pill fw-bold shadow">
+                <i class="bi bi-graph-up-arrow me-2"></i> ANALISA SEKARANG
+            </button>
+        </div>
+    </div>
+</div>
+
+<script>
+    // Fungsi baru untuk melakukan analisa sebelum simpan
+    function prosesAnalisaGizi() {
+        let total = 0;
+        currentMeal.forEach(i => total += (i.kalori * i.gram) / 100);
+        
+        // Logika Analisa Sederhana (Bisa disesuaikan dengan standar medis)
+        let status = "";
+        let saran = "";
+        let warna = "";
+
+        if (total < 500) {
+            status = "SANGAT RENDAH";
+            saran = "Asupan kalori Anda untuk satu porsi makan ini masih sangat rendah. Pastikan kecukupan gizi tercapai.";
+            warna = "#ffc107";
+        } else if (total <= 800) {
+            status = "IDEAL / NORMAL";
+            saran = "Porsi makan ini sudah sangat baik dan seimbang untuk asupan gizi harian warga.";
+            warna = "#198754";
+        } else {
+            status = "KALORI TINGGI";
+            saran = "Perhatikan porsi makan Anda. Konsumsi kalori berlebih dalam satu waktu dapat meningkatkan risiko obesitas.";
+            warna = "#dc3545";
         }
 
-        function initDashboard() {
-            const role = USER_SESSION.role;
-            document.getElementById('user-display').innerText = USER_SESSION.nama;
-            document.getElementById('user-role').innerText = role;
-            document.getElementById('main-nav').style.display = 'flex';
-
-            // LEVELING MENU LOGIC
-            let menu = `
-                <div class="col-4" onclick="switchPage('app-gizi')"><div class="premium-card p-2 m-0">🥗<br><small class="fw-bold small">Gizi</small></div></div>
-                <div class="col-4" onclick="switchPage('app-sampah')"><div class="premium-card p-2 m-0">♻️<br><small class="fw-bold small">Sampah</small></div></div>
-            `;
-
-            if(role === 'super admin' || role === 'admin') {
-                menu += `<div class="col-4" onclick="showAdminPanel()"><div class="premium-card p-2 m-0">🛡️<br><small class="fw-bold small">Control</small></div></div>`;
-                document.getElementById('admin-trash-view').classList.remove('d-none');
-            } else if(role === 'kades' || role === 'kader') {
-                menu += `<div class="col-4" onclick="showReportPanel()"><div class="premium-card p-2 m-0">📊<br><small class="fw-bold small">Laporan</small></div></div>`;
-            } else {
-                menu += `<div class="col-4" onclick="switchPage('app-desa')"><div class="premium-card p-2 m-0">🏢<br><small class="fw-bold small">Desa</small></div></div>`;
+        // Tampilkan Hasil Analisa
+        Swal.fire({
+            title: 'Hasil Analisa Gizi',
+            html: `
+                <div class="text-center">
+                    <h1 style="color: ${warna}; font-weight: 800;">${total.toFixed(0)} <small style="font-size: 1rem">kkal</small></h1>
+                    <div class="badge p-2 mb-3" style="background-color: ${warna}">${status}</div>
+                    <p class="text-muted small">${saran}</p>
+                    <hr>
+                    <small>Ingin menyimpan data makan ini ke riwayat kesehatan?</small>
+                </div>
+            `,
+            showCancelButton: true,
+            confirmButtonText: 'Ya, Simpan',
+            cancelButtonText: 'Batal',
+            confirmButtonColor: '#00569e',
+            cancelButtonColor: '#aaa',
+            reverseButtons: true
+        }).then((result) => {
+            if (result.isConfirmed) {
+                confirmSaveGizi(total);
             }
-            document.getElementById('main-menu-container').innerHTML = menu;
+        });
+    }
 
-            // KONTROL DATA (Warga hanya lihat KK sendiri, Role lain lihat semua)
-            let familyData = [];
-            if(role === 'warga') {
-                familyData = DB_FULL.Master_Data_Penduduk.filter(r => r[7].toString() === USER_SESSION.kk);
-            } else {
-                familyData = DB_FULL.Master_Data_Penduduk.slice(0, 15); // Role tinggi bisa lihat data penduduk (sampel 15 orang)
-            }
+    async function confirmSaveGizi(finalKalori) {
+        Swal.fire({
+            title: 'Menyimpan...',
+            didOpen: () => { Swal.showLoading(); }
+        });
 
-            document.getElementById('family-list').innerHTML = familyData.map(f => `
-                <div class="premium-card p-2 d-flex justify-content-between align-items-center">
-                    <div style="flex:1"><div class="fw-bold small">${f[2]}</div><small class="text-muted" style="font-size:0.6rem">NIK: ${f[0]} | Kondisi: ${f[13]||'Normal'}</small></div>
-                    <button class="btn btn-primary btn-sm rounded-pill px-3" style="font-size: 0.6rem;" onclick="cekBMI('${f[2]}', ${f[11]||160}, ${f[12]||60})">BMI</button>
-                </div>`).join('');
+        // Simulasi pengiriman data ke Google Sheets
+        const dataToSave = {
+            action: 'save_gizi',
+            nik: USER_SESSION.nik,
+            total_kkal: finalKalori,
+            items: currentMeal.map(i => i.nama).join(', ')
+        };
+
+        try {
+            // Gantilah ini dengan fetch ke WEB_APP_URL Bapak nanti
+            console.log("Saving data:", dataToSave);
+            
+            setTimeout(() => {
+                Swal.fire('Berhasil', 'Data gizi harian Anda telah tercatat di sistem.', 'success');
+                currentMeal = [];
+                renderMeal();
+                document.getElementById('selected-list').classList.add('d-none');
+            }, 1000);
+        } catch (e) {
+            Swal.fire('Error', 'Gagal terhubung ke database', 'error');
         }
+    }
 
-        // --- TRASH TIMER ---
-        function updateTrashTimer() {
-            const now = new Date(), hour = now.getHours();
-            let target = new Date(), status = "", color = "";
-            if (hour >= 18 || hour < 6) {
-                status = "WAKTU ANGKUT"; color = "#dc3545";
-                if (hour >= 18) target.setDate(now.getDate() + 1);
-                target.setHours(6, 0, 0, 0);
-            } else {
-                status = "PERSIAPAN 18:00"; color = "#198754";
-                target.setHours(18, 0, 0, 0);
-            }
-            let diff = target - now, hh = Math.floor(diff/3600000), mm = Math.floor((diff%3600000)/60000), ss = Math.floor((diff%60000)/1000);
-            const timerEl = document.getElementById('trash-timer');
-            if(timerEl) {
-                document.getElementById('trash-status').innerText = status;
-                document.getElementById('trash-card').style.background = color;
-                timerEl.innerText = `${hh.toString().padStart(2,'0')}:${mm.toString().padStart(2,'0')}:${ss.toString().padStart(2,'0')}`;
-            }
-        }
-
-        // --- GIZI LOGIC (FIXED INPUT) ---
-        function filterFood() {
-            const q = document.getElementById('search-food').value.toLowerCase();
-            const res = document.getElementById('food-results');
-            if(q.length < 2) { res.classList.add('d-none'); return; }
-            const matches = DB_FULL.master_gizi.filter(r => r[0] && r[0].toString().toLowerCase().includes(q));
-            res.innerHTML = matches.slice(0, 5).map(m => `<button onclick="addFood('${m[0]}', ${m[1]})" class="list-group-item list-group-item-action border-0 py-2 small">${m[0]} <span class="text-primary float-end">${m[1]} kkal</span></button>`).join('');
-            res.classList.remove('d-none');
-        }
-
-        function addFood(n, k) {
-            currentMeal.push({ id: Date.now(), nama: n, kalori: k, gram: 100 });
-            document.getElementById('selected-list').classList.remove('d-none');
-            document.getElementById('search-food').value = '';
-            document.getElementById('food-results').classList.add('d-none');
-            renderMeal();
-        }
-
-        function renderMeal() {
-            document.getElementById('current-meal-items').innerHTML = currentMeal.map(i => `
-                <div class="premium-card p-2 mb-2 d-flex align-items-center gap-2 border-start border-primary border-4 shadow-none bg-light">
-                    <div style="flex:1" class="fw-bold small">${i.nama}</div>
-                    <div id="cal-${i.id}" class="small text-muted" style="min-width:60px">${((i.kalori*i.gram)/100).toFixed(0)} kkal</div>
-                    <input type="number" class="input-gram" value="${i.gram}" oninput="updateGram(${i.id}, this.value)">
-                    <i class="bi bi-x-circle text-danger fs-5" onclick="removeItem(${i.id})"></i>
-                </div>`).join('');
-            calculateTotal();
-        }
-
-        function updateGram(id, g) {
-            const item = currentMeal.find(x => x.id === id);
-            if(item) {
-                item.gram = parseFloat(g) || 0;
-                document.getElementById('cal-'+id).innerText = ((item.kalori * item.gram)/100).toFixed(0) + ' kkal';
-                calculateTotal();
-            }
-        }
-
-        function calculateTotal() {
-            let total = 0;
-            currentMeal.forEach(i => total += (i.kalori * i.gram) / 100);
-            document.getElementById('total-kalori').innerText = total.toFixed(0) + " kkal";
-        }
-
-        function removeItem(id) { currentMeal = currentMeal.filter(x => x.id !== id); renderMeal(); if(currentMeal.length === 0) document.getElementById('selected-list').classList.add('d-none'); }
-
-        // --- AUTH & NAV ---
-        function switchPage(p) { document.querySelectorAll('.page').forEach(pg => pg.style.display='none'); document.getElementById(p).style.display='flex'; }
-        function confirmLogout() { localStorage.clear(); location.reload(); }
-        function showQR() { Swal.fire({ title: 'ID DIGITAL', html: `<canvas id="qr"></canvas><br><b>${USER_SESSION.nik}</b>`, didOpen: () => new QRious({element: document.getElementById('qr'), value: USER_SESSION.nik, size: 200}) }); }
-        function showAdminPanel() { Swal.fire('Admin Panel','Akses penuh ke semua basis data aktif','info'); }
-        function showReportPanel() { Swal.fire('Laporan Desa','Melihat ringkasan kesehatan warga dan sampah','info'); }
-        function savePlastic() { Swal.fire('Tersimpan','Setoran sampah plastik berhasil dicatat','success'); }
-        function saveGizi() { Swal.fire('Berhasil','Analisa gizi harian disimpan','success'); currentMeal = []; renderMeal(); }
-        function cekBMI(n, t, b) { const bmi = b/((t/100)**2); Swal.fire(n, 'BMI: ' + bmi.toFixed(1), 'info'); }
-    </script>
-</body>
-</html>
+    // Penyesuaian render agar tombol simpan lama hilang
+    function renderMeal() {
+        document.getElementById('current-meal-items').innerHTML = currentMeal.map(i => `
+            <div class="premium-card p-2 mb-2 d-flex align-items-center gap-2 border-start border-primary border-4 shadow-none bg-light">
+                <div style="flex:1" class="fw-bold small">${i.nama}</div>
+                <div id="cal-${i.id}" class="small text-muted" style="min-width:65px">${((i.kalori*i.gram)/100).toFixed(0)} kkal</div>
+                <input type="number" class="input-gram" value="${i.gram}" oninput="updateGram(${i.id}, this.value)">
+                <i class="bi bi-x-circle text-danger fs-5" onclick="removeItem(${i.id})"></i>
+            </div>`).join('');
+        calculateTotal();
+        if(currentMeal.length > 0) document.getElementById('selected-list').classList.remove('d-none');
+    }
+</script>
