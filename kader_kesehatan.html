@@ -1,0 +1,124 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Kader Kesehatan - Bulo SmartVille</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { background: #f0f7f4; padding-bottom: 50px; }
+        .header-kader { background: #2d6a4f; color: white; padding: 25px; border-radius: 0 0 25px 25px; }
+        .card-anak { border-radius: 15px; border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 12px; }
+        .btn-update { background: #40916c; color: white; border-radius: 10px; }
+        .badge-status { font-size: 0.7rem; padding: 4px 10px; border-radius: 50px; }
+    </style>
+</head>
+<body>
+
+<div class="header-kader shadow">
+    <h5 class="fw-bold mb-0">Posyandu Digital</h5>
+    <small id="kader-info">Memuat data petugas...</small>
+</div>
+
+<div class="container mt-4">
+    <div class="mb-3">
+        <input type="text" id="searchAnak" class="form-control rounded-pill" placeholder="Cari Nama Anak / Orang Tua..." onkeyup="cariAnak()">
+    </div>
+
+    <div id="list-anak">
+        <div class="text-center p-5 text-muted">Mengambil data dari database...</div>
+    </div>
+</div>
+
+<script>
+    const API_URL = "URL_WEB_APP_BAPAK"; // Ganti dengan URL Deploy Bapak
+    let DATA_WARGA = [];
+    const KADER_NIK = "201"; // Simulasi Login Ibu Nina (Kader)
+
+    async function loadData() {
+        try {
+            const res = await fetch(`${API_URL}?action=get_all_sheets_data`);
+            const json = await res.json();
+            DATA_WARGA = json.data.Master_Data_Penduduk;
+            
+            // Filter hanya Anak/Bumil atau sesuai Dusun Kader
+            renderAnak(DATA_WARGA.slice(1)); 
+            document.getElementById('kader-info').innerText = "Petugas: Nina (Kader Kesehatan)";
+        } catch (e) {
+            Swal.fire('Error', 'Gagal terhubung ke database', 'error');
+        }
+    }
+
+    function renderAnak(data) {
+        const container = document.getElementById('list-anak');
+        // Filter: Hanya menampilkan yang keterangannya 'Anak' atau 'Hamil' (Indeks 6)
+        const target = data.filter(r => r[6] === "Anak" || r[6] === "Hamil");
+        
+        container.innerHTML = target.map(row => `
+            <div class="card card-anak p-3">
+                <div class="d-flex justify-content-between align-items-start">
+                    <div>
+                        <b class="d-block text-dark">${row[2]}</b>
+                        <small class="text-muted">Orang Tua (NIK): ${row[8] || '-'}</small>
+                        <div class="mt-1">
+                            <span class="badge bg-light text-success border badge-status">${row[6]}</span>
+                            <span class="badge bg-light text-primary border badge-status">${row[10]}</span>
+                        </div>
+                    </div>
+                    <button class="btn btn-update btn-sm shadow-sm" onclick="modalUkur('${row[0]}', '${row[2]}')">
+                        <i class="bi bi-plus-lg"></i> Ukur
+                    </button>
+                </div>
+                <div class="row mt-2 g-1 text-center" style="font-size: 0.8rem;">
+                    <div class="col-6 bg-light rounded p-1">TB: <b>${row[12] || 0} cm</b></div>
+                    <div class="col-6 bg-light rounded p-1">BB: <b>${row[13] || 0} kg</b></div>
+                </div>
+            </div>
+        `).join('');
+    }
+
+    async function modalUkur(nik, nama) {
+        const { value: formValues } = await Swal.fire({
+            title: `Input Gizi: ${nama}`,
+            html:
+                `<label class="small">Tinggi Badan (cm)</label><input id="swal-tb" type="number" class="swal2-input" placeholder="cm">` +
+                `<label class="small">Berat Badan (kg)</label><input id="swal-bb" type="number" class="swal2-input" placeholder="kg">`,
+            showCancelButton: true,
+            confirmButtonText: 'Simpan ke Log',
+            preConfirm: () => {
+                return {
+                    nik_anak: nik,
+                    tb: document.getElementById('swal-tb').value,
+                    bb: document.getElementById('swal-bb').value,
+                    petugas: KADER_NIK
+                }
+            }
+        });
+
+        if (formValues) {
+            kirimData(formValues);
+        }
+    }
+
+    async function kirimData(payload) {
+        Swal.fire({ title: 'Menyimpan...', didOpen: () => Swal.showLoading() });
+        try {
+            const res = await fetch(API_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'save_pengukuran_gizi', data: payload })
+            });
+            const result = await res.json();
+            if(result.status === 'success') {
+                Swal.fire('Berhasil', 'Data gizi telah dicatat di log', 'success');
+                loadData(); // Refresh tampilan
+            }
+        } catch (e) {
+            Swal.fire('Gagal', 'Koneksi error', 'error');
+        }
+    }
+
+    window.onload = loadData;
+</script>
+</body>
+</html>
