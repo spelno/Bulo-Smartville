@@ -1,0 +1,183 @@
+<!DOCTYPE html>
+<html lang="id">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover">
+    <title>Admin Panel - Bulo SmartVille</title>
+    
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.1/font/bootstrap-icons.css">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
+    <style>
+        :root { --admin-blue: #003d70; --bg-gray: #f8f9fa; }
+        body { background: var(--bg-gray); font-family: 'Segoe UI', sans-serif; padding-bottom: 100px; }
+        
+        .header-admin { background: var(--admin-blue); color: white; padding: 30px 20px 60px; border-bottom-left-radius: 35px; border-bottom-right-radius: 35px; }
+        .content-body { margin-top: -40px; padding: 0 15px; }
+        
+        .card-custom { background: white; border-radius: 20px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-bottom: 15px; }
+        .search-box { border-radius: 50px; border: 1px solid #ddd; padding: 10px 20px; }
+        
+        /* Badge Role Styling */
+        .badge-role { font-size: 0.65rem; padding: 5px 12px; border-radius: 50px; font-weight: bold; text-transform: uppercase; }
+        .bg-kader-health { background: #e3f2fd; color: #0d47a1; } /* Biru Muda */
+        .bg-kader-waste { background: #e8f5e9; color: #1b5e20; } /* Hijau Muda */
+        .bg-warga { background: #f5f5f5; color: #757575; }
+        
+        .btn-action { width: 35px; height: 35px; border-radius: 10px; display: inline-flex; align-items: center; justify-content: center; margin-left: 5px; }
+        
+        /* Loader */
+        .loading-overlay { position: fixed; top:0; left:0; width:100%; height:100%; background: rgba(255,255,255,0.8); display:flex; align-items:center; justify-content:center; z-index:9999; }
+    </style>
+</head>
+<body>
+
+<div id="loader" class="loading-overlay"><div class="spinner-border text-primary"></div></div>
+
+<div class="header-admin">
+    <div class="d-flex justify-content-between align-items-center">
+        <div>
+            <h5 class="fw-bold mb-0">Manajemen Data</h5>
+            <small class="opacity-75">Kelola Penduduk & Kader Desa</small>
+        </div>
+        <i class="bi bi-gear-fill fs-3"></i>
+    </div>
+</div>
+
+<div class="content-body">
+    <div class="card-custom p-3">
+        <div class="input-group">
+            <input type="text" id="searchName" class="form-control search-box" placeholder="Cari NIK atau Nama..." onkeyup="filterData()">
+            <button class="btn btn-primary rounded-circle ms-2" onclick="showFormAdd()"><i class="bi bi-plus-lg"></i></button>
+        </div>
+    </div>
+
+    <div class="row g-2 mb-3">
+        <div class="col-6">
+            <div class="card-custom p-3 text-center">
+                <small class="text-muted d-block">Total Kader</small>
+                <b id="count-kader">0</b>
+            </div>
+        </div>
+        <div class="col-6">
+            <div class="card-custom p-3 text-center">
+                <small class="text-muted d-block">Total Warga</small>
+                <b id="count-warga">0</b>
+            </div>
+        </div>
+    </div>
+
+    <div id="data-container">
+        </div>
+</div>
+
+<script>
+    // URL Web App Bapak
+    const WEB_APP_URL = "https://script.google.com/macros/s/AKfycbw6CKdpyg71G1jUBN5EyZWDyqsVzqUYqElkpE1XH3fh-cbiMfEjFvhxKubK-dJI74pb7A/exec";
+    let MASTER_DATA = [];
+
+    async function loadData() {
+        document.getElementById('loader').style.display = 'flex';
+        try {
+            const res = await fetch(WEB_APP_URL, { method: 'POST', body: JSON.stringify({ action: 'read_all' }) });
+            const json = await res.json();
+            MASTER_DATA = json.db.Master_Data_Penduduk;
+            renderList(MASTER_DATA);
+            updateStats();
+        } catch (e) {
+            Swal.fire('Error', 'Gagal memuat data dari spreadsheet', 'error');
+        } finally {
+            document.getElementById('loader').style.display = 'none';
+        }
+    }
+
+    function renderList(data) {
+        const container = document.getElementById('data-container');
+        container.innerHTML = data.map((row, index) => {
+            const nik = row[0], nama = row[2], role = (row[9] || 'Warga').toLowerCase();
+            const badgeClass = role.includes('kesehatan') ? 'bg-kader-health' : (role.includes('sampah') ? 'bg-kader-waste' : 'bg-warga');
+            
+            return `
+            <div class="card-custom p-3 d-flex justify-content-between align-items-center">
+                <div>
+                    <div class="fw-bold text-dark mb-0">${nama}</div>
+                    <small class="text-muted d-block" style="font-size:0.7rem">NIK: ${nik} | Lingk: ${row[4] || '-'}</small>
+                    <span class="badge-role ${badgeClass}">${role}</span>
+                </div>
+                <div class="d-flex">
+                    <button class="btn btn-light btn-action text-primary shadow-sm" onclick="editUser('${index}')"><i class="bi bi-pencil-square"></i></button>
+                    <button class="btn btn-light btn-action text-danger shadow-sm" onclick="confirmDelete('${nik}')"><i class="bi bi-trash"></i></button>
+                </div>
+            </div>`;
+        }).join('');
+    }
+
+    function updateStats() {
+        const kaders = MASTER_DATA.filter(r => (r[9]||'').toLowerCase().includes('kader')).length;
+        document.getElementById('count-kader').innerText = kaders;
+        document.getElementById('count-warga').innerText = MASTER_DATA.length;
+    }
+
+    function filterData() {
+        const q = document.getElementById('searchName').value.toLowerCase();
+        const filtered = MASTER_DATA.filter(r => r[2].toLowerCase().includes(q) || r[0].toString().includes(q));
+        renderList(filtered);
+    }
+
+    // FUNGSI PROMOSI ROLE & EDIT
+    async function editUser(idx) {
+        const user = MASTER_DATA[idx];
+        const { value: formValues } = await Swal.fire({
+            title: 'Edit Data & Role',
+            html:
+                `<input id="swal-nama" class="swal2-input" placeholder="Nama" value="${user[2]}">` +
+                `<select id="swal-role" class="swal2-input">
+                    <option value="Warga" ${user[9]=='Warga'?'selected':''}>Warga Biasa</option>
+                    <option value="Kader Kesehatan" ${user[9]=='Kader Kesehatan'?'selected':''}>Kader Kesehatan</option>
+                    <option value="Kader Sampah" ${user[9]=='Kader Sampah'?'selected':''}>Kader Sampah</option>
+                    <option value="Admin" ${user[9]=='Admin'?'selected':''}>Admin</option>
+                    <option value="Kades" ${user[9]=='Kades'?'selected':''}>Kades</option>
+                </select>` +
+                `<input id="swal-lingk" class="swal2-input" placeholder="Lingkungan" value="${user[4] || ''}">`,
+            focusConfirm: false,
+            showCancelButton: true,
+            confirmButtonText: 'Simpan Perubahan',
+            preConfirm: () => {
+                return {
+                    nik: user[0],
+                    nama: document.getElementById('swal-nama').value,
+                    role: document.getElementById('swal-role').value,
+                    lingk: document.getElementById('swal-lingk').value
+                }
+            }
+        });
+
+        if (formValues) {
+            saveToDatabase(formValues);
+        }
+    }
+
+    async function saveToDatabase(payload) {
+        Swal.fire({ title: 'Menyimpan...', didOpen: () => Swal.showLoading() });
+        
+        try {
+            const res = await fetch(WEB_APP_URL, {
+                method: 'POST',
+                body: JSON.stringify({ action: 'update_user_role', data: payload })
+            });
+            const result = await res.json();
+            if(result.status === 'success') {
+                Swal.fire('Berhasil', 'Data dan Role telah diperbarui', 'success');
+                loadData(); // Refresh list
+            }
+        } catch (e) {
+            Swal.fire('Gagal', 'Koneksi bermasalah', 'error');
+        }
+    }
+
+    window.onload = loadData;
+</script>
+
+</body>
+</html>
