@@ -8,8 +8,6 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { background: #f8f9fa; font-family: 'Segoe UI', sans-serif; overflow: hidden; margin: 0; }
-
-        /* --- STYLING SPLASH SCREEN --- */
         #splash-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: white; display: flex; flex-direction: column;
@@ -19,120 +17,80 @@
         .logo-splash { width: 180px; height: auto; margin-bottom: 20px; animation: pulse 2s infinite; }
         .slogan { color: #003d70; font-weight: bold; letter-spacing: 1px; font-size: 0.9rem; text-transform: uppercase; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-
-        /* --- STYLING LOGIN PAGE --- */
         .login-container {
             height: 100vh; display: flex; align-items: center; justify-content: center;
             background: linear-gradient(135deg, #003d70, #005fa3);
         }
         .login-card {
             background: white; padding: 40px 30px; border-radius: 30px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 380px;
-            text-align: center;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 380px; text-align: center;
         }
-        .logo-bulo-container {
-            width: 100px; height: 100px; margin: 0 auto 20px auto;
-            display: flex; align-items: center; justify-content: center;
-        }
-        .logo-bulo-container img { width: 100%; height: auto; object-fit: contain; }
-
-        .form-control { border-radius: 12px; padding: 12px; border: 1px solid #ddd; }
-        .btn-login { background: #003d70; color: white; border-radius: 12px; padding: 12px; width: 100%; font-weight: bold; border: none; transition: 0.3s; }
-        .btn-login:hover { background: #005691; }
+        .logo-bulo-container { width: 120px; margin: 0 auto 20px auto; }
+        .logo-bulo-container img { width: 100%; height: auto; display: block; }
+        .btn-login { background: #003d70; color: white; border-radius: 12px; padding: 12px; width: 100%; font-weight: bold; border: none; }
     </style>
 </head>
 <body>
 
     <div id="splash-screen">
-        <img src="Logo_UMMAN.jpg" class="logo-splash" alt="Logo UM MANADO">
+        <img src="Logo_UMMAN.jpg" class="logo-splash" onerror="this.src='https://upload.wikimedia.org/wikipedia/id/8/8e/Logo_Universitas_Muhammadiyah_Manado.png'">
         <div class="slogan">Hebat, Maju Dengan Pesat</div>
-        <div class="spinner-border text-primary mt-4" role="status" style="width: 1.5rem; height: 1.5rem;"></div>
     </div>
 
     <div class="login-container">
         <div class="login-card mx-3">
             <div class="logo-bulo-container">
-                <img src="Lobo_Bulo.png" alt="Logo Bulo SmartVille">
+                <img src="Lobo_Bulo.png" alt="Logo Bulo">
             </div>
-            
-            <h4 class="fw-bold mb-1">Bulo SmartVille</h4>
-            <p class="text-muted small mb-4">Layanan Digital Desa Bulo</p>
-
+            <h4 class="fw-bold mb-4">Bulo SmartVille</h4>
             <div class="text-start">
                 <label class="small fw-bold mb-1">NIK</label>
                 <input type="number" id="nik" class="form-control mb-3" placeholder="Masukkan NIK">
-                
                 <label class="small fw-bold mb-1">Password</label>
                 <input type="password" id="pass" class="form-control mb-4" placeholder="******">
-
                 <button class="btn-login" onclick="prosesLogin()">MASUK</button>
             </div>
-            <div class="mt-4 text-center">
-                <small class="text-muted">UM MANADO &copy; 2026</small>
-            </div>
+            <p class="mt-4 small text-muted">UM MANADO &copy; 2026</p>
         </div>
     </div>
 
     <script>
-        // PASTIKAN URL INI ADALAH URL WEB APP ASLI DARI DEPLOYMENT BAPAK
+        // URL API Google Apps Script Bapak
         const API_URL = "https://script.google.com/macros/s/AKfycbxn-ofE_U0jn7moejYjCHsOFhdpxXlLw-YWA6jW8gDTvPecViEnFRbm_1H1qV7EchGcIA/exec"; 
 
-        // Splash screen menghilang setelah 3 detik
         window.onload = () => {
             setTimeout(() => {
                 const splash = document.getElementById('splash-screen');
                 splash.style.opacity = '0';
-                setTimeout(() => { splash.style.display = 'none'; }, 800);
+                setTimeout(() => splash.style.display = 'none', 800);
             }, 3000);
         };
 
         async function prosesLogin() {
             const nik = document.getElementById('nik').value;
             const pass = document.getElementById('pass').value;
+            if (!nik || !pass) return Swal.fire('Oops', 'Isi NIK dan Password!', 'warning');
 
-            if (!nik || !pass) {
-                return Swal.fire('Perhatian', 'NIK dan Password wajib diisi', 'warning');
-            }
-
-            Swal.fire({ title: 'Menghubungkan ke Server...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+            Swal.fire({ title: 'Menghubungkan...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
 
             try {
-                // Mengambil data dari Master_Data_Penduduk via API Google Apps Script
-                const response = await fetch(`${API_URL}?action=get_all_sheets_data`);
-                const result = await response.json();
-                const db = result.data.Master_Data_Penduduk;
-
-                // Verifikasi Login (NIK: Indeks 0, Password: Indeks 1)
-                const user = db.find(row => row[0].toString() === nik && row[1].toString() === pass);
+                const res = await fetch(`${API_URL}?action=get_all_sheets_data`);
+                const json = await res.json();
+                const user = json.data.Master_Data_Penduduk.find(r => r[0].toString() === nik && r[1].toString() === pass);
 
                 if (user) {
-                    const role = user[9].toLowerCase(); // Role di Indeks 9
-                    const nama = user[2]; // Nama di Indeks 2
-
-                    Swal.fire({
-                        icon: 'success',
-                        title: `Selamat Datang, ${nama}!`,
-                        text: `Anda masuk sebagai ${user[9]}`,
-                        timer: 2000,
-                        showConfirmButton: false
-                    }).then(() => {
-                        // Pengalihan halaman berdasarkan Role
-                        if (role.includes('admin')) {
-                            window.location.href = "admin_panel.html";
-                        } else if (role.includes('kesehatan')) {
-                            window.location.href = "kader_health.html";
-                        } else if (role.includes('sampah')) {
-                            window.location.href = "kader_sampah.html";
-                        } else {
-                            window.location.href = "dashboard_warga.html";
-                        }
+                    Swal.fire({ icon: 'success', title: 'Berhasil!', timer: 1500, showConfirmButton: false }).then(() => {
+                        const role = user[9].toLowerCase();
+                        if (role.includes('admin')) window.location.href = "admin_panel.html";
+                        else if (role.includes('kesehatan')) window.location.href = "kader_health.html";
+                        else if (role.includes('sampah')) window.location.href = "kader_sampah.html";
+                        else window.location.href = "dashboard_warga.html";
                     });
                 } else {
-                    Swal.fire('Login Gagal', 'NIK atau Password salah. Silakan coba lagi.', 'error');
+                    Swal.fire('Gagal', 'NIK atau Password salah!', 'error');
                 }
-            } catch (error) {
-                console.error(error);
-                Swal.fire('Koneksi Gagal', 'Pastikan Web App sudah di-deploy dengan akses "Anyone" dan internet aktif.', 'error');
+            } catch (e) {
+                Swal.fire('Koneksi Gagal', 'Periksa internet atau deployment Apps Script Bapak.', 'error');
             }
         }
     </script>
