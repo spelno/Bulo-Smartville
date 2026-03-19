@@ -3,90 +3,115 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Bulo SmartVille</title>
+    <title>Bulo SmartVille - Universitas Muhammadiyah Manado</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { background: linear-gradient(135deg, #2d6a4f, #1b4332); height: 100vh; display: flex; align-items: center; justify-content: center; font-family: sans-serif; }
-        .login-card { background: white; padding: 40px 30px; border-radius: 30px; box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 400px; text-align: center; }
-        .logo-app { width: 80px; height: 80px; background: #d8f3dc; border-radius: 20px; display: inline-flex; align-items: center; justify-content: center; margin-bottom: 20px; font-size: 2rem; }
-        .form-control { border-radius: 12px; padding: 12px; border: 1px solid #ddd; }
-        .btn-login { background: #2d6a4f; color: white; border-radius: 12px; padding: 12px; width: 100%; font-weight: bold; border: none; transition: 0.3s; }
-        .btn-login:hover { background: #40916c; }
+        body { background: #f8f9fa; font-family: 'Segoe UI', sans-serif; overflow: hidden; }
+
+        /* --- STYLING SPLASH SCREEN --- */
+        #splash-screen {
+            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+            background: white; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; z-index: 9999;
+            transition: opacity 0.8s ease, visibility 0.8s;
+        }
+        .logo-splash { width: 180px; margin-bottom: 20px; animation: pulse 2s infinite; }
+        .slogan { color: #003d70; font-weight: bold; letter-spacing: 1px; font-size: 0.9rem; text-transform: uppercase;}
+        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
+
+        /* --- STYLING LOGIN PAGE --- */
+        .login-container {
+            height: 100vh; display: flex; align-items: center; justify-content: center;
+            background: linear-gradient(135deg, #003d70, #005fa3);
+        }
+        .login-card {
+            background: white; padding: 40px 30px; border-radius: 30px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 380px;
+            text-align: center;
+        }
+        
+        /* LOGO BARU DARI REPOSITORY */
+        .logo-bulo {
+            width: 90px; height: 90px; 
+            background: #d8f3dc; /* Background hijau muda opsional */
+            border-radius: 20px; display: inline-flex; 
+            align-items: center; justify-content: center; 
+            margin-bottom: 15px; overflow: hidden; /* Biar gambar tidak keluar */
+            box-shadow: 0 4px 10px rgba(0,0,0,0.05);
+        }
+        .logo-bulo img { width: 100%; height: auto; object-fit: contain; }
+
+        .btn-login { background: #003d70; color: white; border-radius: 12px; padding: 12px; width: 100%; font-weight: bold; border: none; }
     </style>
 </head>
 <body>
 
-<div class="login-card mx-3">
-    <div class="logo-app">🏘️</div>
-    <h4 class="fw-bold">Bulo SmartVille</h4>
-    <p class="text-muted small">Silakan login dengan NIK Anda</p>
-
-    <div class="mt-4 text-start">
-        <label class="small fw-bold mb-1">NIK</label>
-        <input type="number" id="nik" class="form-control mb-3" placeholder="Contoh: 123">
-        
-        <label class="small fw-bold mb-1">Password</label>
-        <input type="password" id="pass" class="form-control mb-4" placeholder="******">
-
-        <button class="btn-login" onclick="prosesLogin()">MASUK KE SISTEM</button>
+    <div id="splash-screen">
+        <img src="https://upload.wikimedia.org/wikipedia/id/8/8e/Logo_Universitas_Muhammadiyah_Manado.png" class="logo-splash" alt="Logo UM Manado">
+        <div class="slogan">Hebat, Maju Dengan Pesat</div>
+        <div class="spinner-border text-primary mt-4" role="status" style="width: 1.5rem; height: 1.5rem;">Spinner</div>
     </div>
-    
-    <div class="mt-4">
-        <small class="text-muted">Digitalisasi Desa Bulo © 2026</small>
+
+    <div class="login-container">
+        <div class="login-card mx-3">
+            
+            <div class="logo-bulo">
+                <img src="https://example.com/Lobo_Bulo.png" alt="Logo Bulo SmartVille"> 
+            </div>
+
+            <h4 class="fw-bold mb-1">Bulo SmartVille</h4>
+            <p class="text-muted small mb-4">Akses Layanan Desa Digital</p>
+
+            <div class="text-start">
+                <label class="small fw-bold mb-1">NIK</label>
+                <input type="number" id="nik" class="form-control mb-3" placeholder="Masukkan NIK">
+                
+                <label class="small fw-bold mb-1">Password</label>
+                <input type="password" id="pass" class="form-control mb-4" placeholder="******">
+
+                <button class="btn-login" onclick="prosesLogin()">MASUK</button>
+            </div>
+            <div class="mt-4 text-center">
+                <small class="text-muted">Universitas Muhammadiyah Manado &copy; 2026</small>
+            </div>
+        </div>
     </div>
-</div>
 
-<script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxn-ofE_U0jn7moejYjCHsOFhdpxXlLw-YWA6jW8gDTvPecViEnFRbm_1H1qV7EchGcIA/exec"; // Ganti dengan URL Deploy Bapak
+    <script>
+        const API_URL = "https://script.google.com/macros/s/AKfycbxn-ofE_U0jn7moejYjCHsOFhdpxXlLw-YWA6jW8gDTvPecViEnFRbm_1H1qV7EchGcIA/exec"; 
 
-    async function prosesLogin() {
-        const nik = document.getElementById('nik').value;
-        const pass = document.getElementById('pass').value;
+        // Fungsi menghilangkan Splash Screen
+        window.onload = () => {
+            setTimeout(() => {
+                const splash = document.getElementById('splash-screen');
+                splash.style.opacity = '0';
+                splash.style.visibility = 'hidden';
+            }, 3000); // 3 detik
+        };
 
-        if (!nik || !pass) return Swal.fire('Oops', 'Isi NIK dan Password!', 'warning');
-
-        Swal.fire({ title: 'Memverifikasi...', didOpen: () => Swal.showLoading() });
-
-        try {
-            // Kita ambil data penduduk untuk cek login
-            const res = await fetch(`${API_URL}?action=get_all_sheets_data`);
-            const json = await res.json();
-            const data = json.data.Master_Data_Penduduk;
-
-            // Cari user berdasarkan NIK (Indeks 0) dan Password (Indeks 1)
-            const user = data.find(r => r[0].toString() === nik && r[1].toString() === pass);
-
-            if (user) {
-                const role = user[9].toLowerCase(); // Indeks 9 adalah ROLE
-                const nama = user[2];
-
-                Swal.fire({
-                    icon: 'success',
-                    title: `Halo, ${nama}!`,
-                    text: `Anda masuk sebagai ${user[9]}`,
-                    timer: 1500,
-                    showConfirmButton: false
-                }).then(() => {
-                    // ARAHKAN BERDASARKAN ROLE
-                    if (role.includes('admin')) {
-                        window.location.href = "admin_panel.html";
-                    } else if (role.includes('kesehatan')) {
-                        window.location.href = "kader_health.html";
-                    } else if (role.includes('sampah')) {
-                        window.location.href = "kader_sampah.html";
-                    } else {
-                        window.location.href = "dashboard_warga.html";
-                    }
-                });
-            } else {
-                Swal.fire('Gagal', 'NIK atau Password salah!', 'error');
-            }
-        } catch (e) {
-            Swal.fire('Error', 'Masalah koneksi database', 'error');
+        // ... Sisa fungsi prosesLogin() sama seperti sebelumnya ...
+        async function prosesLogin() {
+            const nik = document.getElementById('nik').value;
+            const pass = document.getElementById('pass').value;
+            if (!nik || !pass) return Swal.fire('Oops', 'Isi NIK dan Password!', 'warning');
+            Swal.fire({ title: 'Memverifikasi...', didOpen: () => Swal.showLoading() });
+            try {
+                const res = await fetch(`${API_URL}?action=get_all_sheets_data`);
+                const json = await res.json();
+                const data = json.data.Master_Data_Penduduk;
+                const user = data.find(r => r[0].toString() === nik && r[1].toString() === pass);
+                if (user) {
+                    const role = user[9].toLowerCase();
+                    Swal.fire({ icon: 'success', title: `Halo, ${user[2]}!`, timer: 1500, showConfirmButton: false }).then(() => {
+                        if (role.includes('admin')) window.location.href = "admin_panel.html";
+                        else if (role.includes('kesehatan')) window.location.href = "kader_health.html";
+                        else if (role.includes('sampah')) window.location.href = "kader_sampah.html";
+                        else window.location.href = "dashboard_warga.html";
+                    });
+                } else { Swal.fire('Gagal', 'NIK atau Password salah!', 'error'); }
+            } catch (e) { Swal.fire('Error', 'Gagal koneksi database', 'error'); }
         }
-    }
-</script>
-
+    </script>
 </body>
 </html>
