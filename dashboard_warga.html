@@ -4,105 +4,98 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Warga - Bulo SmartVille</title>
+    
     <script>
-        if (!localStorage.getItem('nik_login')) { window.location.href = "index.html"; }
+        const sessionNIK = localStorage.getItem('nik_login');
+        if (!sessionNIK) { window.location.href = "index.html"; }
     </script>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        :root { --primary: #003d70; --success: #198754; --warning: #ffc107; }
-        body { background: #f0f2f5; font-family: 'Inter', sans-serif; padding-bottom: 50px; }
-        .header { background: var(--primary); color: white; padding: 50px 20px; border-radius: 0 0 40px 40px; text-align: center; position: relative; }
-        .btn-logout { position: absolute; top: 15px; right: 15px; font-size: 0.7rem; border-radius: 50px; }
-        .card-custom { border-radius: 25px; border: none; box-shadow: 0 8px 20px rgba(0,0,0,0.06); background: white; margin-bottom: 20px; overflow: hidden; }
-        .section-header { font-size: 0.8rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; padding: 15px 20px; background: #f8f9fa; border-bottom: 1px solid #eee; }
-        .status-box { padding: 20px; }
-        .timer-badge { font-family: 'Courier New', monospace; font-weight: bold; font-size: 1.2rem; color: var(--primary); }
-        .diet-alert { font-size: 0.85rem; border-left: 4px solid #dc3545; background: #fff5f5; padding: 10px; border-radius: 8px; }
+        :root { --primary: #003d70; --secondary: #005fa3; --success: #198754; }
+        body { background: #f4f7f6; font-family: 'Inter', sans-serif; padding-bottom: 40px; }
+        
+        .header-section { background: var(--primary); color: white; padding: 40px 20px 60px; border-radius: 0 0 40px 40px; position: relative; }
+        .btn-logout { position: absolute; top: 15px; right: 15px; font-size: 0.7rem; color: white; border-color: rgba(255,255,255,0.3); border-radius: 50px; }
+        
+        .card-custom { border-radius: 25px; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.05); background: white; margin-bottom: 20px; overflow: hidden; }
+        .section-tag { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1px; color: #888; margin-bottom: 10px; display: block; }
+        
+        /* Sampah Timer Style */
+        .timer-box { background: #eefdf3; border-radius: 20px; padding: 15px; text-align: center; border: 1px solid #d1e7dd; }
+        .timer-val { font-family: 'Courier New', monospace; font-size: 1.5rem; font-weight: bold; color: var(--success); }
+        
+        /* Gizi Badge */
+        .badge-gizi { padding: 6px 15px; border-radius: 50px; font-size: 0.8rem; font-weight: bold; }
+        .bg-normal { background: #d1e7dd; color: #0f5132; }
+        .bg-warning-custom { background: #fff3cd; color: #664d03; }
+        .bg-danger-custom { background: #f8d7da; color: #842029; }
     </style>
 </head>
 <body>
 
-<div class="header shadow">
+<div class="header-section text-center shadow">
     <button onclick="logout()" class="btn btn-sm btn-outline-light btn-logout">Logout</button>
-    <h4 class="fw-bold mb-0" id="nama-user">Memuat Nama...</h4>
-    <small class="opacity-75">NIK: <span id="nik-user">...</span></small>
+    <h4 class="fw-bold mb-1" id="nama-user">Memuat Nama...</h4>
+    <p class="small opacity-75 mb-0">NIK: <span id="nik-user">...</span></p>
 </div>
 
-<div class="container mt-n4" style="margin-top: -30px;">
-    
-    <div class="card card-custom">
-        <div class="section-header text-primary">🏥 Informasi Kesehatan</div>
-        <div class="status-box">
-            <div class="row text-center mb-3">
-                <div class="col-4 border-end"><small class="text-muted d-block small">TB/BB</small><span class="fw-bold" id="data-fisik">-</span></div>
-                <div class="col-8">
-                    <small class="text-muted d-block small">Status BMI</small>
-                    <span id="label-bmi" class="badge bg-secondary">Menghitung...</span>
-                </div>
+<div class="container mt-n4" style="margin-top: -40px;">
+
+    <div class="card card-custom p-4">
+        <span class="section-tag">♻️ Lingkungan & Saldo</span>
+        <div class="row align-items-center mb-3">
+            <div class="col-6">
+                <small class="text-muted d-block">Tabungan Anda</small>
+                <h3 class="fw-bold text-success mb-0" id="saldo-rp">Rp 0</h3>
             </div>
-            <div id="saran-ahli-gizi" class="diet-alert d-none">
-                <strong>Saran Ahli Gizi:</strong><br>
-                <span id="teks-saran" class="small"></span>
+            <div class="col-6 text-end">
+                <small class="text-muted d-block">Total Sampah</small>
+                <h5 class="fw-bold text-primary mb-0" id="total-kg">0 Kg</h5>
             </div>
+        </div>
+        
+        <div class="timer-box">
+            <small class="fw-bold text-muted d-block mb-1" id="label-timer">Menuju Jam Buang</small>
+            <div class="timer-val" id="countdown">00:00:00</div>
+            <small class="text-muted small">Jadwal: 18.00 - 06.00 WITA</small>
         </div>
     </div>
 
-    <div class="card card-custom">
-        <div class="section-header text-success">♻️ Lingkungan & Sampah</div>
-        <div class="status-box">
-            <div class="row align-items-center mb-3">
-                <div class="col-6">
-                    <small class="text-muted small">Saldo Tabungan</small>
-                    <h4 class="fw-bold text-success mb-0" id="data-saldo">Rp 0</h4>
-                </div>
-                <div class="col-6 text-end">
-                    <small class="text-muted small">Total Berat</small>
-                    <h5 class="fw-bold text-primary mb-0" id="data-sampah">0 Kg</h5>
-                </div>
+    <div class="card card-custom p-4">
+        <span class="section-tag">🏥 Status Kesehatan (BMI)</span>
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <div>
+                <small class="text-muted d-block">Tinggi / Berat</small>
+                <h5 class="fw-bold mb-0" id="tb-bb">- / -</h5>
             </div>
-            <hr>
-            <div class="text-center p-3 rounded-4" id="box-timer" style="background: #eefdf3;">
-                <small class="fw-bold text-uppercase d-block mb-1" id="status-timer">Menunggu Jam Buang</small>
-                <div class="timer-badge" id="timer-display">00:00:00</div>
-                <small class="text-muted small" id="ket-timer">Jadwal: 18:00 - 06:00 WITA</small>
-            </div>
+            <span id="status-bmi" class="badge-gizi bg-secondary text-white">Menghitung...</span>
+        </div>
+        
+        <div class="p-3 rounded-4 bg-light border-start border-4 border-primary">
+            <p class="fw-bold mb-1 small text-primary">Saran Ahli Gizi:</p>
+            <span id="saran-gizi" class="small text-muted italic">Data pemeriksaan belum tersedia...</span>
         </div>
     </div>
 
-    <div class="card card-custom">
-        <div class="section-header text-warning">🥗 Kalkulator Gizi Makanan</div>
-        <div class="status-box">
-            <div class="mb-3">
-                <label class="small fw-bold">Pilih Menu dari Master Gizi:</label>
-                <select id="select-makanan" class="form-select mb-2" style="border-radius: 12px;"></select>
-                <button class="btn btn-warning btn-sm w-100 fw-bold text-dark" onclick="tambahMakanan()">+ Tambah Makanan</button>
+    <div class="card card-custom p-4 text-center" onclick="window.location.href='kalkulator_gizi.html'" style="cursor: pointer; background: linear-gradient(135deg, #ffffff 0%, #fff9e6 100%); border: 1px solid #ffeeba;">
+        <div class="d-flex align-items-center justify-content-center">
+            <span style="font-size: 2rem; margin-right: 15px;">🥗</span>
+            <div class="text-start">
+                <h6 class="fw-bold mb-0">Kalkulator Gizi Makanan</h6>
+                <small class="text-muted">Cek nutrisi menu harian Anda di sini</small>
             </div>
-            
-            <div id="list-makan" class="mb-3 small">
-                <p class="text-center text-muted italic">Daftar makan hari ini masih kosong.</p>
-            </div>
-
-            <div class="p-3 rounded-4 bg-dark text-white shadow-sm">
-                <div class="d-flex justify-content-between align-items-center mb-1">
-                    <span>Total Kalori:</span>
-                    <span class="fw-bold" id="total-kalori">0 kkal</span>
-                </div>
-                <div id="warning-penyakit" class="mt-2 pt-2 border-top border-secondary text-warning small d-none">
-                    ⚠️ <strong>Pantangan (Penyakit Penyerta):</strong> <span id="txt-pantangan"></span>
-                </div>
-            </div>
+            <span class="ms-auto fw-bold text-warning">→</span>
         </div>
     </div>
+
 </div>
 
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzVXjDFywiipE5TYG-2fSDXPh3X1mG5O_t3fbccZkX_lHhlg-scq-Ats1LUcUnrDu9Yog/exec";
-    let masterGizi = [];
-    let keranjang = [];
-    let riwayatPenyakit = "";
 
-    async function loadWarga() {
+    async function loadData() {
         const nik = localStorage.getItem('nik_login');
         document.getElementById('nik-user').innerText = nik;
 
@@ -110,70 +103,66 @@
             const res = await fetch(`${API_URL}?action=get_all_sheets_data`);
             const db = await res.json();
 
-            // 1. KESEHATAN
+            // Load Data Warga & Kesehatan
             const user = db.data.Master_Data_Penduduk.find(r => r[0].toString() === nik);
-            if(user) {
+            if (user) {
                 document.getElementById('nama-user').innerText = user[2];
                 const tb = parseFloat(user[12] || 0);
                 const bb = parseFloat(user[13] || 0);
-                riwayatPenyakit = user[14] || "Tidak Ada"; // Anggap kolom 15 adalah Penyakit Penyerta
-                document.getElementById('data-fisik').innerText = `${tb}/${bb}`;
-                prosesBMI(tb, bb);
+                document.getElementById('tb-bb').innerText = `${tb} cm / ${bb} kg`;
+                hitungBMI(tb, bb);
             }
 
-            // 2. SAMPAH
-            const sld = db.data.sampah_saldo.find(r => r[0].toString() === nik);
-            if(sld) {
-                document.getElementById('data-saldo').innerText = `Rp ${parseInt(sld[2]).toLocaleString()}`;
-                document.getElementById('data-sampah').innerText = `${sld[3]} Kg`;
+            // Load Data Saldo Sampah
+            const sampah = db.data.sampah_saldo.find(r => r[0].toString() === nik);
+            if (sampah) {
+                document.getElementById('saldo-rp').innerText = `Rp ${parseInt(sampah[2]).toLocaleString()}`;
+                document.getElementById('total-kg').innerText = `${sampah[3]} Kg`;
             }
 
-            // 3. MASTER GIZI
-            masterGizi = db.data.Master_Gizi;
-            const select = document.getElementById('select-makanan');
-            masterGizi.slice(1).forEach(m => {
-                let opt = document.createElement('option');
-                opt.value = m[0]; opt.text = `${m[0]} (${m[1]} kkal)`;
-                select.add(opt);
-            });
-
-        } catch (e) { console.error("Database error"); }
+        } catch (e) { console.error("Gagal ambil data"); }
     }
 
-    function prosesBMI(tb, bb) {
-        if(!tb || !bb) return;
-        const imt = bb / ((tb/100)**2);
-        let status = "", color = "bg-success", saran = "";
+    function hitungBMI(tb, bb) {
+        if (tb === 0 || bb === 0) return;
+        const imt = bb / ((tb/100) ** 2);
+        let status = "", color = "", saran = "";
 
-        if(imt < 18.5) { status = "Gizi Kurang"; color = "bg-danger"; saran = "Anda memerlukan asupan protein tinggi (ikan, telur) dan tambahan karbohidrat kompleks. Jangan lewatkan jam makan."; }
-        else if(imt <= 25) { status = "Normal"; color = "bg-success"; saran = "Kondisi sangat baik. Pertahankan pola makan gizi seimbang dan hidrasi minimal 2 Liter air/hari."; }
-        else { status = "Overweight"; color = "bg-warning text-dark"; saran = "Kurangi porsi karbohidrat dan gorengan. Ganti cemilan dengan buah berserat tinggi seperti pepaya atau apel."; }
+        if (imt < 18.5) {
+            status = "Gizi Kurang"; color = "bg-danger-custom";
+            saran = "Perbanyak asupan protein (telur, ikan) dan karbohidrat kompleks. Tambah porsi makan harian Anda.";
+        } else if (imt <= 25) {
+            status = "Normal"; color = "bg-normal";
+            saran = "Kondisi Anda sangat baik! Pertahankan pola makan gizi seimbang dan tetap rutin berolahraga.";
+        } else {
+            status = "Overweight"; color = "bg-warning-custom";
+            saran = "Kurangi makanan berminyak (gorengan) dan minuman manis. Tingkatkan aktivitas fisik harian.";
+        }
 
-        document.getElementById('label-bmi').innerText = status;
-        document.getElementById('label-bmi').className = "badge " + color;
-        document.getElementById('teks-saran').innerText = saran;
-        document.getElementById('saran-ahli-gizi').classList.remove('d-none');
+        document.getElementById('status-bmi').innerText = status;
+        document.getElementById('status-bmi').className = "badge-gizi " + color;
+        document.getElementById('saran-gizi').innerText = saran;
     }
 
-    // HITUNG MUNDUR SAMPAH (18:00 - 06:00)
-    function updateTrashTimer() {
+    function updateTimer() {
         const now = new Date();
-        const currentHour = now.getHours();
+        const hrs = now.getHours();
         let target = new Date();
         let isOpen = false;
 
-        if (currentHour >= 18 || currentHour < 6) {
+        // Cek apakah sekarang jam 18.00 - 06.00
+        if (hrs >= 18 || hrs < 6) {
             isOpen = true;
-            document.getElementById('status-timer').innerText = "🔴 WAKTU PEMBUANGAN BERLANGSUNG";
-            document.getElementById('box-timer').style.background = "#fff0f0";
-            // Hitung mundur ke 06:00 besok
-            if (currentHour >= 18) target.setDate(target.getDate() + 1);
+            document.getElementById('label-timer').innerText = "🔴 WAKTU PEMBUANGAN BERLANGSUNG";
+            document.getElementById('countdown').style.color = "#dc3545";
+            // Target berakhir di jam 06.00 besok
+            if (hrs >= 18) target.setDate(target.getDate() + 1);
             target.setHours(6, 0, 0, 0);
         } else {
             isOpen = false;
-            document.getElementById('status-timer').innerText = "🟢 MENUNGGU JAM BUANG";
-            document.getElementById('box-timer').style.background = "#eefdf3";
-            // Hitung mundur ke 18:00 hari ini
+            document.getElementById('label-timer').innerText = "🟢 MENUNGGU JAM BUANG";
+            document.getElementById('countdown').style.color = "#198754";
+            // Target mulai di jam 18.00 hari ini
             target.setHours(18, 0, 0, 0);
         }
 
@@ -181,38 +170,18 @@
         const h = Math.floor(diff/3600000).toString().padStart(2,'0');
         const m = Math.floor((diff%3600000)/60000).toString().padStart(2,'0');
         const s = Math.floor((diff%60000)/1000).toString().padStart(2,'0');
-        document.getElementById('timer-display').innerText = `${h}:${m}:${s}`;
+        document.getElementById('countdown').innerText = `${h}:${m}:${s}`;
     }
 
-    function tambahMakanan() {
-        const selected = document.getElementById('select-makanan').value;
-        const data = masterGizi.find(r => r[0] === selected);
-        if(data) {
-            keranjang.push({ nama: data[0], kalori: parseFloat(data[1]) });
-            renderKalkulator();
-        }
+    function logout() {
+        localStorage.clear();
+        window.location.href = "index.html";
     }
 
-    function renderKalkulator() {
-        const container = document.getElementById('list-makan');
-        container.innerHTML = "";
-        let total = 0;
-        keranjang.forEach(i => {
-            total += i.kalori;
-            container.innerHTML += `<div class="d-flex justify-content-between border-bottom py-1"><span>${i.nama}</span><b>${i.kalori} kkal</b></div>`;
-        });
-        document.getElementById('total-kalori').innerText = total + " kkal";
-        
-        // Cek Pantangan Penyakit
-        if(riwayatPenyakit !== "Tidak Ada") {
-            document.getElementById('warning-penyakit').classList.remove('d-none');
-            document.getElementById('txt-pantangan').innerText = `Karena riwayat ${riwayatPenyakit}, harap batasi makanan tinggi natrium dan pemanis buatan. Konsultasikan menu di atas dengan dokter jika total kalori melebihi batas harian.`;
-        }
-    }
-
-    function logout() { localStorage.clear(); window.location.href = "index.html"; }
-
-    window.onload = () => { loadWarga(); setInterval(updateTrashTimer, 1000); };
+    window.onload = () => {
+        loadData();
+        setInterval(updateTimer, 1000);
+    };
 </script>
 </body>
 </html>
