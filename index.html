@@ -3,67 +3,46 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bulo SmartVille - UM Manado</title>
+    <title>Bulo SmartVille</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { background: #f8f9fa; font-family: 'Segoe UI', sans-serif; overflow: hidden; margin: 0; }
-        #splash-screen {
+        body { background: #003d70; font-family: sans-serif; margin: 0; overflow-x: hidden; }
+        #splash {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: white; display: flex; flex-direction: column;
             align-items: center; justify-content: center; z-index: 9999;
-            transition: opacity 0.8s ease, visibility 0.8s;
-        }
-        .logo-splash { width: 180px; height: auto; margin-bottom: 20px; animation: pulse 2s infinite; }
-        .slogan { color: #003d70; font-weight: bold; letter-spacing: 1px; font-size: 0.9rem; text-transform: uppercase; }
-        @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
-        .login-container {
-            height: 100vh; display: flex; align-items: center; justify-content: center;
-            background: linear-gradient(135deg, #003d70, #005fa3);
         }
         .login-card {
             background: white; padding: 40px 30px; border-radius: 30px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 380px; text-align: center;
+            width: 100%; max-width: 380px; margin: auto; margin-top: 10vh; text-align: center;
         }
-        .logo-bulo-container { width: 120px; margin: 0 auto 20px auto; }
-        .logo-bulo-container img { width: 100%; height: auto; display: block; }
-        .btn-login { background: #003d70; color: white; border-radius: 12px; padding: 12px; width: 100%; font-weight: bold; border: none; }
+        img { max-width: 150px; height: auto; margin-bottom: 15px; }
     </style>
 </head>
 <body>
 
-    <div id="splash-screen">
-        <img src="Logo_UMMAN.jpg" class="logo-splash" onerror="this.src='https://upload.wikimedia.org/wikipedia/id/8/8e/Logo_Universitas_Muhammadiyah_Manado.png'">
-        <div class="slogan">Hebat, Maju Dengan Pesat</div>
+    <div id="splash">
+        <img src="Logo_UMMAN.jpg" alt="Logo UM">
+        <b style="color: #003d70;">HEBAT, MAJU DENGAN PESAT</b>
     </div>
 
-    <div class="login-container">
-        <div class="login-card mx-3">
-            <div class="logo-bulo-container">
-                <img src="Lobo_Bulo.png" alt="Logo Bulo">
-            </div>
+    <div class="container d-flex" style="min-height: 100vh;">
+        <div class="login-card shadow">
+            <img src="Lobo_Bulo.png" alt="Logo Aplikasi" style="max-width: 80px;">
             <h4 class="fw-bold mb-4">Bulo SmartVille</h4>
-            <div class="text-start">
-                <label class="small fw-bold mb-1">NIK</label>
-                <input type="number" id="nik" class="form-control mb-3" placeholder="Masukkan NIK">
-                <label class="small fw-bold mb-1">Password</label>
-                <input type="password" id="pass" class="form-control mb-4" placeholder="******">
-                <button class="btn-login" onclick="prosesLogin()">MASUK</button>
-            </div>
-            <p class="mt-4 small text-muted">UM MANADO &copy; 2026</p>
+            <input type="number" id="nik" class="form-control mb-3" placeholder="NIK">
+            <input type="password" id="pass" class="form-control mb-4" placeholder="Password">
+            <button class="btn btn-primary w-100 p-3 fw-bold" onclick="prosesLogin()" style="background: #003d70; border:none;">MASUK</button>
         </div>
     </div>
 
     <script>
-        // URL API Google Apps Script Bapak
-        const API_URL = "https://script.google.com/macros/s/AKfycbxn-ofE_U0jn7moejYjCHsOFhdpxXlLw-YWA6jW8gDTvPecViEnFRbm_1H1qV7EchGcIA/exec"; 
+        // GANTI DENGAN URL DEPLOY TERBARU BAPAK
+        const API_URL = "https://script.google.com/macros/s/AKfycbySusZZRIimRjp3oZE00UwTkwqlZTcWDEOtBuQGeRIww7vaiC0seFGmq4xn6hDgVS8ldg/exec"; 
 
         window.onload = () => {
-            setTimeout(() => {
-                const splash = document.getElementById('splash-screen');
-                splash.style.opacity = '0';
-                setTimeout(() => splash.style.display = 'none', 800);
-            }, 3000);
+            setTimeout(() => { document.getElementById('splash').style.display = 'none'; }, 3000);
         };
 
         async function prosesLogin() {
@@ -71,26 +50,22 @@
             const pass = document.getElementById('pass').value;
             if (!nik || !pass) return Swal.fire('Oops', 'Isi NIK dan Password!', 'warning');
 
-            Swal.fire({ title: 'Menghubungkan...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+            Swal.fire({ title: 'Menghubungkan...', didOpen: () => Swal.showLoading() });
 
             try {
                 const res = await fetch(`${API_URL}?action=get_all_sheets_data`);
                 const json = await res.json();
-                const user = json.data.Master_Data_Penduduk.find(r => r[0].toString() === nik && r[1].toString() === pass);
+                const db = json.data.Master_Data_Penduduk;
+                const user = db.find(r => r[0].toString() === nik && r[1].toString() === pass);
 
                 if (user) {
-                    Swal.fire({ icon: 'success', title: 'Berhasil!', timer: 1500, showConfirmButton: false }).then(() => {
-                        const role = user[9].toLowerCase();
-                        if (role.includes('admin')) window.location.href = "admin_panel.html";
-                        else if (role.includes('kesehatan')) window.location.href = "kader_health.html";
-                        else if (role.includes('sampah')) window.location.href = "kader_sampah.html";
-                        else window.location.href = "dashboard_warga.html";
-                    });
+                    Swal.fire({ icon: 'success', title: 'Berhasil!', showConfirmButton: false, timer: 1500 })
+                    .then(() => { window.location.href = "dashboard_warga.html"; });
                 } else {
                     Swal.fire('Gagal', 'NIK atau Password salah!', 'error');
                 }
             } catch (e) {
-                Swal.fire('Koneksi Gagal', 'Periksa internet atau deployment Apps Script Bapak.', 'error');
+                Swal.fire('Koneksi Gagal', 'Cek URL Web App di index.html', 'error');
             }
         }
     </script>
