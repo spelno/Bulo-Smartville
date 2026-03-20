@@ -9,7 +9,7 @@
     <style>
         body { background: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; overflow: hidden; }
 
-        /* --- SPLASH SCREEN --- */
+        /* --- SPLASH SCREEN (Logo_UMMAN.jpg) --- */
         #splash-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: white; display: flex; flex-direction: column;
@@ -20,21 +20,28 @@
         .slogan { color: #003d70; font-weight: bold; letter-spacing: 1px; font-size: 0.9rem; text-transform: uppercase; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        /* --- LOGIN PAGE --- */
+        /* --- LOGIN PAGE (Lobo_Bulo.png) --- */
         .login-container {
             height: 100vh; display: flex; align-items: center; justify-content: center;
             background: linear-gradient(135deg, #003d70, #005fa3);
         }
         .login-card {
             background: white; padding: 40px 30px; border-radius: 30px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 380px;
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 400px; /* Diperlebar sedikit agar logo estetik */
             text-align: center;
         }
-        .logo-bulo-box { width: 100px; height: 100px; margin: 0 auto 20px auto; display: flex; align-items: center; justify-content: center; }
+        
+        /* LOGO DIPERBESAR DAN ESTETIK */
+        .logo-bulo-box { 
+            width: 150px; /* Diperbesar sesuai permintaan */
+            height: 150px; /* Diperbesar sesuai permintaan */
+            margin: 0 auto 30px auto; /* Margin bawah ditambah */
+            display: flex; align-items: center; justify-content: center; 
+        }
         .logo-bulo-box img { width: 100%; height: auto; object-fit: contain; }
 
         .form-control { border-radius: 12px; padding: 12px; border: 1px solid #ddd; }
-        .btn-login { background: #003d70; color: white; border-radius: 12px; padding: 12px; width: 100%; font-weight: bold; border: none; transition: 0.3s; }
+        .btn-login { background: #003d70; color: white; border-radius: 12px; padding: 12px; width: 100%; font-weight: bold; border: none; transition: 0.3s; margin-top: 10px; }
         .btn-login:hover { background: #00284d; transform: translateY(-2px); }
     </style>
 </head>
@@ -52,27 +59,24 @@
                 <img src="Lobo_Bulo.png" alt="Logo Bulo SmartVille">
             </div>
             
-            <h4 class="fw-bold mb-1">Bulo SmartVille</h4>
-            <p class="text-muted small mb-4">Layanan Digital Desa Bulo</p>
-
-            <div class="text-start">
-                <label class="small fw-bold mb-1">NIK</label>
+            <div class="text-start mt-3">
+                <label class="small fw-bold mb-1 text-muted">NIK</label>
                 <input type="number" id="nik" class="form-control mb-3" placeholder="Masukkan NIK" autocomplete="off">
                 
-                <label class="small fw-bold mb-1">Password</label>
+                <label class="small fw-bold mb-1 text-muted">Password</label>
                 <input type="password" id="pass" class="form-control mb-4" placeholder="******">
 
                 <button class="btn-login" onclick="prosesLogin()">MASUK KE SISTEM</button>
             </div>
             <div class="mt-4 text-center">
-                <small class="text-muted">Universitas Muhammadiyah Manado &copy; 2026</small>
+                <small class="text-muted">UM Manado &copy; 2026</small>
             </div>
         </div>
     </div>
 
     <script>
-        // MASUKKAN URL WEB APP HASIL DEPLOY TERBARU BAPAK DI SINI
-        const API_URL = "https://script.google.com/macros/s/AKfycbySusZZRIimRjp3oZE00UwTkwqlZTcWDEOtBuQGeRIww7vaiC0seFGmq4xn6hDgVS8ldg/exec"; 
+        // GANTI DENGAN URL WEB APP DEPLOY TERBARU DARI GOOGLE APPS SCRIPT BAPAK
+        const API_URL = "https://script.google.com/macros/s/AKfycbzVXjDFywiipE5TYG-2fSDXPh3X1mG5O_t3fbccZkX_lHhlg-scq-Ats1LUcUnrDu9Yog/exec"; 
 
         // Fungsi Transisi Splash Screen (3 Detik)
         window.onload = () => {
@@ -93,7 +97,6 @@
 
             Swal.fire({
                 title: 'Memverifikasi Data...',
-                html: 'Mohon tunggu sebentar',
                 didOpen: () => { Swal.showLoading(); },
                 allowOutsideClick: false
             });
@@ -119,18 +122,13 @@
                     const role = user[9] ? user[9].toLowerCase() : 'warga';
                     const nama = user[2];
 
-                    Swal.fire({
-                        icon: 'success',
-                        title: `Halo, ${nama}!`,
-                        text: 'Berhasil login ke sistem.',
-                        timer: 1500,
-                        showConfirmButton: false
-                    }).then(() => {
-                        // Pengalihan berdasarkan Role
+                    Swal.fire({ icon: 'success', title: `Halo, ${nama}!`, timer: 1500, showConfirmButton: false }).then(() => {
+                        // Pengalihan berdasarkan Role (NAMA FILE DISESUAIKAN DENGAN REPOSITORY GITHUB BAPAK)
                         if (role.includes('admin')) {
                             window.location.href = "admin_panel.html";
                         } else if (role.includes('kesehatan')) {
-                            window.location.href = "kader_health.html";
+                            // DISESUAIKAN: Menjadi kader_kesehatan.html sesuai repository Bapak
+                            window.location.href = "kader_kesehatan.html"; 
                         } else if (role.includes('sampah')) {
                             window.location.href = "kader_sampah.html";
                         } else {
@@ -142,7 +140,7 @@
                 }
             } catch (error) {
                 console.error(error);
-                Swal.fire('Koneksi Gagal', 'Sistem tidak dapat terhubung ke database. Pastikan Web App sudah di-deploy dengan benar.', 'error');
+                Swal.fire('Koneksi Gagal', 'Sistem tidak dapat terhubung ke database. Pastikan Web App sudah di-deploy dengan benar (akses "Anyone") dan internet aktif.', 'error');
             }
         }
     </script>
