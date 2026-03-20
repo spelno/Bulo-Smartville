@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Gizi Pintar - Bulo SmartVille</title>
+    <title>Kalkulator Gizi - Bulo SmartVille</title>
     
     <script>
         if (!localStorage.getItem('nik_login')) { window.location.href = "index.html"; }
@@ -16,7 +16,6 @@
         :root { --primary: #003d70; --bg: #f4f7fa; --danger: #e74c3c; --warning: #f1c40f; --success: #27ae60; --info: #3498db; }
         body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; height: 100vh; overflow: hidden; margin: 0; }
         
-        /* PANEL ANALISIS ATAS */
         .top-fixed {
             height: 58vh; background: var(--primary); color: white;
             padding: 20px; border-radius: 0 0 40px 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
@@ -25,7 +24,6 @@
         .nav-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
         .btn-back { background: rgba(255,255,255,0.15); color: white; border: none; padding: 8px 15px; border-radius: 12px; font-weight: 700; font-size: 0.8rem; text-decoration: none; }
         
-        /* Box BMI - Persis Dashboard */
         .bmi-container { background: rgba(255,255,255,0.1); border-radius: 18px; padding: 12px; margin-bottom: 10px; border: 1px solid rgba(255,255,255,0.1); display: flex; justify-content: space-between; align-items: center; }
         .bmi-label { font-size: 0.6rem; font-weight: 700; text-transform: uppercase; opacity: 0.7; }
         .bmi-val { font-size: 1.2rem; font-weight: 800; color: #fff; }
@@ -40,7 +38,6 @@
         .feedback-area { background: rgba(255,255,255,0.1); border-radius: 20px; padding: 12px; margin-top: 12px; border-left: 5px solid var(--warning); min-height: 80px; }
         .medis-notice { background: #fff5f5; border: 1px solid #feb2b2; border-radius: 15px; padding: 8px; font-size: 0.7rem; color: #a52834; margin-top: 8px; display: none; }
 
-        /* PANEL INPUT BAWAH */
         .bottom-scroll { height: 42vh; overflow-y: auto; padding: 20px; padding-bottom: 120px; }
         .input-card { background: white; border-radius: 25px; padding: 18px; box-shadow: 0 5px 20px rgba(0,0,0,0.02); margin-bottom: 15px; }
         .custom-input { width: 100%; background: #f8f9fc; border: 1.5px solid #eee; border-radius: 14px; padding: 10px; font-size: 0.85rem; font-weight: 600; outline: none; margin-bottom: 10px; }
@@ -51,7 +48,6 @@
         .item-piring { background: white; border-radius: 18px; padding: 12px; margin-bottom: 8px; border: 1px solid #f1f3f5; display: flex; justify-content: space-between; align-items: center; }
         .btn-hapus { background: #fff5f5; color: var(--danger); border: none; width: 32px; height: 32px; border-radius: 10px; font-weight: 800; }
         
-        /* Modal */
         .modal-content { border-radius: 30px; border: none; }
         .recommend-item { cursor: pointer; border-radius: 15px; border: 1px solid #eee; padding: 15px; margin-bottom: 10px; transition: 0.2s; }
         .recommend-item:hover { background: #f0f7ff; border-color: var(--primary); }
@@ -61,7 +57,7 @@
 
 <div class="top-fixed">
     <div class="nav-top">
-        <a href="dashboard_warga.html" class="btn-back">← KEMBALI</a>
+        <a href="dashboard_warga.html" class="btn-back">← DASHBOARD</a>
         <div class="score-circle" id="circle-score">
             <span style="font-size: 1.4rem; font-weight: 800;" id="score-val">--</span>
             <span style="font-size: 0.5rem; opacity: 0.6; font-weight: 700;">SKOR</span>
@@ -69,28 +65,22 @@
     </div>
 
     <div class="bmi-container">
-        <div>
-            <span class="bmi-label">STATUS BMI</span><br>
-            <b id="bmi-status" style="font-size: 0.9rem; color: #fff;">Memuat...</b>
-        </div>
-        <div class="text-end">
-            <span class="bmi-label">ANGKA BMI</span><br>
-            <b class="bmi-val" id="bmi-val">0.0</b>
-        </div>
+        <div><span class="bmi-label">STATUS BMI</span><br><b id="bmi-status" style="font-size: 0.9rem; color: #fff;">Memuat...</b></div>
+        <div class="text-end"><span class="bmi-label">ANGKA BMI</span><br><b class="bmi-val" id="bmi-val">0.0</b></div>
     </div>
 
     <div class="kkal-display"><span id="total-kkal">0</span> <small style="font-size: 1rem; opacity: 0.5;">kkal</small></div>
 
     <div class="macro-grid">
-        <div class="macro-badge"><span class="macro-val" id="total-p">0</span><small style="font-size: 0.55rem; opacity: 0.6; font-weight: 700;">P(g)</small></div>
-        <div class="macro-badge"><span class="macro-val" id="total-l">0</span><small style="font-size: 0.55rem; opacity: 0.6; font-weight: 700;">L(g)</small></div>
-        <div class="macro-badge"><span class="macro-val" id="total-k">0</span><small style="font-size: 0.55rem; opacity: 0.6; font-weight: 700;">K(g)</small></div>
-        <div class="macro-badge"><span class="macro-val" id="total-fe">0</span><small style="font-size: 0.55rem; opacity: 0.6; font-weight: 700;">Fe(mg)</small></div>
+        <div class="macro-badge"><span class="macro-val" id="total-p">0</span><small style="font-size: 0.5rem; opacity: 0.6; font-weight: 700;">PROT</small></div>
+        <div class="macro-badge"><span class="macro-val" id="total-l">0</span><small style="font-size: 0.5rem; opacity: 0.6; font-weight: 700;">LEMAK</small></div>
+        <div class="macro-badge"><span class="macro-val" id="total-k">0</span><small style="font-size: 0.5rem; opacity: 0.6; font-weight: 700;">KARBO</small></div>
+        <div class="macro-badge"><span class="macro-val" id="total-fe">0</span><small style="font-size: 0.5rem; opacity: 0.6; font-weight: 700;">BESI</small></div>
     </div>
 
     <div class="feedback-area" id="fb-box">
         <div id="fb-title" style="font-size: 0.85rem; font-weight: 800;">Analisa Piring...</div>
-        <div id="fb-text" style="font-size: 0.75rem; opacity: 0.8; line-height: 1.3;">Sistem sedang membaca data kesehatan Bapak.</div>
+        <div id="fb-text" style="font-size: 0.7rem; opacity: 0.8; line-height: 1.2;">Sistem membaca data Anda.</div>
         <div id="medis-alert" class="medis-notice"><b>⚠️ PANTANGAN:</b> <span id="medis-text"></span></div>
     </div>
 </div>
@@ -103,7 +93,7 @@
             <div class="col-6"><input type="number" id="input-berat" class="custom-input text-center" value="100"></div>
             <div class="col-6"><button class="btn-piring" onclick="tambahItem()">+ PIRING</button></div>
         </div>
-        <button class="btn-rekomendasi" data-bs-toggle="modal" data-bs-target="#modalRekomendasi">💡 Butuh Ide Menu Sehat?</button>
+        <button class="btn-rekomendasi" data-bs-toggle="modal" data-bs-target="#modalRekomendasi">💡 Ide Menu Sehat?</button>
     </div>
     <div id="container-piring"></div>
 </div>
@@ -131,64 +121,63 @@
             const res = await fetch(`${API_URL}?action=get_all_sheets_data`);
             const db = await res.json();
             
-            // LOGIKA PERSIS DASHBOARD WARGA
-            const user = db.data.Master_Data_Penduduk.find(r => r[0].toString() === nik);
+            // 1. Ambil Data Warga (SESUAI FOTO: M=12, N=13, O=14)
+            const rowsPenduduk = db.data.Master_Data_Penduduk;
+            const user = rowsPenduduk.find(r => r[0].toString() === nik);
             if(user) {
-                // Sesuai Sheet Bapak: Index 10 = BB, Index 11 = TB, Index 14 = Penyakit
+                const tb = parseFloat(user[12]); 
+                const bb = parseFloat(user[13]); 
                 riwayatPenyakit = (user[14] || "Normal").toLowerCase();
-                const bb = parseFloat(user[10]);
-                const tb = parseFloat(user[11]);
                 
-                if(bb > 0 && tb > 0) {
+                if(!isNaN(bb) && !isNaN(tb) && bb > 0 && tb > 0) {
                     const tm = tb / 100;
                     userBMI = (bb / (tm * tm)).toFixed(1);
                     document.getElementById('bmi-val').innerText = userBMI;
                     
-                    let statusTxt = "";
-                    let warnaBmi = "#ffffff";
-
-                    if(userBMI < 18.5) { statusTxt = "Kurus (Underweight)"; warnaBmi = "#3498db"; }
-                    else if(userBMI < 25) { statusTxt = "Normal"; warnaBmi = "#27ae60"; }
-                    else if(userBMI < 30) { statusTxt = "Gemuk (Overweight)"; warnaBmi = "#f1c40f"; }
-                    else { statusTxt = "Obesitas"; warnaBmi = "#e74c3c"; }
-
-                    document.getElementById('bmi-status').innerText = statusTxt;
-                    document.getElementById('bmi-status').style.color = warnaBmi;
+                    let st = ""; let cl = "#fff";
+                    if(userBMI < 18.5) { st = "Kurus"; cl = "#3498db"; }
+                    else if(userBMI < 25) { st = "Normal"; cl = "#2ecc71"; }
+                    else if(userBMI < 30) { st = "Gemuk"; cl = "#f1c40f"; }
+                    else { st = "Obesitas"; cl = "#e74c3c"; }
                     
-                    generateRekomendasi(statusTxt);
+                    document.getElementById('bmi-status').innerText = st;
+                    document.getElementById('bmi-status').style.color = cl;
+                    generateRekomendasi(st);
                 } else {
-                    document.getElementById('bmi-status').innerText = "Data BB/TB Kosong";
+                    document.getElementById('bmi-status').innerText = "Data BB/TB Kosong di Sheet";
                 }
             }
-            databaseGizi = db.data.master_gizi;
+
+            // 2. Load Gizi & Filter Header Kategori
+            databaseGizi = db.data.master_gizi.filter(r => r[0] && !isNaN(r[1]));
             renderSelect(databaseGizi);
         } catch (e) { console.error(e); }
     }
 
     function renderSelect(data) {
         const sel = document.getElementById('select-makanan'); sel.innerHTML = "";
-        data.slice(1).forEach(r => { if(r[0] && !isNaN(r[1])) {
-            let opt = document.createElement('option'); opt.value = r[0]; opt.text = `${r[0]} (${r[1]} kkal)`; sel.add(opt);
-        }});
+        data.forEach(r => {
+            let opt = document.createElement('option');
+            opt.value = r[0]; opt.text = `${r[0]} (${r[1]} kkal)`;
+            sel.add(opt);
+        });
     }
 
     function generateRekomendasi(status) {
         const list = document.getElementById('list-rekomendasi');
         let menus = [
-            { n: "Protein Stamina", p: ["Ikan Tongkol", "Sayur Bayam", "Nasi Putih"], d: "Kombinasi klasik untuk energi harian." },
+            { n: "Menu Protein", p: ["Ikan Tongkol", "Sayur Bayam", "Nasi Putih"], d: "Kaya protein untuk otot." },
             { n: "Menu Serat Lokal", p: ["Tahu Goreng", "Sayur Kangkung", "Jagung Rebus"], d: "Pilihan sehat rendah gula." }
         ];
-
         if(riwayatPenyakit.includes("asam urat")) {
             menus = menus.filter(m => !m.p.includes("Sayur Bayam") && !m.p.includes("Sayur Kangkung"));
-            menus.push({ n: "Aman Sendi", p: ["Ikan Tongkol", "Wortel", "Nasi Putih"], d: "Tanpa sayuran pemicu nyeri sendi." });
+            menus.push({ n: "Aman Sendi", p: ["Ikan Tongkol", "Wortel", "Nasi Putih"], d: "Tanpa pemicu nyeri sendi." });
         }
-
         list.innerHTML = menus.map(m => `
             <div class="recommend-item" onclick='pilihRekomendasi(${JSON.stringify(m.p)})'>
                 <b class="d-block text-primary">${m.n}</b>
-                <p class="mb-1" style="font-size: 0.75rem; opacity: 0.7;">${m.d}</p>
-                <small class="text-muted" style="font-size: 0.65rem;">Bahan: ${m.p.join(", ")}</small>
+                <p class="mb-1" style="font-size: 0.7rem; opacity: 0.7;">${m.d}</p>
+                <small class="text-muted" style="font-size: 0.6rem;">Bahan: ${m.p.join(", ")}</small>
             </div>`).join("");
     }
 
@@ -204,8 +193,8 @@
 
     function filterMenu() {
         const key = document.getElementById('input-cari').value.toLowerCase();
-        const filt = databaseGizi.filter((r, i) => i !== 0 && r[0].toString().toLowerCase().includes(key));
-        renderSelect([databaseGizi[0], ...filt]);
+        const filt = databaseGizi.filter(r => r[0].toString().toLowerCase().includes(key));
+        renderSelect(filt);
     }
 
     function tambahItem() {
@@ -236,16 +225,13 @@
     }
 
     function analisaAI(kkal, p, l, k, fe) {
-        let skor = 100, title = "✅ Menu Seimbang", msg = "Komposisi menu piring Bapak sudah cukup baik.", warna = "#27ae60", alertMedis = "";
-        if (userBMI >= 25 && k > (kkal * 0.65 / 4)) { skor -= 25; title = "⚠️ Kurangi Karbo"; warna = "#f39c12"; msg="BMI Bapak tinggi, kurangi porsi nasi agar lebih sehat."; }
+        let skor = 100, title = "✅ Seimbang", msg = "Menu cukup baik.", warna = "#27ae60", alertMedis = "";
+        if (userBMI >= 25 && k > (kkal * 0.65 / 4)) { skor -= 25; title = "⚠️ Karbo Tinggi"; warna = "#f39c12"; msg="Kurangi porsi nasi untuk BMI Anda."; }
         const menuStr = isiPiring.map(i => i.nama.toLowerCase()).join(" ");
-        if (riwayatPenyakit.includes("asam urat") && (menuStr.includes("bayam") || menuStr.includes("kangkung") || menuStr.includes("jeroan"))) { alertMedis += "Hindari Bayam/Kangkung karena Asam Urat Anda. "; skor -= 30; }
-        if ((riwayatPenyakit.includes("tensi") || riwayatPenyakit.includes("hipertensi")) && (menuStr.includes("asin") || menuStr.includes("instan"))) { alertMedis += "Kurangi garam/ikan asin karena riwayat Hipertensi. "; skor -= 30; }
-        document.getElementById('score-val').innerText = (skor < 10 ? 10 : skor);
+        if (riwayatPenyakit.includes("asam urat") && (menuStr.includes("bayam") || menuStr.includes("kangkung") || menuStr.includes("jeroan"))) { alertMedis += "Hindari Bayam/Kangkung/Jeroan. "; skor -= 30; }
+        document.getElementById('score-val').innerText = skor < 10 ? 10 : skor;
         document.getElementById('fb-title').innerText = title; document.getElementById('fb-title').style.color = warna;
-        document.getElementById('fb-text').innerText = msg;
-        document.getElementById('fb-box').style.borderLeftColor = warna;
-        document.getElementById('circle-score').style.borderColor = warna;
+        document.getElementById('fb-text').innerText = msg; document.getElementById('fb-box').style.borderLeftColor = warna;
         const box = document.getElementById('medis-alert');
         if(alertMedis) { box.style.display = "block"; document.getElementById('medis-text').innerText = alertMedis; }
         else box.style.display = "none";
