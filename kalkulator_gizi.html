@@ -3,76 +3,89 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analisis Gizi & Penyakit - Bulo SmartVille</title>
+    <title>Analisis Gizi & BMI - Bulo SmartVille</title>
+    <script>
+        if (!localStorage.getItem('nik_login')) { window.location.href = "index.html"; }
+    </script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #003d70; --bg: #f4f7fa; }
+        :root { --primary: #003d70; --bg: #f4f7fa; --danger: #e74c3c; --success: #27ae60; }
         body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; height: 100vh; overflow: hidden; }
         
+        /* PANEL ANALISIS (STATIC) */
         .top-fixed {
-            height: 52vh; background: var(--primary); color: white;
-            padding: 25px; border-radius: 0 0 40px 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            height: 55vh; background: var(--primary); color: white;
+            padding: 20px; border-radius: 0 0 40px 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
             display: flex; flex-direction: column; position: relative; z-index: 100;
         }
-        .score-circle { width: 70px; height: 70px; border: 4px solid rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.3rem; }
-        .kkal-val { font-size: 2.5rem; font-weight: 800; line-height: 1; }
+        .nav-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; }
+        .btn-back { background: rgba(255,255,255,0.15); color: white; border: none; padding: 8px 15px; border-radius: 12px; font-weight: 700; font-size: 0.8rem; text-decoration: none; }
         
-        .feedback-card {
-            background: rgba(255,255,255,0.1); border-radius: 20px; padding: 15px;
-            margin-top: 15px; border-left: 5px solid #f1c40f;
-        }
-        .alert-medis {
-            background: #fff5f5; color: #a52834; border-radius: 15px; padding: 12px;
-            font-size: 0.75rem; margin-top: 10px; border: 1px solid #feb2b2; display: none;
-        }
+        .bmi-box { background: rgba(0,0,0,0.2); border-radius: 15px; padding: 10px 15px; display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); }
+        .kkal-val { font-size: 2.8rem; font-weight: 800; line-height: 1; }
+        .score-circle { width: 65px; height: 65px; border: 4px solid rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; }
 
-        .bottom-scroll { height: 48vh; overflow-y: auto; padding: 20px; padding-bottom: 120px; }
-        .card-input { border-radius: 25px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.03); background: white; padding: 20px; margin-bottom: 15px; }
-        .input-style { background: #f8f9fa; border: 1.5px solid #eee; border-radius: 15px; padding: 12px; font-size: 0.85rem; margin-bottom: 10px; width: 100%; outline: none; }
-        
-        .macro-chip { font-size: 0.6rem; font-weight: 700; padding: 4px 8px; border-radius: 50px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); }
-        .piring-item { background: white; border-radius: 18px; padding: 12px 18px; margin-bottom: 8px; border: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
+        .feedback-card { background: rgba(255,255,255,0.1); border-radius: 20px; padding: 12px; margin-top: 10px; border-left: 5px solid #f1c40f; min-height: 70px; }
+        .alert-medis { background: #fff5f5; color: #a52834; border-radius: 15px; padding: 10px; font-size: 0.7rem; margin-top: 10px; border: 1px solid #feb2b2; display: none; }
+
+        /* PANEL INPUT (SCROLLABLE) */
+        .bottom-scroll { height: 45vh; overflow-y: auto; padding: 20px; padding-bottom: 100px; }
+        .card-input { border-radius: 25px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.03); background: white; padding: 18px; margin-bottom: 15px; }
+        .input-style { background: #f8f9fa; border: 1.5px solid #eee; border-radius: 15px; padding: 10px; font-size: 0.85rem; margin-bottom: 8px; width: 100%; outline: none; }
+        .macro-chip { font-size: 0.6rem; font-weight: 700; padding: 3px 8px; border-radius: 50px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
 
 <div class="top-fixed">
-    <div class="d-flex justify-content-between align-items-start">
+    <div class="nav-top">
+        <a href="dashboard_warga.html" class="btn-back">← Dashboard</a>
+        <div class="score-circle" id="score-val">--</div>
+    </div>
+
+    <div class="bmi-box">
         <div>
-            <span class="opacity-50 small fw-bold text-uppercase">Total Isi Piring</span>
-            <div class="kkal-val" id="total-kkal">0</div>
-            <div class="d-flex gap-1 mt-2">
-                <span class="macro-chip">P: <span id="total-p">0</span>g</span>
-                <span class="macro-chip">L: <span id="total-l">0</span>g</span>
-                <span class="macro-chip">K: <span id="total-k">0</span>g</span>
-                <span class="macro-chip">Fe: <span id="total-fe">0</span>mg</span>
-            </div>
+            <span class="d-block opacity-50 fw-bold" style="font-size: 0.6rem;">STATUS BMI ANDA</span>
+            <b id="bmi-status" style="font-size: 0.9rem;">Memuat...</b>
         </div>
-        <div class="text-center">
-            <div class="score-circle" id="score-val">--</div>
-            <small class="opacity-50 fw-bold" style="font-size: 0.6rem;">SKOR GIZI</small>
+        <div class="text-end">
+            <span class="d-block opacity-50 fw-bold" style="font-size: 0.6rem;">SKOR BMI</span>
+            <b id="bmi-val" style="font-size: 1.1rem;">0.0</b>
+        </div>
+    </div>
+
+    <div class="d-flex justify-content-between align-items-end">
+        <div>
+            <span class="opacity-50 small fw-bold text-uppercase">Total Kalori Piring</span>
+            <div class="kkal-val" id="total-kkal">0</div>
+        </div>
+        <div class="d-flex flex-column gap-1 align-items-end">
+            <span class="macro-chip">P: <span id="total-p">0</span>g</span>
+            <span class="macro-chip">L: <span id="total-l">0</span>g</span>
+            <span class="macro-chip">K: <span id="total-k">0</span>g</span>
+            <span class="macro-chip">Fe: <span id="total-fe">0</span>mg</span>
         </div>
     </div>
 
     <div class="feedback-card" id="fb-card">
-        <h6 class="fw-bold mb-1" id="fb-status" style="color: #f1c40f;">Menganalisa...</h6>
-        <p class="small mb-0 opacity-75" id="fb-msg">Siapkan piring makan Bapak dan masukkan menunya.</p>
+        <h6 class="fw-bold mb-1 small" id="fb-status" style="color: #f1c40f;">Analisa Piring</h6>
+        <p class="mb-0 opacity-75" id="fb-msg" style="font-size: 0.75rem;">Masukkan menu makanan Anda.</p>
     </div>
 
     <div id="alert-medis" class="alert-medis">
-        <b class="d-block">⚠️ PERINGATAN KESEHATAN:</b>
+        <b class="d-block">⚠️ CATATAN MEDIS:</b>
         <span id="txt-alert-medis"></span>
     </div>
 </div>
 
 <div class="bottom-scroll">
     <div class="card-input">
-        <input type="text" id="input-cari" class="input-style" placeholder="Cari: Nasi, Sayur, Daging..." onkeyup="filterMenu()">
+        <input type="text" id="input-cari" class="input-style" placeholder="Cari Bahan Makanan..." onkeyup="filterMenu()">
         <select id="select-makanan" class="input-style"></select>
         <div class="row g-2">
             <div class="col-7"><input type="number" id="input-berat" class="input-style text-center fw-bold" value="100"></div>
-            <div class="col-5"><button class="btn btn-primary w-100 fw-bold" style="border-radius: 15px; height: 45px;" onclick="tambahItem()">+ PIRING</button></div>
+            <div class="col-5"><button class="btn btn-primary w-100 fw-bold" style="border-radius: 12px; height: 42px;" onclick="tambahItem()">+ PIRING</button></div>
         </div>
     </div>
     <div id="piring-list-container"></div>
@@ -80,35 +93,40 @@
 
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzVXjDFywiipE5TYG-2fSDXPh3X1mG5O_t3fbccZkX_lHhlg-scq-Ats1LUcUnrDu9Yog/exec";
-    let databaseGizi = [];
-    let isiPiring = [];
-    let riwayatPenyakit = "Normal";
+    let databaseGizi = [], isiPiring = [], riwayatPenyakit = "Normal", userBMI = 0;
 
     async function loadData() {
         const nik = localStorage.getItem('nik_login');
         try {
             const res = await fetch(`${API_URL}?action=get_all_sheets_data`);
             const db = await res.json();
-            
-            // Ambil Riwayat Penyakit Warga
             const user = db.data.Master_Data_Penduduk.find(r => r[0].toString() === nik);
-            if(user) riwayatPenyakit = (user[14] || "Normal").toLowerCase();
+            
+            if(user) {
+                riwayatPenyakit = (user[14] || "Normal").toLowerCase();
+                // Hitung BMI: Berat / (Tinggi/100)^2
+                const bb = parseFloat(user[10]); // Kolom K (BB)
+                const tb = parseFloat(user[11]); // Kolom L (TB)
+                if(bb && tb) {
+                    userBMI = (bb / ((tb/100)**2)).toFixed(1);
+                    document.getElementById('bmi-val').innerText = userBMI;
+                    if(userBMI < 18.5) document.getElementById('bmi-status').innerText = "Kurus (Underweight)";
+                    else if(userBMI < 25) document.getElementById('bmi-status').innerText = "Normal";
+                    else if(userBMI < 30) document.getElementById('bmi-status').innerText = "Gemuk (Overweight)";
+                    else document.getElementById('bmi-status').innerText = "Obesitas";
+                }
+            }
 
             databaseGizi = db.data.master_gizi;
             renderDropdown(databaseGizi);
-        } catch (e) { console.log("Database Error"); }
+        } catch (e) { console.log("Error Load Data"); }
     }
 
     function renderDropdown(data) {
-        const s = document.getElementById('select-makanan');
-        s.innerHTML = "";
-        data.slice(1).forEach(r => {
-            if(r[0] && !isNaN(r[1])) {
-                let o = document.createElement('option');
-                o.value = r[0]; o.text = `${r[0]} (${r[1]} kkal)`;
-                s.add(o);
-            }
-        });
+        const s = document.getElementById('select-makanan'); s.innerHTML = "";
+        data.slice(1).forEach(r => { if(r[0] && !isNaN(r[1])) {
+            let o = document.createElement('option'); o.value = r[0]; o.text = `${r[0]} (${r[1]} kkal)`; s.add(o);
+        }});
     }
 
     function filterMenu() {
@@ -123,100 +141,60 @@
         const d = databaseGizi.find(r => r[0] === n);
         if(d && b > 0) {
             const f = b / 100;
-            isiPiring.unshift({
-                nama: d[0], berat: b, kategori: (d[6] || ""),
-                kkal: (parseFloat(d[1])*f), p: (parseFloat(d[2]||0)*f),
-                l: (parseFloat(d[3]||0)*f), k: (parseFloat(d[4]||0)*f), fe: (parseFloat(d[5]||0)*f)
-            });
+            isiPiring.unshift({ nama: d[0], berat: b, kkal: (parseFloat(d[1])*f), p: (parseFloat(d[2]||0)*f), l: (parseFloat(d[3]||0)*f), k: (parseFloat(d[4]||0)*f), fe: (parseFloat(d[5]||0)*f) });
             updateUI();
         }
     }
 
     function updateUI() {
         let tk=0, tp=0, tl=0, tka=0, tfe=0;
-        const cont = document.getElementById('piring-list-container');
-        cont.innerHTML = "";
-
+        const cont = document.getElementById('piring-list-container'); cont.innerHTML = "";
         isiPiring.forEach((item, idx) => {
             tk+=item.kkal; tp+=item.p; tl+=item.l; tka+=item.k; tfe+=item.fe;
-            cont.innerHTML += `
-                <div class="piring-item shadow-sm">
-                    <div><b class="small d-block">${item.nama}</b><small class="text-muted">${item.berat}g • ${item.kkal.toFixed(0)} kkal</small></div>
-                    <button class="btn btn-sm text-danger fw-bold" onclick="hapus(${idx})">✕</button>
-                </div>`;
+            cont.innerHTML += `<div class="card-input d-flex justify-content-between align-items-center mb-2 p-3">
+                <div><b class="small d-block">${item.nama}</b><small class="text-muted">${item.berat}g • ${item.kkal.toFixed(0)} kkal</small></div>
+                <button class="btn btn-sm text-danger" onclick="hapus(${idx})">✕</button></div>`;
         });
-
         document.getElementById('total-kkal').innerText = tk.toFixed(0);
         document.getElementById('total-p').innerText = tp.toFixed(1);
         document.getElementById('total-l').innerText = tl.toFixed(1);
         document.getElementById('total-k').innerText = tka.toFixed(1);
         document.getElementById('total-fe').innerText = tfe.toFixed(1);
-
-        analisaPiringLengkap(tk, tp, tl, tka, tfe);
+        analisaLengkap(tk, tp, tl, tka, tfe);
     }
 
-    function analisaPiringLengkap(kkal, p, l, k, fe) {
-        if(isiPiring.length === 0) { 
-            document.getElementById('alert-medis').style.display = "none";
-            return; 
+    function analisaLengkap(kkal, p, l, k, fe) {
+        if(isiPiring.length === 0) return;
+        let skor = 100, status = "✅ Menu Baik", pesan = "Porsi gizi sudah cukup seimbang.", warna = "#27ae60", alertMsg = "";
+
+        // Logika BMI
+        if (userBMI >= 25 && k > (kkal * 0.6 / 4)) {
+            skor -= 25; status = "⚠️ Fokus Diet"; 
+            pesan = "BMI Anda tinggi, kurangi porsi nasi/karbo agar berat badan lebih terkontrol."; warna = "#f39c12";
+        }
+        if (userBMI < 18.5 && kkal < 400) {
+            status = "🍲 Butuh Kalori"; 
+            pesan = "BMI Anda rendah. Tingkatkan asupan kalori dan protein untuk berat badan ideal."; warna = "#3498db";
         }
 
-        let skor = 100;
-        let status = "✅ Menu Baik";
-        let pesan = "Kombinasi isi piring ini sudah cukup memenuhi standar gizi.";
-        let warna = "#27ae60";
-        let pesanPenyakit = "";
-
-        // 1. LOGIKA GIZI UMUM
-        if (k > (kkal * 0.75 / 4)) { skor -= 20; status = "🍚 Karbo Dominan"; pesan = "Terlalu banyak karbohidrat dalam piring ini."; warna = "#f39c12"; }
-        if (fe < 2.5 && kkal > 400) { skor -= 25; status = "🩸 Kurang Zat Besi"; pesan = "Kurang zat besi berisiko Anemia dan Stunting."; warna = "#e74c3c"; }
-
-        // 2. LOGIKA PANTANGAN PENYAKIT (PERSONAL)
-        const menuNames = isiPiring.map(i => i.nama.toLowerCase()).join(" ");
-        
-        // Cek Asam Urat
-        if (riwayatPenyakit.includes("asam urat")) {
-            const pantangan = ["jeroan", "emping", "kerang", "bayam", "kangkung", "kacang"];
-            if (pantangan.some(p => menuNames.includes(p))) {
-                pesanPenyakit += "Penderita Asam Urat tidak disarankan mengonsumsi menu pilihan Anda (seperti bayam/jeroan/kacang) karena dapat memicu nyeri sendi mendadak. ";
-                skor -= 30;
-            }
+        // Logika Penyakit
+        const menu = isiPiring.map(i => i.nama.toLowerCase()).join(" ");
+        if (riwayatPenyakit.includes("asam urat") && (menu.includes("bayam") || menu.includes("kangkung") || menu.includes("jeroan"))) {
+            alertMsg += "⚠️ Hindari menu pemicu Asam Urat (Bayam/Jeroan). "; skor -= 30;
         }
-        
-        // Cek Hipertensi
-        if (riwayatPenyakit.includes("tensi") || riwayatPenyakit.includes("hipertensi")) {
-            if (menuNames.includes("ikan asin") || menuNames.includes("telur asin") || menuNames.includes("mie instan")) {
-                pesanPenyakit += "Penderita Hipertensi wajib menghindari makanan tinggi garam (Ikan Asin/Mie) untuk mencegah lonjakan tekanan darah mendadak. ";
-                skor -= 35;
-            }
+        if ((riwayatPenyakit.includes("tensi") || riwayatPenyakit.includes("hipertensi")) && (menu.includes("asin") || menu.includes("instan"))) {
+            alertMsg += "⚠️ Kurangi makanan tinggi garam untuk penderita Hipertensi. "; skor -= 30;
         }
 
-        // Cek Diabetes
-        if (riwayatPenyakit.includes("gula") || riwayatPenyakit.includes("diabetes")) {
-            if (k > (kkal * 0.5 / 4)) {
-                pesanPenyakit += "Penderita Diabetes disarankan mengurangi porsi nasi/karbo di piring ini hingga 50% untuk menjaga kestabilan gula darah. ";
-                skor -= 30;
-            }
-        }
-
-        // TAMPILKAN ALERT JIKA ADA PANTANGAN
-        const alertBox = document.getElementById('alert-medis');
-        if (pesanPenyakit !== "") {
-            alertBox.style.display = "block";
-            document.getElementById('txt-alert-medis').innerText = pesanPenyakit;
-            warna = "#e74c3c";
-            status = "❌ Berbahaya bagi Bapak";
-        } else {
-            alertBox.style.display = "none";
-        }
-
-        const scoreVal = document.getElementById('score-val');
-        scoreVal.innerText = (skor < 10 ? 10 : skor);
-        scoreVal.style.borderColor = warna;
+        document.getElementById('score-val').innerText = (skor < 10 ? 10 : skor);
         document.getElementById('fb-status').innerText = status;
         document.getElementById('fb-status').style.color = warna;
         document.getElementById('fb-msg').innerText = pesan;
         document.getElementById('fb-card').style.borderLeftColor = warna;
+
+        const alertBox = document.getElementById('alert-medis');
+        if(alertMsg) { alertBox.style.display = "block"; document.getElementById('txt-alert-medis').innerText = alertMsg; }
+        else { alertBox.style.display = "none"; }
     }
 
     function hapus(idx) { isiPiring.splice(idx,1); updateUI(); }
