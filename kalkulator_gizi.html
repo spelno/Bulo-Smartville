@@ -3,95 +3,133 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Gizi - Bulo SmartVille</title>
+    <title>Kalkulator Gizi Premium - Bulo SmartVille</title>
     <script>
         if (!localStorage.getItem('nik_login')) { window.location.href = "index.html"; }
     </script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        :root { --primary: #003d70; --accent: #ff7e5f; --bg: #f8fafd; }
-        body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; padding-bottom: 30px; }
+        :root { --primary: #003d70; --secondary: #212529; --bg: #f4f7fa; --accent-p: #27ae60; --accent-l: #f39c12; --accent-k: #2980b9; }
+        body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; padding-bottom: 40px; color: #333; }
         
-        .nav-header { background: white; padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; position: sticky; top: 0; z-index: 100; }
-        .card-calc { border-radius: 24px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.04); background: white; margin-top: 20px; }
-        
-        /* Search Box Custom */
-        .search-box { position: relative; margin-bottom: 15px; }
-        .search-input { border-radius: 15px; padding: 12px 15px; border: 1.5px solid #eee; width: 100%; outline: none; transition: 0.3s; }
-        .search-input:focus { border-color: var(--primary); box-shadow: 0 0 10px rgba(0,61,112,0.1); }
-        
-        /* Weight Input Group */
-        .input-berat-group { display: flex; gap: 10px; margin-bottom: 20px; }
-        .input-berat { border-radius: 15px; border: 1.5px solid #eee; padding: 10px; flex: 1; text-align: center; }
+        /* Custom Header */
+        .nav-header { background: white; padding: 18px 20px; border-bottom: 1px solid #eaeaea; display: flex; align-items: center; position: sticky; top: 0; z-index: 1000; box-shadow: 0 2px 10px rgba(0,0,0,0.02); }
+        .nav-header h5 { margin: 0; font-weight: 800; color: var(--primary); font-size: 1.1rem; }
 
-        .btn-add { background: var(--primary); color: white; border-radius: 15px; font-weight: 700; width: 100%; padding: 15px; border: none; transition: 0.3s; }
-        .btn-add:active { transform: scale(0.95); opacity: 0.9; }
-
-        .list-makan { max-height: 350px; overflow-y: auto; margin: 20px 0; padding: 5px; }
-        .item-makan { background: #f9f9fb; border-radius: 18px; padding: 15px; margin-bottom: 12px; border: 1px solid #f0f0f0; display: flex; justify-content: space-between; align-items: center; animation: fadeIn 0.3s ease; }
+        .card-main { border-radius: 28px; border: none; box-shadow: 0 15px 35px rgba(0,0,0,0.03); background: white; margin-top: 20px; padding: 25px; }
         
-        .total-box { background: #1a1a1a; color: white; border-radius: 20px; padding: 20px; box-shadow: 0 10px 20px rgba(0,0,0,0.1); }
-        .pantangan-box { background: #fff5f5; border-left: 5px solid #dc3545; padding: 15px; border-radius: 15px; font-size: 0.8rem; margin-top: 20px; }
+        /* Section Title */
+        .sec-title { font-size: 0.7rem; font-weight: 800; text-transform: uppercase; letter-spacing: 1.2px; color: #adb5bd; margin-bottom: 15px; display: block; }
 
-        @keyframes fadeIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        /* Search & Input Styling */
+        .search-container { background: #f8f9fc; border-radius: 20px; padding: 10px; border: 1px solid #eee; margin-bottom: 20px; }
+        .search-input { border: none; background: transparent; width: 100%; padding: 10px; outline: none; font-size: 0.9rem; }
+        .select-custom { border: 1px solid #eee; border-radius: 15px; padding: 12px; font-size: 0.85rem; background: white; }
+        
+        .berat-input-group { display: flex; align-items: center; background: #f8f9fc; border-radius: 20px; padding: 5px 15px; border: 1px solid #eee; margin-bottom: 25px; }
+        .berat-input { border: none; background: transparent; flex: 1; padding: 10px; text-align: center; font-weight: 700; color: var(--primary); outline: none; }
+        
+        .btn-add-menu { background: var(--primary); color: white; border-radius: 18px; font-weight: 700; width: 100%; padding: 16px; border: none; transition: 0.3s; box-shadow: 0 5px 15px rgba(0,61,112,0.15); }
+        .btn-add-menu:active { transform: scale(0.96); opacity: 0.9; }
+
+        /* List Makanan Selected */
+        .list-container { max-height: 380px; overflow-y: auto; margin: 25px 0; padding-right: 5px; }
+        .selected-item { background: white; border-radius: 20px; padding: 18px; margin-bottom: 15px; border: 1px solid #f1f3f5; box-shadow: 0 5px 15px rgba(0,0,0,0.01); animation: slideIn 0.3s ease; }
+        .nutrisi-mini { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 10px; font-size: 0.65rem; text-align: center; }
+        
+        /* Total Nutrisi Panel (THE MASTERPIECE) */
+        .total-panel { background: var(--secondary); color: white; border-radius: 28px; padding: 30px; box-shadow: 0 15px 30px rgba(0,0,0,0.15); margin-top: 25px; }
+        .total-kkal-val { font-size: 2.8rem; font-weight: 800; line-height: 1; color: white; }
+        
+        .macro-box { text-align: center; padding: 15px; border-radius: 20px; background: rgba(255,255,255,0.05); }
+        .macro-val { font-size: 1.1rem; font-weight: 800; display: block; }
+        .macro-label { font-size: 0.6rem; text-transform: uppercase; color: rgba(255,255,255,0.6); font-weight: 700; }
+        
+        .micro-row { font-size: 0.7rem; color: rgba(255,255,255,0.7); display: flex; justify-content: space-between; padding: 5px 0; border-bottom: 1px solid rgba(255,255,255,0.08); }
+
+        .pantangan-alert { background: #fff5f5; border-left: 5px solid #dc3545; padding: 15px; border-radius: 15px; font-size: 0.75rem; color: #a52834; margin-top: 25px; display: none; }
+
+        @keyframes slideIn { from { opacity: 0; transform: translateY(15px); } to { opacity: 1; transform: translateY(0); } }
     </style>
 </head>
 <body>
 
-<div class="nav-header shadow-sm">
-    <a href="dashboard_warga.html" style="text-decoration: none; color: var(--primary); font-weight: 800; font-size: 1.2rem;">←</a>
-    <h6 class="mb-0 ms-3 fw-bold">Hitung Nutrisi Harian</h6>
+<div class="nav-header">
+    <a href="dashboard_warga.html" style="text-decoration: none; color: var(--primary); font-size: 1.3rem; font-weight: 800;">←</a>
+    <h5 class="ms-3">Kalkulator Gizi Super</h5>
 </div>
 
 <div class="container">
-    <div class="card card-calc p-4">
-        <div class="search-box">
-            <label class="small fw-bold text-muted mb-2 ms-1">Cari Bahan Makanan:</label>
-            <input type="text" id="input-cari" class="search-input" placeholder="Ketik nama makanan (misal: Nasi)..." onkeyup="filterMenu()">
-            <select id="select-makanan" class="form-select mt-2" style="border-radius: 15px; padding: 10px; border: 1.5px solid #eee;">
+    <div class="card card-main">
+        
+        <span class="sec-title">Cari & Tambah Menu</span>
+        <div class="search-container">
+            <input type="text" id="input-cari" class="search-input" placeholder="Ketik nama bahan (misal: Ayam, Nasi)..." onkeyup="filterMenu()">
+            <select id="select-makanan" class="form-select select-custom mt-2">
                 <option value="">-- Hasil Pencarian --</option>
             </select>
         </div>
 
-        <label class="small fw-bold text-muted mb-2 ms-1">Berat Makanan (Gram):</label>
-        <div class="input-berat-group">
-            <input type="number" id="input-berat" class="input-berat" placeholder="Contoh: 100" value="100">
-            <div style="align-self: center;" class="fw-bold text-muted small">gram</div>
+        <div class="row align-items-center mb-3">
+            <div class="col-7">
+                <label class="small fw-bold text-muted mb-1 ms-1">Porsi Dimakan (Gram):</label>
+                <div class="berat-input-group">
+                    <input type="number" id="input-berat" class="berat-input" placeholder="100" value="100">
+                    <span class="small fw-bold text-muted">gr</span>
+                </div>
+            </div>
+            <div class="col-5">
+                <button class="btn-add-menu" id="btn-tambah" onclick="tambahItem()" disabled>+ Tambah</button>
+            </div>
         </div>
 
-        <button class="btn-add" id="btn-tambah" onclick="tambahItem()" disabled>TAMBAH KE DAFTAR</button>
+        <hr class="opacity-25 my-4">
 
-        <div class="list-makan" id="list-makan-container">
+        <span class="sec-title">Daftar Makan Hari Ini</span>
+        <div class="list-container" id="list-makan-container">
             <div class="text-center py-5 text-muted small">
                 <img src="https://cdn-icons-png.flaticon.com/512/6762/6762317.png" width="60" style="opacity: 0.3; margin-bottom: 10px;"><br>
-                Belum ada menu yang dipilih.
+                Belum ada makanan yang ditambahkan.
             </div>
         </div>
 
-        <div class="total-box">
-            <div class="d-flex justify-content-between align-items-center mb-1">
-                <span class="small opacity-75">Total Kalori:</span>
-                <h4 class="fw-bold mb-0" id="total-kkal">0 kkal</h4>
+        <div class="total-panel">
+            <div class="row align-items-center mb-4">
+                <div class="col-7 border-end border-secondary border-opacity-25">
+                    <span class="macro-label d-block mb-1">Total Energi Harian</span>
+                    <span class="total-kkal-val" id="total-kkal">0</span> <span class="fw-bold opacity-75">kkal</span>
+                </div>
+                <div class="col-5 text-center p-0">
+                    <img src="https://cdn-icons-png.flaticon.com/512/3373/3373003.png" width="70" style="opacity: 0.1;">
+                </div>
             </div>
-            <hr class="opacity-25 my-2">
-            <div class="row text-center" style="font-size: 0.7rem;">
-                <div class="col-4 border-end border-secondary">P: <b id="total-p">0</b>g</div>
-                <div class="col-4 border-end border-secondary">L: <b id="total-l">0</b>g</div>
-                <div class="col-4">K: <b id="total-k">0</b>g</div>
+
+            <div class="sec-title opacity-50 text-white mb-2">Makronutrisi (Gram)</div>
+            <div class="row g-2 mb-4">
+                <div class="col-4"><div class="macro-box"><span class="macro-val" style="color:var(--accent-p);" id="total-p">0</span><span class="macro-label">Protein</span></div></div>
+                <div class="col-4"><div class="macro-box"><span class="macro-val" style="color:var(--accent-l);" id="total-l">0</span><span class="macro-label">Lemak</span></div></div>
+                <div class="col-4"><div class="macro-box"><span class="macro-val" style="color:var(--accent-k);" id="total-k">0</span><span class="macro-label">Karbo</span></div></div>
             </div>
+
+            <div class="sec-title opacity-50 text-white mb-2">Mikronutrisi & Lainnya</div>
+            <div class="micro-row"><span>Serat (Fiber)</span><b id="total-serat">0</b>g</div>
+            <div class="micro-row"><span>Gula (Sugar)</span><b id="total-gula">0</b>g</div>
+            <div class="micro-row" style="border:none;"><span>Natrium (Sodium)</span><b id="total-sodium">0</b>mg</div>
         </div>
 
-        <div id="box-pantangan" class="pantangan-box d-none">
-            <b class="text-danger d-block mb-1">⚠️ Catatan Penyakit:</b>
-            <span id="teks-pantangan"></span>
+        <div id="box-pantangan" class="pantangan-alert">
+            <b class="d-block mb-1">⚠️ Catatan Penyakit (Riwayat: <span id="txt-riwayat"></span>)</b>
+            <span id="txt-pantangan-msg">Konsultasikan menu di atas dengan petugas kesehatan.</span>
         </div>
     </div>
 </div>
 
 <script>
+    // URL API SAMA DENGAN INDEX/DASHBOARD
     const API_URL = "https://script.google.com/macros/s/AKfycbzVXjDFywiipE5TYG-2fSDXPh3X1mG5O_t3fbccZkX_lHhlg-scq-Ats1LUcUnrDu9Yog/exec";
+    
     let databaseGizi = [];
     let pilihans = [];
     let penyakitUser = "Tidak Ada";
@@ -102,47 +140,50 @@
             const res = await fetch(`${API_URL}?action=get_all_sheets_data`);
             const db = await res.json();
             
-            // Ambil Penyakit
+            // 1. Cek Penyakit (Index 14 di Master_Data_Penduduk)
             const user = db.data.Master_Data_Penduduk.find(r => r[0].toString() === nik);
             if(user) penyakitUser = user[14] || "Tidak Ada";
 
-            // Ambil Gizi (Sheet: master_gizi)
+            // 2. Ambil Data Gizi (Sheet: master_gizi)
             databaseGizi = db.data.master_gizi;
             renderDropdown(databaseGizi); // Tampilan awal semua menu
 
             document.getElementById('btn-tambah').disabled = false;
-        } catch (e) { Swal.fire('Error', 'Gagal sinkronasi database.', 'error'); }
+        } catch (e) { Swal.fire('Error', 'Gagal memuat database gizi.', 'error'); }
     }
 
+    // Fungsi Render Dropdown Pintar
     function renderDropdown(data) {
         const select = document.getElementById('select-makanan');
         select.innerHTML = '';
         data.slice(1).forEach(row => {
+            // Validasi baris: Ada nama, kalori adalah angka
             if(row[0] && !isNaN(row[1]) && row[1] !== "") {
                 let opt = document.createElement('option');
                 opt.value = row[0];
-                opt.text = `${row[0]} (${row[1]} kkal / 100g)`;
+                opt.text = `${row[0]} (${row[1]} kkal/100gr)`;
                 select.add(opt);
             }
         });
     }
 
-    // FITUR CARI
+    // FITUR CARI (REAL-TIME)
     function filterMenu() {
         const keyword = document.getElementById('input-cari').value.toLowerCase();
         const filtered = databaseGizi.filter((row, index) => {
             if(index === 0) return false; // Abaikan header
             return row[0] && row[0].toString().toLowerCase().includes(keyword);
         });
-        renderDropdown([databaseGizi[0], ...filtered]);
+        renderDropdown([databaseGizi[0], ...filtered]); // Masukkan header + hasil filter
     }
 
+    // Fungsi Tambah Makanan ke Daftar
     function tambahItem() {
         const namaSelected = document.getElementById('select-makanan').value;
         const berat = parseFloat(document.getElementById('input-berat').value) || 0;
         
         if(!namaSelected || berat <= 0) {
-            Swal.fire('Input Salah', 'Pilih makanan dan masukkan berat (gram).', 'warning');
+            Swal.fire('Input Salah', 'Pilih makanan dan masukkan berat (gram) yang valid.', 'warning');
             return;
         }
 
@@ -153,48 +194,85 @@
             pilihans.push({
                 nama: data[0],
                 berat: berat,
-                kkal: (parseFloat(data[1]) * factor).toFixed(1),
-                p: (parseFloat(data[2] || 0) * factor).toFixed(1),
-                l: (parseFloat(data[3] || 0) * factor).toFixed(1),
-                k: (parseFloat(data[4] || 0) * factor).toFixed(1)
+                // Data Nutrisi Lengkap (Pastikan indeks kolom pas dengan sheet Bapak)
+                kkal: (parseFloat(data[1] || 0) * factor).toFixed(1),
+                p: (parseFloat(data[2] || 0) * factor).toFixed(1), // Protein
+                l: (parseFloat(data[3] || 0) * factor).toFixed(1), // Lemak
+                k: (parseFloat(data[4] || 0) * factor).toFixed(1), // Karbo
+                fib: (parseFloat(data[5] || 0) * factor).toFixed(1), // Serat
+                sug: (parseFloat(data[6] || 0) * factor).toFixed(1), // Gula
+                sod: (parseFloat(data[7] || 0) * factor).toFixed(0) // Natrium (mg)
             });
             updateUI();
         }
     }
 
+    // Update Tampilan Daftar & Total Nutrisi
     function updateUI() {
         const container = document.getElementById('list-makan-container');
         container.innerHTML = "";
-        let totKkal = 0, totP = 0, totL = 0, totK = 0;
+        let tKkal = 0, tP = 0, tL = 0, tK = 0, tSerat = 0, tGula = 0, tSodium = 0;
 
         pilihans.forEach((item, index) => {
-            totKkal += parseFloat(item.kkal);
-            totP += parseFloat(item.p);
-            totL += parseFloat(item.l);
-            totK += parseFloat(item.k);
+            tKkal += parseFloat(item.kkal);
+            tP += parseFloat(item.p);
+            tL += parseFloat(item.l);
+            tK += parseFloat(item.k);
+            tSerat += parseFloat(item.fib);
+            tGula += parseFloat(item.sug);
+            tSodium += parseFloat(item.sod);
 
+            // Item Card dalam daftar (Didesain mirip nutrisi lab)
             container.innerHTML += `
-                <div class="item-makan">
-                    <div>
-                        <b class="d-block" style="font-size: 0.85rem;">${item.nama}</b>
-                        <small class="text-muted">${item.berat}g • ${item.kkal} kkal</small>
+                <div class="selected-item shadow-sm">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <div>
+                            <b class="d-block" style="font-size: 0.8rem; color: #212529;">${item.nama}</b>
+                            <small class="text-muted fw-bold">${item.berat}g • ${item.kkal} kkal</small>
+                        </div>
+                        <button class="btn btn-sm text-danger opacity-75 fw-bold" onclick="hapusItem(${index})">✕ Hapus</button>
                     </div>
-                    <button class="btn btn-sm text-danger fw-bold" onclick="hapusItem(${index})">✕</button>
+                    <div class="nutrisi-mini">
+                        <span class="border-end p-1">P: ${item.p}g</span>
+                        <span class="border-end p-1">L: ${item.l}g</span>
+                        <span class="p-1">K: ${item.k}g</span>
+                    </div>
                 </div>`;
         });
 
-        document.getElementById('total-kkal').innerText = totKkal.toFixed(0) + " kkal";
-        document.getElementById('total-p').innerText = totP.toFixed(1);
-        document.getElementById('total-l').innerText = totL.toFixed(1);
-        document.getElementById('total-k').innerText = totK.toFixed(1);
+        // Tampilkan placeholder jika kosong
+        if(pilihans.length === 0) {
+            container.innerHTML = `<div class="text-center py-5 text-muted small"><img src="https://cdn-icons-png.flaticon.com/512/6762/6762317.png" width="60" style="opacity: 0.3; margin-bottom: 10px;"><br>Belum ada makanan yang ditambahkan.</div>`;
+        }
 
-        // Cek Pantangan
-        if(penyakitUser !== "Tidak Ada" && pilihans.length > 0) {
-            document.getElementById('box-pantangan').classList.remove('d-none');
-            document.getElementById('teks-pantangan').innerText = `Riwayat: ${penyakitUser}. Mohon batasi makanan tinggi natrium/lemak jenuh.`;
+        // Update Panel Total (Lengkap)
+        document.getElementById('total-kkal').innerText = tKkal.toFixed(0);
+        document.getElementById('total-p').innerText = tP.toFixed(1);
+        document.getElementById('total-l').innerText = tL.toFixed(1);
+        document.getElementById('total-k').innerText = tK.toFixed(1);
+        document.getElementById('total-serat').innerText = tSerat.toFixed(1);
+        document.getElementById('total-gula').innerText = tGula.toFixed(1);
+        document.getElementById('total-sodium').innerText = tSodium.toFixed(0);
+
+        // Cek Peringatan Pantangan Penyakit (Consultation Mode)
+        if(penyakitUser !== "Tidak Ada" && penyakitUser !== "-" && pilihans.length > 0) {
+            document.getElementById('box-pantangan').style.display = "block";
+            document.getElementById('txt-riwayat').innerText = penyakitUser;
+            let msg = "";
+            let p = penyakitUser.toLowerCase();
+            
+            if(p.includes("lambung")) msg = "Karena riwayat lambung, harap batasi menu yang terlalu pedas atau asam dari daftar di atas demi kenyamanan pencernaan.";
+            else if(p.includes("gula") || p.includes("diabetes")) msg = "Karena riwayat gula/diabetes, perhatikan total Karbohidrat (K) dan Gula (Sugar) agar tidak melebihi batas harian.";
+            else if(p.includes("tensi") || p.includes("hipertensi")) msg = "Karena riwayat tensi tinggi, harap perhatikan total Natrium (Sodium) agar tidak melebihi 2000mg per hari.";
+            else msg = "Mengingat riwayat penyakit Anda, silakan konsultasikan total kalori dan nutrisi harian di atas dengan petugas Posyandu/Kesehatan.";
+            
+            document.getElementById('txt-pantangan-msg').innerText = msg;
+        } else {
+            document.getElementById('box-pantangan').style.display = "none";
         }
     }
 
+    // Fungsi Hapus Item dari Daftar
     function hapusItem(idx) {
         pilihans.splice(idx, 1);
         updateUI();
