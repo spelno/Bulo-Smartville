@@ -3,194 +3,178 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Gizi - Bulo SmartVille</title>
-    <script>
-        if (!localStorage.getItem('nik_login')) { window.location.href = "index.html"; }
-    </script>
+    <title>Analisis Gizi Pintar - Bulo SmartVille</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        :root { --primary: #003d70; --bg: #f4f7fa; --accent-p: #27ae60; --accent-l: #f39c12; --accent-k: #2980b9; --accent-fe: #e74c3c; }
-        body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; padding-bottom: 40px; color: #333; }
+        :root { --primary: #003d70; --bg: #f0f2f5; --danger: #e74c3c; --success: #27ae60; }
+        body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; height: 100vh; overflow: hidden; }
         
-        .nav-header { background: white; padding: 18px 20px; border-bottom: 1px solid #eaeaea; display: flex; align-items: center; position: sticky; top: 0; z-index: 1000; }
-        .nav-header h5 { margin: 0; font-weight: 800; color: var(--primary); font-size: 1.1rem; }
+        /* PANEL ATAS (FIXED / TIDAK BERGERAK) */
+        .top-analysis {
+            height: 45vh; background: var(--primary); color: white;
+            padding: 20px; border-radius: 0 0 35px 35px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
+            display: flex; flex-direction: column; justify-content: center; position: relative; z-index: 10;
+        }
+        .kkal-big { font-size: 3.2rem; font-weight: 800; line-height: 1; }
+        .ai-feedback {
+            background: rgba(255,255,255,0.1); border-radius: 20px; padding: 12px 18px;
+            margin-top: 15px; border: 1px dashed rgba(255,255,255,0.3); font-size: 0.85rem;
+        }
 
-        .card-main { border-radius: 28px; border: none; box-shadow: 0 15px 35px rgba(0,0,0,0.03); background: white; margin-top: 20px; padding: 25px; }
+        /* PANEL BAWAH (SCROLLABLE) */
+        .bottom-inputs {
+            height: 55vh; overflow-y: auto; padding: 20px; padding-bottom: 80px;
+        }
         
-        .search-container { background: #f8f9fc; border-radius: 20px; padding: 10px; border: 1px solid #eee; margin-bottom: 15px; }
-        .search-input { border: none; background: transparent; width: 100%; padding: 10px; outline: none; font-size: 0.9rem; }
+        .card-input { border-radius: 25px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.05); background: white; padding: 20px; margin-bottom: 15px; }
+        .input-custom { background: #f8f9fa; border: 1px solid #eee; border-radius: 15px; padding: 12px; font-size: 0.9rem; }
         
-        .berat-input-group { display: flex; align-items: center; background: #f8f9fc; border-radius: 20px; padding: 5px 15px; border: 1px solid #eee; margin-bottom: 20px; }
-        .berat-input { border: none; background: transparent; flex: 1; padding: 10px; text-align: center; font-weight: 700; color: var(--primary); outline: none; }
-        
-        .btn-add-menu { background: var(--primary); color: white; border-radius: 18px; font-weight: 700; width: 100%; padding: 15px; border: none; box-shadow: 0 5px 15px rgba(0,61,112,0.15); transition: 0.3s; }
-        .btn-add-menu:active { transform: scale(0.96); }
-
-        .list-container { max-height: 300px; overflow-y: auto; margin: 25px 0; }
-        .selected-item { background: white; border-radius: 20px; padding: 15px; margin-bottom: 12px; border: 1px solid #f1f3f5; box-shadow: 0 5px 10px rgba(0,0,0,0.01); animation: slideIn 0.3s ease; }
-        
-        /* Panel Total */
-        .total-panel { background: #1a1a1a; color: white; border-radius: 28px; padding: 25px; margin-top: 20px; }
-        .total-kkal-val { font-size: 2.5rem; font-weight: 800; color: white; line-height: 1; }
-        
-        .macro-box { text-align: center; padding: 12px; border-radius: 18px; background: rgba(255,255,255,0.05); }
-        .macro-val { font-size: 1rem; font-weight: 800; display: block; }
-        .macro-label { font-size: 0.6rem; text-transform: uppercase; color: rgba(255,255,255,0.5); font-weight: 700; }
-
-        .pantangan-alert { background: #fff5f5; border-left: 5px solid #dc3545; padding: 15px; border-radius: 15px; font-size: 0.75rem; color: #a52834; margin-top: 20px; display: none; }
-        @keyframes slideIn { from { opacity: 0; transform: translateY(10px); } to { opacity: 1; transform: translateY(0); } }
+        .macro-badge { font-size: 0.7rem; font-weight: 700; padding: 5px 12px; border-radius: 50px; background: rgba(255,255,255,0.15); }
+        .status-pill { font-size: 0.65rem; padding: 4px 12px; border-radius: 50px; font-weight: 800; margin-top: 5px; display: inline-block; }
     </style>
 </head>
 <body>
 
-<div class="nav-header">
-    <a href="dashboard_warga.html" style="text-decoration: none; color: var(--primary); font-size: 1.3rem; font-weight: 800;">←</a>
-    <h5 class="ms-3">Kalkulator Gizi Pintar</h5>
+<div class="top-analysis">
+    <div class="d-flex justify-content-between align-items-start">
+        <div>
+            <span class="opacity-50 small fw-bold text-uppercase">Total Kalori</span>
+            <div class="kkal-big" id="total-kkal">0</div>
+            <div class="d-flex gap-2 mt-2">
+                <span class="macro-badge">P: <span id="total-p">0</span>g</span>
+                <span class="macro-badge">L: <span id="total-l">0</span>g</span>
+                <span class="macro-badge">K: <span id="total-k">0</span>g</span>
+                <span class="macro-badge">Fe: <span id="total-fe">0</span>mg</span>
+            </div>
+        </div>
+        <a href="dashboard_warga.html" class="btn btn-sm btn-light rounded-circle fw-bold">✕</a>
+    </div>
+
+    <div class="ai-feedback" id="box-feedback">
+        <div id="status-judul" class="fw-bold text-warning mb-1">Menunggu Input...</div>
+        <div id="status-pesan" class="small opacity-75">Tambahkan menu makanan Anda di bawah untuk memulai analisis gizi otomatis.</div>
+    </div>
 </div>
 
-<div class="container">
-    <div class="card card-main">
+<div class="bottom-inputs">
+    <div class="card-input">
+        <label class="small fw-bold text-muted mb-2">Pilih & Cari Makanan</label>
+        <input type="text" id="input-cari" class="form-control input-custom mb-2" placeholder="Cari: Nasi, Ikan, Telur..." onkeyup="filterMenu()">
+        <select id="select-makanan" class="form-select input-custom mb-3"></select>
         
-        <div class="search-container">
-            <input type="text" id="input-cari" class="search-input" placeholder="Cari: Nasi, Ayam, Ikan..." onkeyup="filterMenu()">
-            <select id="select-makanan" class="form-select border-0 bg-white" style="border-radius: 12px;">
-                <option value="">-- Hasil Pencarian --</option>
-            </select>
-        </div>
-
-        <div class="row g-2 mb-3">
+        <div class="row g-2">
             <div class="col-7">
-                <div class="berat-input-group">
-                    <input type="number" id="input-berat" class="berat-input" value="100">
-                    <span class="small fw-bold text-muted">gram</span>
-                </div>
+                <input type="number" id="input-berat" class="form-control input-custom text-center fw-bold" value="100">
             </div>
             <div class="col-5">
-                <button class="btn-add-menu" id="btn-tambah" onclick="tambahItem()" disabled>+ Tambah</button>
+                <button class="btn btn-primary w-100 h-100 fw-bold" style="border-radius: 15px;" onclick="tambahItem()">TAMBAH</button>
             </div>
-        </div>
-
-        <div class="list-container" id="list-makan-container">
-            <div class="text-center py-4 text-muted small opacity-50">Belum ada menu dipilih</div>
-        </div>
-
-        <div class="total-panel">
-            <div class="mb-4">
-                <span class="macro-label d-block mb-1">Total Kalori</span>
-                <span class="total-kkal-val" id="total-kkal">0</span> <small class="fw-bold opacity-50">kkal</small>
-            </div>
-
-            <div class="row g-2">
-                <div class="col-3"><div class="macro-box"><span class="macro-val" style="color:var(--accent-p);" id="total-p">0</span><span class="macro-label">Protein</span></div></div>
-                <div class="col-3"><div class="macro-box"><span class="macro-val" style="color:var(--accent-l);" id="total-l">0</span><span class="macro-label">Lemak</span></div></div>
-                <div class="col-3"><div class="macro-box"><span class="macro-val" style="color:var(--accent-k);" id="total-k">0</span><span class="macro-label">Karbo</span></div></div>
-                <div class="col-3"><div class="macro-box"><span class="macro-val" style="color:var(--accent-fe);" id="total-fe">0</span><span class="macro-label">Zat Besi</span></div></div>
-            </div>
-        </div>
-
-        <div id="box-pantangan" class="pantangan-alert">
-            <b class="d-block mb-1">⚠️ Catatan Penyakit:</b>
-            <span id="txt-pantangan-msg"></span>
         </div>
     </div>
+
+    <div id="list-makan-container">
+        </div>
 </div>
 
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzVXjDFywiipE5TYG-2fSDXPh3X1mG5O_t3fbccZkX_lHhlg-scq-Ats1LUcUnrDu9Yog/exec";
     let databaseGizi = [];
     let pilihans = [];
-    let penyakitUser = "Tidak Ada";
 
     async function loadData() {
-        const nik = localStorage.getItem('nik_login');
         try {
             const res = await fetch(`${API_URL}?action=get_all_sheets_data`);
             const db = await res.json();
-            
-            // Ambil Riwayat Penyakit (Index 14)
-            const user = db.data.Master_Data_Penduduk.find(r => r[0].toString() === nik);
-            if(user) penyakitUser = user[14] || "Tidak Ada";
-
-            // Ambil Data Gizi (Kolom: Nama, Kalori, Protein, Lemak, Karbo, ZatBesi)
             databaseGizi = db.data.master_gizi;
             renderDropdown(databaseGizi);
-            document.getElementById('btn-tambah').disabled = false;
-        } catch (e) { console.error("Database Error"); }
+        } catch (e) { alert("Gagal muat data."); }
     }
 
     function renderDropdown(data) {
-        const select = document.getElementById('select-makanan');
-        select.innerHTML = '';
-        data.slice(1).forEach(row => {
-            if(row[0] && !isNaN(row[1]) && row[1] !== "") {
-                let opt = document.createElement('option');
-                opt.value = row[0];
-                opt.text = `${row[0]} (${row[1]} kkal)`;
-                select.add(opt);
+        const s = document.getElementById('select-makanan');
+        s.innerHTML = "";
+        data.slice(1).forEach(r => {
+            if(r[0] && !isNaN(r[1])) {
+                let o = document.createElement('option');
+                o.value = r[0]; o.text = `${r[0]} (${r[1]} kkal)`;
+                s.add(o);
             }
         });
     }
 
     function filterMenu() {
-        const keyword = document.getElementById('input-cari').value.toLowerCase();
-        const filtered = databaseGizi.filter((row, idx) => idx !== 0 && row[0] && row[0].toString().toLowerCase().includes(keyword));
-        renderDropdown([databaseGizi[0], ...filtered]);
+        const k = document.getElementById('input-cari').value.toLowerCase();
+        const f = databaseGizi.filter((r, i) => i !== 0 && r[0].toLowerCase().includes(k));
+        renderDropdown([databaseGizi[0], ...f]);
     }
 
     function tambahItem() {
-        const nama = document.getElementById('select-makanan').value;
-        const berat = parseFloat(document.getElementById('input-berat').value) || 0;
-        if(!nama || berat <= 0) return;
-
-        const data = databaseGizi.find(r => r[0] === nama);
-        if(data) {
-            const f = berat / 100;
-            pilihans.push({
-                nama: data[0], berat,
-                kkal: (parseFloat(data[1])*f).toFixed(1),
-                p: (parseFloat(data[2]||0)*f).toFixed(1),
-                l: (parseFloat(data[3]||0)*f).toFixed(1),
-                k: (parseFloat(data[4]||0)*f).toFixed(1),
-                fe: (parseFloat(data[5]||0)*f).toFixed(1)
+        const n = document.getElementById('select-makanan').value;
+        const b = parseFloat(document.getElementById('input-berat').value) || 0;
+        const d = databaseGizi.find(r => r[0] === n);
+        if(d && b > 0) {
+            const f = b / 100;
+            pilihans.unshift({ // Paling baru di atas
+                nama: d[0], berat: b,
+                kkal: (parseFloat(d[1])*f), p: (parseFloat(d[2]||0)*f),
+                l: (parseFloat(d[3]||0)*f), k: (parseFloat(d[4]||0)*f), fe: (parseFloat(d[5]||0)*f)
             });
             updateUI();
         }
     }
 
     function updateUI() {
-        const container = document.getElementById('list-makan-container');
-        container.innerHTML = "";
-        let tKkal=0, tP=0, tL=0, tK=0, tFe=0;
+        let tk=0, tp=0, tl=0, tka=0, tfe=0;
+        const cont = document.getElementById('list-makan-container');
+        cont.innerHTML = "";
 
         pilihans.forEach((item, idx) => {
-            tKkal += parseFloat(item.kkal); tP += parseFloat(item.p);
-            tL += parseFloat(item.l); tK += parseFloat(item.k); tFe += parseFloat(item.fe);
-
-            container.innerHTML += `
-                <div class="selected-item d-flex justify-content-between align-items-center">
-                    <div>
-                        <b class="d-block" style="font-size: 0.85rem;">${item.nama}</b>
-                        <small class="text-muted">${item.berat}g • ${item.kkal} kkal</small>
-                    </div>
-                    <button class="btn btn-sm text-danger" onclick="hapusItem(${idx})">✕</button>
+            tk+=item.kkal; tp+=item.p; tl+=item.l; tka+=item.k; tfe+=item.fe;
+            cont.innerHTML += `
+                <div class="card-input d-flex justify-content-between align-items-center mb-2 p-3">
+                    <div><b class="small d-block">${item.nama}</b><small class="text-muted">${item.berat}g • ${item.kkal.toFixed(0)} kkal</small></div>
+                    <button class="btn btn-sm text-danger" onclick="hapus(${idx})">✕</button>
                 </div>`;
         });
 
-        document.getElementById('total-kkal').innerText = tKkal.toFixed(0);
-        document.getElementById('total-p').innerText = tP.toFixed(1);
-        document.getElementById('total-l').innerText = tL.toFixed(1);
-        document.getElementById('total-k').innerText = tK.toFixed(1);
-        document.getElementById('total-fe').innerText = tFe.toFixed(1);
+        document.getElementById('total-kkal').innerText = tk.toFixed(0);
+        document.getElementById('total-p').innerText = tp.toFixed(1);
+        document.getElementById('total-l').innerText = tl.toFixed(1);
+        document.getElementById('total-k').innerText = tka.toFixed(1);
+        document.getElementById('total-fe').innerText = tfe.toFixed(1);
 
-        if(penyakitUser !== "Tidak Ada" && penyakitUser !== "-" && pilihans.length > 0) {
-            document.getElementById('box-pantangan').style.display = "block";
-            document.getElementById('txt-pantangan-msg').innerText = `Mengingat riwayat ${penyakitUser}, mohon perhatikan porsi makan harian Anda.`;
-        }
+        berikanPenilaian(tk, tp, tl, tka, tfe);
     }
 
-    function hapusItem(idx) { pilihans.splice(idx,1); updateUI(); }
+    function berikanPenilaian(kkal, p, l, k, fe) {
+        let judul = "✅ Nutrisi Seimbang";
+        let pesan = "Komposisi makanan Anda terlihat baik. Pertahankan variasi menu.";
+        let warna = "#27ae60";
+
+        // LOGIKA PENILAIAN AI
+        if (k > 150) {
+            judul = "⚠️ Karbohidrat Tinggi!";
+            pesan = "Terlalu banyak karbohidrat berpotensi meningkatkan kadar gula darah dan risiko diabetes.";
+            warna = "#e67e22";
+        } else if (fe < 2 && kkal > 500) {
+            judul = "📉 Kurang Zat Besi";
+            pesan = "Makanan Anda rendah Zat Besi. Kurang Zat Besi berpotensi menyebabkan Anemia dan Stunting.";
+            warna = "#e74c3c";
+        } else if (l > (kkal * 0.4 / 9)) {
+            judul = "🍔 Lemak Berlebih";
+            pesan = "Kandungan lemak terlalu tinggi. Berpotensi meningkatkan kolesterol dan risiko jantung.";
+            warna = "#c0392b";
+        }
+
+        const box = document.getElementById('box-feedback');
+        box.style.borderColor = warna;
+        document.getElementById('status-judul').innerText = judul;
+        document.getElementById('status-judul').style.color = warna;
+        document.getElementById('status-pesan').innerText = pesan;
+    }
+
+    function hapus(idx) { pilihans.splice(idx,1); updateUI(); }
     window.onload = loadData;
 </script>
 </body>
