@@ -4,12 +4,10 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Bank Sampah - Bulo SmartVille</title>
-    
+
     <script>
-        const sessionNIK = localStorage.getItem('nik_login');
-        const sessionRole = localStorage.getItem('role_login');
-        // Hanya boleh diakses role 'sampah' atau 'admin'
-        if (!sessionNIK || (!sessionRole.includes('sampah') && !sessionRole.includes('admin'))) {
+        const sRole = localStorage.getItem('role_login');
+        if (!localStorage.getItem('nik_login') || (!sRole.includes('sampah') && !sRole.includes('admin'))) {
             window.location.href = "index.html";
         }
     </script>
@@ -17,42 +15,49 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { background: #f8f9fa; font-family: 'Inter', sans-serif; }
-        .nav-kader { background: #198754; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .card-input { border-radius: 20px; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        body { background: #f0fdf4; font-family: 'Inter', sans-serif; }
+        .navbar-sampah { background: #198754; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .card-input { border-radius: 20px; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-top: 20px; }
+        .btn-update { background: #198754; color: white; border-radius: 12px; font-weight: bold; border: none; padding: 12px; }
     </style>
 </head>
 <body>
 
-<div class="nav-kader shadow-sm">
+<div class="navbar-sampah shadow-sm">
     <h6 class="mb-0 fw-bold">Kader Bank Sampah</h6>
     <button onclick="logout()" class="btn btn-sm btn-outline-light" style="border-radius: 50px;">Keluar</button>
 </div>
 
-<div class="container mt-4">
-    <div class="card card-input p-4">
-        <h5 class="fw-bold text-success mb-3">Input Setoran Sampah</h5>
-        <div class="mb-3">
-            <label class="small fw-bold">Nama Nasabah (Warga)</label>
-            <select id="select-warga-sampah" class="form-select"></select>
+<div class="container">
+    <div class="card card-input p-4 text-center">
+        <h5 class="fw-bold text-success mb-4">Setoran Sampah Warga</h5>
+        
+        <div class="text-start mb-3">
+            <label class="small fw-bold text-muted">Nama Nasabah (Warga)</label>
+            <select id="select-nasabah" class="form-select" style="border-radius: 10px;"></select>
         </div>
-        <div class="mb-3">
-            <label class="small fw-bold">Berat Sampah (Kg)</label>
-            <input type="number" id="input-kg" class="form-control" placeholder="0.0">
+
+        <div class="text-start mb-4">
+            <label class="small fw-bold text-muted">Berat Sampah (Kg)</label>
+            <div class="input-group">
+                <input type="number" id="berat" class="form-control" placeholder="0.0" style="border-radius: 10px 0 0 10px;">
+                <span class="input-group-text" style="border-radius: 0 10px 10px 0;">Kg</span>
+            </div>
         </div>
-        <button class="btn btn-success w-100 mt-3 fw-bold py-2" onclick="simpanSampah()">Update Saldo Warga</button>
+
+        <button class="btn btn-update w-100" onclick="simpanSampah()">UPDATE SALDO</button>
     </div>
 </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbzVXjDFywiipE5TYG-2fSDXPh3X1mG5O_t3fbccZkX_lHhlg-scq-Ats1LUcUnrDu9Yog/exec"; 
+    const API_URL = "https://script.google.com/macros/s/AKfycbzVXjDFywiipE5TYG-2fSDXPh3X1mG5O_t3fbccZkX_lHhlg-scq-Ats1LUcUnrDu9Yog/exec";
 
     function logout() {
         localStorage.clear();
         window.location.href = "index.html";
     }
 
-    // Fungsi load warga & simpan sampah Bapak lanjut di sini...
+    // Fungsi simpan data sampah Bapak bisa ditaruh di sini.
 </script>
 </body>
 </html>
