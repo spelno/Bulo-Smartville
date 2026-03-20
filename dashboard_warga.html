@@ -1,11 +1,92 @@
 <!DOCTYPE html>
-<html>
+<html lang="id">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Warga - Bulo SmartVille</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { background: #f4f7f6; font-family: sans-serif; }
+        .header-warga { background: #003d70; color: white; padding: 30px 20px; border-radius: 0 0 30px 30px; }
+        .card-info { border-radius: 20px; border: none; box-shadow: 0 4px 12px rgba(0,0,0,0.05); margin-top: -20px; }
+        .stat-box { background: white; border-radius: 15px; padding: 15px; text-align: center; box-shadow: 0 2px 6px rgba(0,0,0,0.03); }
+        .btn-logout { position: absolute; top: 20px; right: 20px; color: white; text-decoration: none; font-size: 0.8rem; border: 1px solid white; padding: 5px 12px; border-radius: 50px; }
+    </style>
 </head>
-<body class="p-4 text-center">
-    <h2>Selamat Datang di Dashboard Warga</h2>
-    <p>Data gizi dan saldo sampah Anda akan muncul di sini.</p>
+<body>
+
+<div class="header-warga text-center position-relative">
+    <a href="index.html" class="btn-logout">Keluar</a>
+    <h4 class="fw-bold mb-1">Halo, <span id="nama-warga">...</span></h4>
+    <p class="small opacity-75">NIK: <span id="nik-warga">...</span></p>
+</div>
+
+<div class="container mb-5">
+    <div class="card card-info p-3 mb-4">
+        <h6 class="fw-bold text-muted small text-uppercase mb-3">Tabungan Bank Sampah</h6>
+        <div class="row g-2">
+            <div class="col-6">
+                <div class="stat-box border-top border-4 border-success">
+                    <small class="text-muted d-block">Saldo Rupiah</small>
+                    <h5 class="fw-bold mb-0 text-success">Rp <span id="saldo-rp">0</span></h5>
+                </div>
+            </div>
+            <div class="col-6">
+                <div class="stat-box border-top border-4 border-primary">
+                    <small class="text-muted d-block">Berat Total</small>
+                    <h5 class="fw-bold mb-0 text-primary"><span id="total-kg">0</span> Kg</h5>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <div class="card p-3 shadow-sm border-0 mb-4" style="border-radius: 20px;">
+        <h6 class="fw-bold text-muted small text-uppercase mb-3">Status Kesehatan & Gizi</h6>
+        <div class="d-flex align-items-center justify-content-between p-2 bg-light rounded-3 mb-2">
+            <span class="small">Tinggi Badan</span>
+            <b id="warga-tb">- cm</b>
+        </div>
+        <div class="d-flex align-items-center justify-content-between p-2 bg-light rounded-3">
+            <span class="small">Berat Badan</span>
+            <b id="warga-bb">- kg</b>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbySusZZRIimRjp3oZE00UwTkwqlZTcWDEOtBuQGeRIww7vaiC0seFGmq4xn6hDgVS8ldg/exec"; // GANTI DENGAN URL DEPLOY TERBARU
+
+    async function loadDashboard() {
+        // Ambil NIK dari session/localStorage (diset saat login)
+        const userNIK = localStorage.getItem('nik_login');
+        if (!userNIK) window.location.href = "index.html";
+
+        try {
+            const res = await fetch(`${API_URL}?action=get_all_sheets_data`);
+            const json = await res.json();
+
+            // 1. Ambil Data Diri & Gizi
+            const warga = json.data.Master_Data_Penduduk.find(r => r[0].toString() === userNIK);
+            if (warga) {
+                document.getElementById('nama-warga').innerText = warga[2];
+                document.getElementById('nik-warga').innerText = warga[0];
+                document.getElementById('warga-tb').innerText = (warga[12] || 0) + " cm";
+                document.getElementById('warga-bb').innerText = (warga[13] || 0) + " kg";
+            }
+
+            // 2. Ambil Data Saldo Sampah
+            const saldo = json.data.sampah_saldo.find(r => r[0].toString() === userNIK);
+            if (saldo) {
+                document.getElementById('saldo-rp').innerText = parseInt(saldo[2] || 0).toLocaleString();
+                document.getElementById('total-kg').innerText = saldo[3] || 0;
+            }
+        } catch (e) {
+            console.log("Error loading dashboard");
+        }
+    }
+
+    window.onload = loadDashboard;
+</script>
 </body>
 </html>
