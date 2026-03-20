@@ -14,7 +14,7 @@
         .nav-back { background: white; padding: 15px; border-bottom: 1px solid #eee; display: flex; align-items: center; }
         .card-calc { border-radius: 25px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.05); background: white; margin-top: 20px; }
         .btn-add { background: #003d70; color: white; border-radius: 12px; font-weight: 700; width: 100%; padding: 12px; border: none; }
-        .list-makan { max-height: 250px; overflow-y: auto; margin-bottom: 20px; }
+        .list-makan { max-height: 300px; overflow-y: auto; margin-bottom: 20px; }
         .pantangan-box { background: #fff5f5; border-left: 5px solid #dc3545; padding: 15px; border-radius: 12px; font-size: 0.85rem; }
     </style>
 </head>
@@ -22,23 +22,25 @@
 
 <div class="nav-back">
     <a href="dashboard_warga.html" style="text-decoration: none; color: #003d70; font-weight: bold;">← Kembali</a>
-    <h6 class="mb-0 ms-3 fw-bold">Kalkulator Nutrisi Harian</h6>
+    <h6 class="mb-0 ms-3 fw-bold">Kalkulator Nutrisi</h6>
 </div>
 
 <div class="container">
     <div class="card card-calc p-4">
-        <label class="small fw-bold mb-2">Pilih Menu Makanan/Minuman:</label>
-        <select id="select-makanan" class="form-select mb-3" style="border-radius: 12px; padding: 12px;"></select>
-        <button class="btn-add" onclick="tambahItem()">TAMBAH MENU</button>
+        <label class="small fw-bold mb-2">Pilih Bahan Makanan:</label>
+        <select id="select-makanan" class="form-select mb-3" style="border-radius: 12px; padding: 12px;">
+            <option value="">-- Memuat Bahan Makanan... --</option>
+        </select>
+        <button class="btn-add" id="btn-tambah" onclick="tambahItem()" disabled>TAMBAH MENU</button>
 
         <hr class="my-4">
         
-        <div class="list-makan" id="list-makan">
-            <p class="text-center text-muted small py-4">Belum ada makanan yang dipilih.</p>
+        <div class="list-makan" id="list-makan-container">
+            <p class="text-center text-muted small py-4" id="placeholder-text">Belum ada makanan yang dipilih.</p>
         </div>
 
-        <div class="p-3 rounded-4 bg-dark text-white d-flex justify-content-between">
-            <span>Total Energi:</span>
+        <div class="p-3 rounded-4 bg-dark text-white d-flex justify-content-between shadow-sm">
+            <span>Total Energi Harian:</span>
             <span class="fw-bold" id="total-kkal">0 kkal</span>
         </div>
     </div>
@@ -51,75 +53,104 @@
 
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzVXjDFywiipE5TYG-2fSDXPh3X1mG5O_t3fbccZkX_lHhlg-scq-Ats1LUcUnrDu9Yog/exec";
+    
     let databaseGizi = [];
     let pilihans = [];
-    let riwayatPenyakit = "Tidak Ada";
+    let penyakitUser = "Tidak Ada";
 
-    async function loadData() {
+    async function loadDataAwal() {
         const nik = localStorage.getItem('nik_login');
-        Swal.fire({ title: 'Menyiapkan Menu...', didOpen: () => Swal.showLoading() });
-
+        
         try {
             const res = await fetch(`${API_URL}?action=get_all_sheets_data`);
             const db = await res.json();
             
-            // 1. Ambil Penyakit dari Master_Data_Penduduk (Kolom 15 / Indeks 14)
+            // 1. Ambil Penyakit User (Index 14)
             const user = db.data.Master_Data_Penduduk.find(r => r[0].toString() === nik);
-            if(user) riwayatPenyakit = user[14] || "Tidak Ada";
+            if(user) penyakitUser = user[14] || "Tidak Ada";
 
-            // 2. Ambil List Makanan dari Master_Gizi (Kolom 1: Nama, Kolom 2: Kalori)
-            databaseGizi = db.data.Master_Gizi;
+            // 2. Ambil Data dari sheet 'master_gizi' (SESUAI GAMBAR)
+            databaseGizi = db.data.master_gizi; 
+
+            if (!databaseGizi) throw new Error("Sheet master_gizi tidak ditemukan.");
+
             const selectMakan = document.getElementById('select-makanan');
+            selectMakan.innerHTML = '<option value="">-- Pilih Bahan Makanan --</option>';
             
-            // Bersihkan dan Isi Dropdown (Mulai indeks 1 agar header tidak ikut)
-            databaseGizi.slice(1).forEach(m => {
-                if(m[0]) {
+            // Filter hanya baris yang punya nilai Kalori (menghindari baris judul kategori)
+            databaseGizi.slice(1).forEach(row => {
+                const nama = row[0];
+                const kalori = row[1];
+                
+                // Pastikan nama ada dan kalori adalah angka (bukan teks kategori)
+                if(nama && !isNaN(kalori) && kalori !== "") {
                     let opt = document.createElement('option');
-                    opt.value = m[0];
-                    opt.text = `${m[0]} (${m[1]} kkal)`;
+                    opt.value = nama;
+                    opt.text = `${nama} (${kalori} kkal)`;
                     selectMakan.add(opt);
                 }
             });
-            Swal.close();
+
+            document.getElementById('btn-tambah').disabled = false;
+
         } catch (e) {
-            Swal.fire('Error', 'Gagal memuat daftar makanan.', 'error');
+            console.error(e);
+            Swal.fire('Gagal Memuat Data', 'Cek apakah nama sheet di Google Sheets Bapak sudah "master_gizi" (kecil semua).', 'error');
         }
     }
 
     function tambahItem() {
         const selectedNama = document.getElementById('select-makanan').value;
-        const findData = databaseGizi.find(r => r[0] === selectedNama);
+        if(!selectedNama) return;
+
+        const dataItem = databaseGizi.find(r => r[0] === selectedNama);
         
-        if(findData) {
-            pilihans.push({ nama: findData[0], kkal: parseFloat(findData[1]) });
-            updateTampilan();
+        if(dataItem) {
+            pilihans.push({ 
+                nama: dataItem[0], 
+                kkal: parseFloat(dataItem[1] || 0),
+                protein: dataItem[2],
+                lemak: dataItem[3],
+                karbo: dataItem[4]
+            });
+            updateView();
         }
     }
 
-    function updateTampilan() {
-        const container = document.getElementById('list-makan');
+    function updateView() {
+        const container = document.getElementById('list-makan-container');
         container.innerHTML = "";
         let total = 0;
 
-        pilihans.forEach((item, index) => {
+        pilihans.forEach((item) => {
             total += item.kkal;
             container.innerHTML += `
-                <div class="d-flex justify-content-between align-items-center mb-2 p-2 bg-light rounded-3">
-                    <span class="small fw-bold">${item.nama}</span>
-                    <span class="badge bg-primary">${item.kkal} kkal</span>
+                <div class="mb-2 p-3 bg-light rounded-3 shadow-sm border-start border-4 border-primary">
+                    <div class="d-flex justify-content-between align-items-center">
+                        <span class="fw-bold text-dark">${item.nama}</span>
+                        <span class="badge bg-primary">${item.kkal} kkal</span>
+                    </div>
+                    <div class="mt-1" style="font-size: 0.65rem; color: #666;">
+                        P: ${item.protein} | L: ${item.lemak} | K: ${item.karbo}
+                    </div>
                 </div>`;
         });
 
         document.getElementById('total-kkal').innerText = total + " kkal";
         
-        // Cek Peringatan Penyakit
-        if(riwayatPenyakit !== "Tidak Ada" && pilihans.length > 0) {
+        if(penyakitUser !== "Tidak Ada" && penyakitUser !== "-" && pilihans.length > 0) {
             document.getElementById('box-pantangan').classList.remove('d-none');
-            document.getElementById('teks-pantangan').innerText = `Mengingat riwayat penyakit ${riwayatPenyakit}, harap hindari makanan pemicu (garam/gula berlebih) dalam daftar di atas. Total kalori harian ideal Anda harus dikonsultasikan lebih lanjut.`;
+            let p = penyakitUser.toLowerCase();
+            let pesan = `Mengingat riwayat ${penyakitUser}, harap perhatikan porsi menu di atas.`;
+            
+            if(p.includes("lambung")) pesan = `Karena riwayat ${penyakitUser}, hindari bahan yang terlalu asam atau pedas.`;
+            if(p.includes("gula") || p.includes("diabetes")) pesan = `Karena riwayat ${penyakitUser}, batasi asupan Karbohidrat (K) dari daftar di atas.`;
+            
+            document.getElementById('teks-pantangan').innerText = pesan;
         }
     }
 
-    window.onload = loadData;
+    window.onload = loadDataAwal;
 </script>
 </body>
 </html>
