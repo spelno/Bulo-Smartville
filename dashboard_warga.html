@@ -1,6 +1,160 @@
 <!DOCTYPE html>
 <html lang="id">
+<head<!DOCTYPE html>
+<html lang="id">
 <head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Dashboard Warga - Bulo SmartVille</title>
+    
+    <script>
+        // SECURITY GATE
+        if (!localStorage.getItem('nik_login')) { window.location.href = "index.html"; }
+    </script>
+
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    <style>
+        body { background: #f4f7f6; font-family: 'Inter', sans-serif; padding-bottom: 40px; }
+        .header { background: #003d70; color: white; padding: 40px 20px; border-radius: 0 0 40px 40px; text-align: center; position: relative; }
+        .card-custom { border-radius: 20px; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.05); background: white; margin-bottom: 20px; }
+        .btn-logout { position: absolute; top: 15px; right: 15px; font-size: 0.7rem; color: white; border-color: rgba(255,255,255,0.3); }
+        .section-title { font-size: 0.75rem; font-weight: bold; color: #888; text-transform: uppercase; letter-spacing: 1px; margin-bottom: 15px; }
+        .badge-gizi { padding: 5px 12px; border-radius: 50px; font-size: 0.75rem; font-weight: bold; }
+    </style>
+</head>
+<body>
+
+<div class="header shadow">
+    <button onclick="logout()" class="btn btn-sm btn-outline-light btn-logout">Keluar</button>
+    <h4 class="fw-bold mb-0">Halo, <span id="nama-user">...</span></h4>
+    <small class="opacity-75">NIK: <span id="nik-user">...</span></small>
+</div>
+
+<div class="container mt-4">
+    <div class="card card-custom p-4 mt-n5">
+        <div class="d-flex justify-content-between align-items-center mb-3">
+            <span class="section-title mb-0">Status Gizi & Saldo</span>
+            <span id="label-status" class="badge-gizi bg-success text-white">Normal</span>
+        </div>
+        <div class="row text-center">
+            <div class="col-4 border-end">
+                <small class="text-muted d-block">TB/BB</small>
+                <span class="fw-bold" id="data-fisik">-</span>
+            </div>
+            <div class="col-4 border-end">
+                <small class="text-muted d-block">Sampah</small>
+                <span class="fw-bold text-primary" id="data-sampah">0 Kg</span>
+            </div>
+            <div class="col-4">
+                <small class="text-muted d-block">Saldo</small>
+                <span class="fw-bold text-success" id="data-saldo">Rp 0</span>
+            </div>
+        </div>
+    </div>
+
+    <div class="card card-custom p-4">
+        <span class="section-title">Kalkulator Nutrisi Makanan</span>
+        <p class="small text-muted mb-3">Pilih makanan Anda untuk menghitung total asupan hari ini.</p>
+        
+        <div class="mb-3">
+            <label class="small fw-bold">Pilih Menu Makanan</label>
+            <select id="select-makanan" class="form-select mb-2" style="border-radius: 12px;"></select>
+            <button class="btn btn-sm btn-primary w-100 fw-bold" onclick="tambahMakanan()" style="border-radius: 10px;">+ Tambah ke Daftar Makan</button>
+        </div>
+
+        <hr>
+        <div id="daftar-makan" class="mb-3">
+            <p class="text-center small text-muted my-3">Belum ada makanan terpilih</p>
+        </div>
+
+        <div class="p-3 bg-light rounded-4">
+            <div class="d-flex justify-content-between align-items-center">
+                <span class="fw-bold small">Total Estimasi Nutrisi:</span>
+                <span class="fw-bold text-primary" id="total-kalori">0 kkal</span>
+            </div>
+        </div>
+    </div>
+</div>
+
+<script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbzVXjDFywiipE5TYG-2fSDXPh3X1mG5O_t3fbccZkX_lHhlg-scq-Ats1LUcUnrDu9Yog/exec";
+    let dataMasterGizi = [];
+    let keranjangMakan = [];
+
+    async function initDashboard() {
+        const nik = localStorage.getItem('nik_login');
+        document.getElementById('nik-user').innerText = nik;
+
+        try {
+            const res = await fetch(`${API_URL}?action=get_all_sheets_data`);
+            const result = await res.json();
+
+            // Load Data Warga
+            const warga = result.data.Master_Data_Penduduk.find(r => r[0].toString() === nik);
+            if(warga) {
+                document.getElementById('nama-user').innerText = warga[2];
+                document.getElementById('data-fisik').innerText = `${warga[12]}/${warga[13]}`;
+            }
+
+            // Load Saldo Sampah
+            const sampah = result.data.sampah_saldo.find(r => r[0].toString() === nik);
+            if(sampah) {
+                document.getElementById('data-sampah').innerText = `${sampah[3]} Kg`;
+                document.getElementById('data-saldo').innerText = `Rp ${parseInt(sampah[2]).toLocaleString()}`;
+            }
+
+            // Load Master Gizi untuk Dropdown
+            dataMasterGizi = result.data.Master_Gizi;
+            const selectMakan = document.getElementById('select-makanan');
+            dataMasterGizi.slice(1).forEach(makan => { // Lewati header
+                let opt = document.createElement('option');
+                opt.value = makan[0]; // Nama Makanan
+                opt.text = `${makan[0]} (${makan[1]} kkal)`;
+                selectMakan.add(opt);
+            });
+
+        } catch (e) { console.log("Gagal load data"); }
+    }
+
+    function tambahMakanan() {
+        const menuPilihan = document.getElementById('select-makanan').value;
+        const itemGizi = dataMasterGizi.find(r => r[0] === menuPilihan);
+        
+        if(itemGizi) {
+            keranjangMakan.push({ nama: itemGizi[0], kalori: parseFloat(itemGizi[1]) });
+            renderDaftarMakan();
+        }
+    }
+
+    function renderDaftarMakan() {
+        const container = document.getElementById('daftar-makan');
+        container.innerHTML = "";
+        let total = 0;
+
+        keranjangMakan.forEach((item, index) => {
+            total += item.kalori;
+            container.innerHTML += `
+                <div class="d-flex justify-content-between align-items-center mb-2 border-bottom pb-2">
+                    <span class="small">${item.nama}</span>
+                    <span class="badge bg-secondary">${item.kalori} kkal</span>
+                </div>
+            `;
+        });
+
+        if(keranjangMakan.length === 0) container.innerHTML = '<p class="text-center small text-muted my-3">Belum ada makanan terpilih</p>';
+        document.getElementById('total-kalori').innerText = total + " kkal";
+    }
+
+    function logout() {
+        localStorage.clear();
+        window.location.href = "index.html";
+    }
+
+    window.onload = initDashboard;
+</script>
+</body>
+</html>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Warga - Bulo SmartVille</title>
