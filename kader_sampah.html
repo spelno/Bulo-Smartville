@@ -3,136 +3,56 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kader Sampah - Bulo SmartVille</title>
+    <title>Bank Sampah - Bulo SmartVille</title>
+    
+    <script>
+        const sessionNIK = localStorage.getItem('nik_login');
+        const sessionRole = localStorage.getItem('role_login');
+        // Hanya boleh diakses role 'sampah' atau 'admin'
+        if (!sessionNIK || (!sessionRole.includes('sampah') && !sessionRole.includes('admin'))) {
+            window.location.href = "index.html";
+        }
+    </script>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { background: #fffcf2; padding-bottom: 50px; }
-        .header-kader { background: #25a18e; color: white; padding: 25px; border-radius: 0 0 25px 25px; }
-        .card-warga { border-radius: 15px; border: none; box-shadow: 0 2px 8px rgba(0,0,0,0.05); margin-bottom: 12px; }
-        .btn-timbang { background: #25a18e; color: white; border-radius: 10px; border: none; }
-        .price-tag { font-size: 0.8rem; background: #e9ecef; padding: 5px 15px; border-radius: 50px; display: inline-block; }
+        body { background: #f8f9fa; font-family: 'Inter', sans-serif; }
+        .nav-kader { background: #198754; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
+        .card-input { border-radius: 20px; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
     </style>
 </head>
 <body>
 
-<div class="header-kader shadow">
-    <div class="d-flex justify-content-between align-items-center">
-        <div>
-            <h5 class="fw-bold mb-0">Bank Sampah Digital</h5>
-            <small id="kader-info text-light">Petugas: Memuat...</small>
-        </div>
-        <div class="text-end">
-            <span id="harga-info" class="badge bg-warning text-dark">Harga: Rp - /kg</span>
-        </div>
-    </div>
+<div class="nav-kader shadow-sm">
+    <h6 class="mb-0 fw-bold">Kader Bank Sampah</h6>
+    <button onclick="logout()" class="btn btn-sm btn-outline-light" style="border-radius: 50px;">Keluar</button>
 </div>
 
 <div class="container mt-4">
-    <div class="mb-3">
-        <input type="text" id="searchWarga" class="form-control rounded-pill" placeholder="Cari Nama Warga / NIK..." onkeyup="cariWarga()">
-    </div>
-
-    <div id="list-warga">
-        <div class="text-center p-5 text-muted">Mengambil data nasabah...</div>
+    <div class="card card-input p-4">
+        <h5 class="fw-bold text-success mb-3">Input Setoran Sampah</h5>
+        <div class="mb-3">
+            <label class="small fw-bold">Nama Nasabah (Warga)</label>
+            <select id="select-warga-sampah" class="form-select"></select>
+        </div>
+        <div class="mb-3">
+            <label class="small fw-bold">Berat Sampah (Kg)</label>
+            <input type="number" id="input-kg" class="form-control" placeholder="0.0">
+        </div>
+        <button class="btn btn-success w-100 mt-3 fw-bold py-2" onclick="simpanSampah()">Update Saldo Warga</button>
     </div>
 </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbxn-ofE_U0jn7moejYjCHsOFhdpxXlLw-YWA6jW8gDTvPecViEnFRbm_1H1qV7EchGcIA/exec"; // Ganti dengan URL Deploy Bapak
-    let DATA_WARGA = [];
-    let HARGA_BELI = 0;
-    const KADER_NIK = "201"; // Contoh: Login Nina (Kader)
+    const API_URL = "https://script.google.com/macros/s/AKfycbzVXjDFywiipE5TYG-2fSDXPh3X1mG5O_t3fbccZkX_lHhlg-scq-Ats1LUcUnrDu9Yog/exec"; 
 
-    async function loadData() {
-        try {
-            const res = await fetch(`${API_URL}?action=get_all_sheets_data`);
-            const json = await res.json();
-            
-            DATA_WARGA = json.data.Master_Data_Penduduk;
-            // Ambil harga dari sheet sampah_pengaturan (Indeks 1, Kolom 1)
-            HARGA_BELI = json.data.sampah_pengaturan[1][1]; 
-            
-            document.getElementById('harga-info').innerText = `Harga: Rp ${HARGA_BELI.toLocaleString()}/kg`;
-            document.getElementById('kader-info').innerText = "Petugas: Nina (Kader Sampah)";
-            
-            renderWarga(DATA_WARGA.slice(1));
-        } catch (e) {
-            Swal.fire('Error', 'Gagal memuat database sampah', 'error');
-        }
+    function logout() {
+        localStorage.clear();
+        window.location.href = "index.html";
     }
 
-    function renderWarga(data) {
-        const container = document.getElementById('list-warga');
-        // Tampilkan semua warga yang bukan admin/kades untuk jadi nasabah
-        const target = data.filter(r => r[9] === "warga" || r[9] === "Kader");
-        
-        container.innerHTML = target.map(row => `
-            <div class="card card-warga p-3">
-                <div class="d-flex justify-content-between align-items-center">
-                    <div>
-                        <b class="text-dark d-block">${row[2]}</b>
-                        <small class="text-muted">NIK: ${row[0]} | ${row[10] || 'Dusun -'}</small>
-                    </div>
-                    <button class="btn btn-timbang btn-sm px-3" onclick="modalTimbang('${row[0]}', '${row[2]}', '${row[10]}')">
-                        Timbang
-                    </button>
-                </div>
-            </div>
-        `).join('');
-    }
-
-    async function modalTimbang(nik, nama, dusun) {
-        const { value: berat } = await Swal.fire({
-            title: `Timbang: ${nama}`,
-            input: 'number',
-            inputLabel: 'Masukkan Berat Sampah (Kg)',
-            inputPlaceholder: 'Contoh: 2.5',
-            showCancelButton: true,
-            confirmButtonText: 'Simpan & Cetak Saldo',
-            inputAttributes: { step: '0.1', min: '0.1' }
-        });
-
-        if (berat) {
-            const estimasi = berat * HARGA_BELI;
-            Swal.fire({
-                title: 'Konfirmasi Transaksi',
-                html: `Berat: <b>${berat} kg</b><br>Estimasi Saldo: <b>Rp ${estimasi.toLocaleString()}</b>`,
-                icon: 'question',
-                showCancelButton: true,
-                confirmButtonText: 'Proses Simpan'
-            }).then((result) => {
-                if (result.isConfirmed) {
-                    kirimData({
-                        nik: nik,
-                        nama: nama,
-                        dusun: dusun,
-                        berat: berat,
-                        petugas_kader: KADER_NIK
-                    });
-                }
-            });
-        }
-    }
-
-    async function kirimData(payload) {
-        Swal.fire({ title: 'Menyimpan ke Tabungan...', didOpen: () => Swal.showLoading() });
-        try {
-            const res = await fetch(API_URL, {
-                method: 'POST',
-                body: JSON.stringify({ action: 'save_tabungan_sampah', data: payload })
-            });
-            const result = await res.json();
-            if(result.status === 'success') {
-                Swal.fire('Berhasil!', 'Setoran sampah telah tercatat di saldo warga.', 'success');
-                loadData();
-            }
-        } catch (e) {
-            Swal.fire('Error', 'Gagal mengirim data ke sistem', 'error');
-        }
-    }
-
-    window.onload = loadData;
+    // Fungsi load warga & simpan sampah Bapak lanjut di sini...
 </script>
 </body>
 </html>
