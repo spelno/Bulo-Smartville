@@ -6,10 +6,8 @@
     <title>Petugas Kesehatan - Bulo SmartVille</title>
     
     <script>
-        const sessionNIK = localStorage.getItem('nik_login');
-        const sessionRole = localStorage.getItem('role_login');
-        // Hanya boleh diakses role 'kesehatan' atau 'admin'
-        if (!sessionNIK || (!sessionRole.includes('kesehatan') && !sessionRole.includes('admin'))) {
+        const sRole = localStorage.getItem('role_login');
+        if (!localStorage.getItem('nik_login') || (!sRole.includes('kesehatan') && !sRole.includes('admin'))) {
             window.location.href = "index.html";
         }
     </script>
@@ -18,47 +16,52 @@
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
         body { background: #f8f9fa; font-family: 'Inter', sans-serif; }
-        .nav-kader { background: #003d70; color: white; padding: 15px 20px; display: flex; justify-content: space-between; align-items: center; }
-        .card-input { border-radius: 20px; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.05); }
+        .navbar-kader { background: #003d70; color: white; padding: 15px; display: flex; justify-content: space-between; align-items: center; }
+        .card-form { border-radius: 20px; border: none; box-shadow: 0 10px 25px rgba(0,0,0,0.05); margin-top: 20px; }
+        .btn-save { background: #003d70; color: white; border-radius: 12px; font-weight: bold; border: none; padding: 12px; }
     </style>
 </head>
 <body>
 
-<div class="nav-kader shadow-sm">
+<div class="navbar-kader shadow-sm">
     <h6 class="mb-0 fw-bold">Posyandu Digital</h6>
     <button onclick="logout()" class="btn btn-sm btn-outline-light" style="border-radius: 50px;">Keluar</button>
 </div>
 
-<div class="container mt-4">
-    <div class="card card-input p-4">
-        <h5 class="fw-bold text-primary mb-3">Input Data Gizi Warga</h5>
+<div class="container">
+    <div class="card card-form p-4">
+        <h5 class="fw-bold text-primary mb-4 text-center">Input Perkembangan Gizi</h5>
+        
         <div class="mb-3">
-            <label class="small fw-bold">Pilih Nama Warga / NIK</label>
-            <select id="select-warga" class="form-select"></select>
+            <label class="small fw-bold text-muted">Cari Nama Warga / NIK</label>
+            <select id="select-warga" class="form-select" style="border-radius: 10px;"></select>
         </div>
-        <div class="row g-2">
+
+        <div class="row g-2 mb-3">
             <div class="col-6">
-                <label class="small fw-bold">TB (cm)</label>
-                <input type="number" id="input-tb" class="form-control" placeholder="0">
+                <label class="small fw-bold text-muted">Tinggi Badan (cm)</label>
+                <input type="number" id="tb" class="form-control" placeholder="0" style="border-radius: 10px;">
             </div>
             <div class="col-6">
-                <label class="small fw-bold">BB (kg)</label>
-                <input type="number" id="input-bb" class="form-control" placeholder="0">
+                <label class="small fw-bold text-muted">Berat Badan (kg)</label>
+                <input type="number" id="bb" class="form-control" placeholder="0" style="border-radius: 10px;">
             </div>
         </div>
-        <button class="btn btn-primary w-100 mt-4 fw-bold py-2" onclick="simpanGizi()">Simpan Data</button>
+
+        <button class="btn btn-save w-100 mt-3" onclick="simpanDataGizi()">SIMPAN DATA</button>
     </div>
 </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbzVXjDFywiipE5TYG-2fSDXPh3X1mG5O_t3fbccZkX_lHhlg-scq-Ats1LUcUnrDu9Yog/exec"; 
+    const API_URL = "https://script.google.com/macros/s/AKfycbzVXjDFywiipE5TYG-2fSDXPh3X1mG5O_t3fbccZkX_lHhlg-scq-Ats1LUcUnrDu9Yog/exec";
 
     function logout() {
         localStorage.clear();
         window.location.href = "index.html";
     }
 
-    // Fungsi load warga & simpan gizi Bapak lanjut di sini...
+    // Fungsi load data warga dan simpan data gizi bisa Bapak teruskan di sini
+    // sesuai dengan struktur sheet Bapak.
 </script>
 </body>
 </html>
