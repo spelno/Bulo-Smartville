@@ -7,9 +7,9 @@
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { background: #f8f9fa; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; margin: 0; overflow: hidden; }
+        body { background: #f8f9fa; font-family: 'Segoe UI', sans-serif; margin: 0; overflow: hidden; }
 
-        /* --- SPLASH SCREEN (Logo_UMMAN.jpg) --- */
+        /* --- SPLASH SCREEN --- */
         #splash-screen {
             position: fixed; top: 0; left: 0; width: 100%; height: 100%;
             background: white; display: flex; flex-direction: column;
@@ -20,65 +20,59 @@
         .slogan { color: #003d70; font-weight: bold; letter-spacing: 1px; font-size: 0.9rem; text-transform: uppercase; }
         @keyframes pulse { 0% { transform: scale(1); } 50% { transform: scale(1.05); } 100% { transform: scale(1); } }
 
-        /* --- LOGIN PAGE (Lobo_Bulo.png) --- */
+        /* --- LOGIN PAGE --- */
         .login-container {
             height: 100vh; display: flex; align-items: center; justify-content: center;
             background: linear-gradient(135deg, #003d70, #005fa3);
         }
         .login-card {
             background: white; padding: 40px 30px; border-radius: 30px;
-            box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 400px; /* Diperlebar sedikit agar logo estetik */
+            box-shadow: 0 15px 35px rgba(0,0,0,0.2); width: 100%; max-width: 400px;
             text-align: center;
         }
         
-        /* LOGO DIPERBESAR DAN ESTETIK */
+        /* LOGO DIPERBESAR (160px) DAN TANPA TEKS BAWAH */
         .logo-bulo-box { 
-            width: 150px; /* Diperbesar sesuai permintaan */
-            height: 150px; /* Diperbesar sesuai permintaan */
-            margin: 0 auto 30px auto; /* Margin bawah ditambah */
+            width: 160px; 
+            height: 160px; 
+            margin: 0 auto 30px auto; 
             display: flex; align-items: center; justify-content: center; 
         }
         .logo-bulo-box img { width: 100%; height: auto; object-fit: contain; }
 
         .form-control { border-radius: 12px; padding: 12px; border: 1px solid #ddd; }
-        .btn-login { background: #003d70; color: white; border-radius: 12px; padding: 12px; width: 100%; font-weight: bold; border: none; transition: 0.3s; margin-top: 10px; }
-        .btn-login:hover { background: #00284d; transform: translateY(-2px); }
+        .btn-login { background: #003d70; color: white; border-radius: 12px; padding: 12px; width: 100%; font-weight: bold; border: none; margin-top: 10px; }
     </style>
 </head>
 <body>
 
     <div id="splash-screen">
-        <img src="Logo_UMMAN.jpg" class="logo-splash" alt="Logo UM Manado" onerror="this.src='https://upload.wikimedia.org/wikipedia/id/8/8e/Logo_Universitas_Muhammadiyah_Manado.png'">
+        <img src="Logo_UMMAN.jpg" class="logo-splash" alt="Logo UM">
         <div class="slogan">Hebat, Maju Dengan Pesat</div>
-        <div class="spinner-border text-primary mt-4" role="status" style="width: 1.5rem; height: 1.5rem;"></div>
     </div>
 
     <div class="login-container">
         <div class="login-card mx-3">
             <div class="logo-bulo-box">
-                <img src="Lobo_Bulo.png" alt="Logo Bulo SmartVille">
+                <img src="Lobo_Bulo.png" alt="Logo Bulo">
             </div>
-            
+
             <div class="text-start mt-3">
                 <label class="small fw-bold mb-1 text-muted">NIK</label>
-                <input type="number" id="nik" class="form-control mb-3" placeholder="Masukkan NIK" autocomplete="off">
+                <input type="number" id="nik" class="form-control mb-3" placeholder="Masukkan NIK">
                 
                 <label class="small fw-bold mb-1 text-muted">Password</label>
                 <input type="password" id="pass" class="form-control mb-4" placeholder="******">
 
                 <button class="btn-login" onclick="prosesLogin()">MASUK KE SISTEM</button>
             </div>
-            <div class="mt-4 text-center">
-                <small class="text-muted">UM Manado &copy; 2026</small>
-            </div>
         </div>
     </div>
 
     <script>
-        // GANTI DENGAN URL WEB APP DEPLOY TERBARU DARI GOOGLE APPS SCRIPT BAPAK
+        // MASUKKAN URL WEB APP BAPAK DI SINI
         const API_URL = "https://script.google.com/macros/s/AKfycbzVXjDFywiipE5TYG-2fSDXPh3X1mG5O_t3fbccZkX_lHhlg-scq-Ats1LUcUnrDu9Yog/exec"; 
 
-        // Fungsi Transisi Splash Screen (3 Detik)
         window.onload = () => {
             setTimeout(() => {
                 const splash = document.getElementById('splash-screen');
@@ -91,56 +85,31 @@
             const nikInput = document.getElementById('nik').value;
             const passInput = document.getElementById('pass').value;
 
-            if (!nikInput || !passInput) {
-                return Swal.fire('Oops!', 'NIK dan Password tidak boleh kosong.', 'warning');
-            }
+            if (!nikInput || !passInput) return Swal.fire('Oops!', 'Isi NIK dan Password', 'warning');
 
-            Swal.fire({
-                title: 'Memverifikasi Data...',
-                didOpen: () => { Swal.showLoading(); },
-                allowOutsideClick: false
-            });
+            Swal.fire({ title: 'Memverifikasi...', didOpen: () => Swal.showLoading() });
 
             try {
-                // Fetch data dari Google Sheets via API_URL
                 const response = await fetch(`${API_URL}?action=get_all_sheets_data`);
                 const result = await response.json();
-                
-                if (result.status === "error") throw new Error(result.message);
-
-                const dataPenduduk = result.data.Master_Data_Penduduk;
-
-                // Verifikasi NIK (Indeks 0) dan Password (Indeks 1)
-                const user = dataPenduduk.find(row => 
-                    row[0].toString() === nikInput && row[1].toString() === passInput
-                );
+                const user = result.data.Master_Data_Penduduk.find(r => r[0].toString() === nikInput && r[1].toString() === passInput);
 
                 if (user) {
-                    // Simpan NIK di LocalStorage untuk Dashboard
                     localStorage.setItem('nik_login', user[0]);
-                    
-                    const role = user[9] ? user[9].toLowerCase() : 'warga';
-                    const nama = user[2];
+                    const role = user[9].toLowerCase();
 
-                    Swal.fire({ icon: 'success', title: `Halo, ${nama}!`, timer: 1500, showConfirmButton: false }).then(() => {
-                        // Pengalihan berdasarkan Role (NAMA FILE DISESUAIKAN DENGAN REPOSITORY GITHUB BAPAK)
-                        if (role.includes('admin')) {
-                            window.location.href = "admin_panel.html";
-                        } else if (role.includes('kesehatan')) {
-                            // DISESUAIKAN: Menjadi kader_kesehatan.html sesuai repository Bapak
-                            window.location.href = "kader_kesehatan.html"; 
-                        } else if (role.includes('sampah')) {
-                            window.location.href = "kader_sampah.html";
-                        } else {
-                            window.location.href = "dashboard_warga.html";
-                        }
+                    Swal.fire({ icon: 'success', title: `Halo, ${user[2]}!`, timer: 1500, showConfirmButton: false }).then(() => {
+                        // DISESUAIKAN DENGAN ISI REPOSITORY BAPAK
+                        if (role.includes('admin')) window.location.href = "admin_panel.html";
+                        else if (role.includes('kesehatan')) window.location.href = "kader_kesehatan.html"; 
+                        else if (role.includes('sampah')) window.location.href = "kader_sampah.html";
+                        else window.location.href = "dashboard_warga.html";
                     });
                 } else {
-                    Swal.fire('Gagal Login', 'NIK atau Password Anda salah.', 'error');
+                    Swal.fire('Gagal', 'NIK/Password salah', 'error');
                 }
-            } catch (error) {
-                console.error(error);
-                Swal.fire('Koneksi Gagal', 'Sistem tidak dapat terhubung ke database. Pastikan Web App sudah di-deploy dengan benar (akses "Anyone") dan internet aktif.', 'error');
+            } catch (e) {
+                Swal.fire('Error', 'Pastikan URL API di-deploy ke "Anyone"', 'error');
             }
         }
     </script>
