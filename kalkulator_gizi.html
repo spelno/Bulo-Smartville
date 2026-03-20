@@ -3,33 +3,34 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Gizi Medis - Bulo SmartVille</title>
+    <title>Analisis Piring Makan - Bulo SmartVille</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #003d70; --bg: #f4f7fa; --danger: #e74c3c; --warning: #f1c40f; --success: #27ae60; }
+        :root { --primary: #003d70; --bg: #f4f7fa; }
         body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; height: 100vh; overflow: hidden; }
         
-        /* PANEL ATAS: ANALISIS MEDIS (STATIC) */
+        /* PANEL ANALISIS AKUMULASI (STATIC) */
         .top-fixed {
             height: 48vh; background: var(--primary); color: white;
             padding: 25px; border-radius: 0 0 40px 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
             display: flex; flex-direction: column; position: relative; z-index: 100;
         }
-        .score-circle { width: 70px; height: 70px; border: 4px solid rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.4rem; }
-        .kkal-val { font-size: 2.8rem; font-weight: 800; line-height: 1; margin-top: 5px; }
+        .score-circle { width: 75px; height: 75px; border: 5px solid rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.5rem; transition: 0.5s; }
+        .kkal-val { font-size: 3rem; font-weight: 800; line-height: 1; }
         
         .feedback-card {
             background: rgba(255,255,255,0.1); border-radius: 20px; padding: 15px;
-            margin-top: 15px; border-left: 5px solid var(--warning);
+            margin-top: 15px; border-left: 5px solid #f1c40f; min-height: 90px;
         }
 
-        /* PANEL BAWAH: INPUT (SCROLLABLE) */
-        .bottom-scroll { height: 52vh; overflow-y: auto; padding: 20px; padding-bottom: 100px; }
+        /* PANEL INPUT PIRING (SCROLLABLE) */
+        .bottom-scroll { height: 52vh; overflow-y: auto; padding: 20px; padding-bottom: 120px; }
         .card-input { border-radius: 25px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.03); background: white; padding: 20px; margin-bottom: 15px; }
         .input-style { background: #f8f9fa; border: 1.5px solid #eee; border-radius: 15px; padding: 12px; font-size: 0.9rem; margin-bottom: 10px; width: 100%; outline: none; }
         
         .macro-chip { font-size: 0.65rem; font-weight: 700; padding: 4px 10px; border-radius: 50px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); }
+        .piring-item { background: white; border-radius: 20px; padding: 15px; margin-bottom: 10px; border: 1px solid #eee; display: flex; justify-content: space-between; align-items: center; }
     </style>
 </head>
 <body>
@@ -37,7 +38,7 @@
 <div class="top-fixed">
     <div class="d-flex justify-content-between align-items-start">
         <div>
-            <span class="opacity-50 small fw-bold text-uppercase">Total Kalori</span>
+            <span class="opacity-50 small fw-bold text-uppercase">Total Isi Piring</span>
             <div class="kkal-val" id="total-kkal">0</div>
             <div class="d-flex gap-1 mt-2">
                 <span class="macro-chip">P: <span id="total-p">0</span>g</span>
@@ -53,28 +54,30 @@
     </div>
 
     <div class="feedback-card" id="fb-card">
-        <h6 class="fw-bold mb-1" id="fb-status" style="color: var(--warning);">Mulai Menghitung...</h6>
-        <p class="small mb-0 opacity-75" id="fb-msg">Tambahkan menu makan warga di bawah untuk diagnosa medis otomatis.</p>
+        <h6 class="fw-bold mb-1" id="fb-status" style="color: #f1c40f;">Piring Masih Kosong...</h6>
+        <p class="small mb-0 opacity-75" id="fb-msg">Tambahkan semua menu yang ada di piring Bapak untuk dianalisa secara utuh.</p>
     </div>
 </div>
 
 <div class="bottom-scroll">
     <div class="card-input">
-        <input type="text" id="input-cari" class="input-style" placeholder="Cari Bahan Makanan..." onkeyup="filterMenu()">
+        <label class="small fw-bold text-muted mb-2">Cari & Masukkan Menu ke Piring:</label>
+        <input type="text" id="input-cari" class="input-style" placeholder="Cari: Ikan, Nasi, Sayur..." onkeyup="filterMenu()">
         <select id="select-makanan" class="input-style"></select>
         <div class="row g-2">
             <div class="col-7"><input type="number" id="input-berat" class="input-style text-center fw-bold" value="100"></div>
-            <div class="col-5"><button class="btn btn-primary w-100 fw-bold" style="border-radius: 15px; height: 48px;" onclick="tambahItem()">TAMBAH</button></div>
+            <div class="col-5"><button class="btn btn-primary w-100 fw-bold" style="border-radius: 15px; height: 48px;" onclick="tambahItem()">+ PIRING</button></div>
         </div>
     </div>
 
-    <div id="list-container"></div>
+    <div id="piring-list-container">
+        </div>
 </div>
 
 <script>
     const API_URL = "https://script.google.com/macros/s/AKfycbzVXjDFywiipE5TYG-2fSDXPh3X1mG5O_t3fbccZkX_lHhlg-scq-Ats1LUcUnrDu9Yog/exec";
     let databaseGizi = [];
-    let pilihans = [];
+    let isiPiring = [];
 
     async function loadData() {
         try {
@@ -82,7 +85,7 @@
             const db = await res.json();
             databaseGizi = db.data.master_gizi;
             renderDropdown(databaseGizi);
-        } catch (e) { console.log("Error loading data"); }
+        } catch (e) { console.log("Database Error"); }
     }
 
     function renderDropdown(data) {
@@ -109,7 +112,7 @@
         const d = databaseGizi.find(r => r[0] === n);
         if(d && b > 0) {
             const f = b / 100;
-            pilihans.unshift({
+            isiPiring.unshift({
                 nama: d[0], berat: b,
                 kkal: (parseFloat(d[1])*f), p: (parseFloat(d[2]||0)*f),
                 l: (parseFloat(d[3]||0)*f), k: (parseFloat(d[4]||0)*f), fe: (parseFloat(d[5]||0)*f)
@@ -120,15 +123,17 @@
 
     function updateUI() {
         let tk=0, tp=0, tl=0, tka=0, tfe=0;
-        const cont = document.getElementById('list-container');
+        const cont = document.getElementById('piring-list-container');
         cont.innerHTML = "";
 
-        pilihans.forEach((item, idx) => {
+        // Hitung Akumulasi Total Piring
+        isiPiring.forEach((item, idx) => {
             tk+=item.kkal; tp+=item.p; tl+=item.l; tka+=item.k; tfe+=item.fe;
-            cont.innerHTML += `<div class="card-input d-flex justify-content-between align-items-center mb-2 p-3">
-                <div><b class="small d-block">${item.nama}</b><small class="text-muted">${item.berat}g • ${item.kkal.toFixed(0)} kkal</small></div>
-                <button class="btn btn-sm text-danger" onclick="hapus(${idx})">✕</button>
-            </div>`;
+            cont.innerHTML += `
+                <div class="piring-item shadow-sm">
+                    <div><b class="small d-block">${item.nama}</b><small class="text-muted">${item.berat}g • ${item.kkal.toFixed(0)} kkal</small></div>
+                    <button class="btn btn-sm text-danger fw-bold" onclick="hapus(${idx})">✕</button>
+                </div>`;
         });
 
         document.getElementById('total-kkal').innerText = tk.toFixed(0);
@@ -137,46 +142,50 @@
         document.getElementById('total-k').innerText = tka.toFixed(1);
         document.getElementById('total-fe').innerText = tfe.toFixed(1);
 
-        prosesAnalisisMedis(tk, tp, tl, tka, tfe);
+        // Analisa Kombinasi Seluruh Piring
+        analisaPiringLengkap(tk, tp, tl, tka, tfe);
     }
 
-    function prosesAnalisisMedis(kkal, p, l, k, fe) {
+    function analisaPiringLengkap(kkal, p, l, k, fe) {
+        if(isiPiring.length === 0) {
+             document.getElementById('score-val').innerText = "--";
+             document.getElementById('fb-status').innerText = "Piring Kosong";
+             return;
+        }
+
         let skor = 100;
-        let status = "✅ Menu Sehat & Seimbang";
-        let pesan = "Komposisi nutrisi sudah sangat baik untuk menjaga stamina warga Bulo.";
+        let status = "✅ Menu Seimbang";
+        let pesan = "Kombinasi isi piring ini sudah baik dan cukup untuk memenuhi gizi warga.";
         let warna = "#27ae60";
 
-        // LOGIKA PENILAIAN MEDIS
-        if (k > (kkal * 0.75 / 4)) { 
-            skor -= 30; status = "🍚 Karbo Terlalu Tinggi"; 
-            pesan = "Risiko lonjakan gula darah (Diabetes). Kurangi nasi/tepung, tambah sayuran."; warna = "#f39c12";
+        // LOGIKA ANALISIS KOMBINASI (AKUMULASI)
+        if (k > (kkal * 0.70 / 4)) { 
+            skor -= 30; status = "🍚 Kebanyakan Karbo!";
+            pesan = "Isi piring didominasi karbohidrat. Berisiko cepat ngantuk dan memicu lonjakan gula darah."; warna = "#f39c12";
         }
-        if (fe < 3 && kkal > 400) { 
-            skor -= 25; status = "🩸 Defisit Zat Besi"; 
-            pesan = "Risiko Anemia & Stunting. Tambahkan daging merah, hati, atau bayam."; warna = "#e74c3c";
+        if (fe < 3 && kkal > 300) { 
+            skor -= 25; status = "🩸 Kurang Zat Besi";
+            pesan = "Kombinasi menu ini kurang zat besi. Berisiko Anemia dan menghambat tumbuh kembang (Stunting)."; warna = "#e74c3c";
         }
-        if (l > (kkal * 0.4 / 9)) { 
-            skor -= 20; status = "🍟 Lemak Berlebih"; 
-            pesan = "Risiko Kolesterol & Jantung. Batasi gorengan dan santan kental."; warna = "#e67e22";
+        if (p < (kkal * 0.12 / 4) && kkal > 300) {
+            skor -= 20; status = "🦴 Kurang Protein";
+            pesan = "Protein dalam piring ini terlalu sedikit. Tambahkan lauk pauk (Ikan/Daging/Telur)."; warna = "#e67e22";
         }
-        if (p < (kkal * 0.1 / 4) && kkal > 300) { 
-            skor -= 15; status = "🦴 Kurang Protein"; 
-            pesan = "Massa otot dan imun bisa menurun. Tambahkan ikan, telur, atau tahu tempe."; warna = "#d35400";
+        if (l > (kkal * 0.35 / 9)) {
+            skor -= 15; status = "🍟 Lemak Tinggi";
+            pesan = "Piring ini terlalu berminyak/berlemak. Hati-hati risiko kolesterol dan kesehatan jantung."; warna = "#d35400";
         }
 
-        if(skor < 0) skor = 10;
         const scoreVal = document.getElementById('score-val');
-        scoreVal.innerText = skor;
+        scoreVal.innerText = (skor < 10 ? 10 : skor);
         scoreVal.style.borderColor = warna;
-        
-        const card = document.getElementById('fb-card');
-        card.style.borderLeftColor = warna;
         document.getElementById('fb-status').innerText = status;
         document.getElementById('fb-status').style.color = warna;
         document.getElementById('fb-msg').innerText = pesan;
+        document.getElementById('fb-card').style.borderLeftColor = warna;
     }
 
-    function hapus(idx) { pilihans.splice(idx,1); updateUI(); }
+    function hapus(idx) { isiPiring.splice(idx,1); updateUI(); }
     window.onload = loadData;
 </script>
 </body>
