@@ -3,78 +3,72 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Analisis Gizi Pintar - Bulo SmartVille</title>
+    <title>Kalkulator Gizi Medis - Bulo SmartVille</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #003d70; --bg: #f0f2f5; --danger: #e74c3c; --success: #27ae60; }
+        :root { --primary: #003d70; --bg: #f4f7fa; --danger: #e74c3c; --warning: #f1c40f; --success: #27ae60; }
         body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; height: 100vh; overflow: hidden; }
         
-        /* PANEL ATAS (FIXED / TIDAK BERGERAK) */
-        .top-analysis {
-            height: 45vh; background: var(--primary); color: white;
-            padding: 20px; border-radius: 0 0 35px 35px; box-shadow: 0 10px 30px rgba(0,0,0,0.2);
-            display: flex; flex-direction: column; justify-content: center; position: relative; z-index: 10;
+        /* PANEL ATAS: ANALISIS MEDIS (STATIC) */
+        .top-fixed {
+            height: 48vh; background: var(--primary); color: white;
+            padding: 25px; border-radius: 0 0 40px 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            display: flex; flex-direction: column; position: relative; z-index: 100;
         }
-        .kkal-big { font-size: 3.2rem; font-weight: 800; line-height: 1; }
-        .ai-feedback {
-            background: rgba(255,255,255,0.1); border-radius: 20px; padding: 12px 18px;
-            margin-top: 15px; border: 1px dashed rgba(255,255,255,0.3); font-size: 0.85rem;
+        .score-circle { width: 70px; height: 70px; border: 4px solid rgba(255,255,255,0.2); border-radius: 50%; display: flex; align-items: center; justify-content: center; font-weight: 800; font-size: 1.4rem; }
+        .kkal-val { font-size: 2.8rem; font-weight: 800; line-height: 1; margin-top: 5px; }
+        
+        .feedback-card {
+            background: rgba(255,255,255,0.1); border-radius: 20px; padding: 15px;
+            margin-top: 15px; border-left: 5px solid var(--warning);
         }
 
-        /* PANEL BAWAH (SCROLLABLE) */
-        .bottom-inputs {
-            height: 55vh; overflow-y: auto; padding: 20px; padding-bottom: 80px;
-        }
+        /* PANEL BAWAH: INPUT (SCROLLABLE) */
+        .bottom-scroll { height: 52vh; overflow-y: auto; padding: 20px; padding-bottom: 100px; }
+        .card-input { border-radius: 25px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.03); background: white; padding: 20px; margin-bottom: 15px; }
+        .input-style { background: #f8f9fa; border: 1.5px solid #eee; border-radius: 15px; padding: 12px; font-size: 0.9rem; margin-bottom: 10px; width: 100%; outline: none; }
         
-        .card-input { border-radius: 25px; border: none; box-shadow: 0 5px 15px rgba(0,0,0,0.05); background: white; padding: 20px; margin-bottom: 15px; }
-        .input-custom { background: #f8f9fa; border: 1px solid #eee; border-radius: 15px; padding: 12px; font-size: 0.9rem; }
-        
-        .macro-badge { font-size: 0.7rem; font-weight: 700; padding: 5px 12px; border-radius: 50px; background: rgba(255,255,255,0.15); }
-        .status-pill { font-size: 0.65rem; padding: 4px 12px; border-radius: 50px; font-weight: 800; margin-top: 5px; display: inline-block; }
+        .macro-chip { font-size: 0.65rem; font-weight: 700; padding: 4px 10px; border-radius: 50px; background: rgba(255,255,255,0.1); border: 1px solid rgba(255,255,255,0.1); }
     </style>
 </head>
 <body>
 
-<div class="top-analysis">
+<div class="top-fixed">
     <div class="d-flex justify-content-between align-items-start">
         <div>
             <span class="opacity-50 small fw-bold text-uppercase">Total Kalori</span>
-            <div class="kkal-big" id="total-kkal">0</div>
-            <div class="d-flex gap-2 mt-2">
-                <span class="macro-badge">P: <span id="total-p">0</span>g</span>
-                <span class="macro-badge">L: <span id="total-l">0</span>g</span>
-                <span class="macro-badge">K: <span id="total-k">0</span>g</span>
-                <span class="macro-badge">Fe: <span id="total-fe">0</span>mg</span>
+            <div class="kkal-val" id="total-kkal">0</div>
+            <div class="d-flex gap-1 mt-2">
+                <span class="macro-chip">P: <span id="total-p">0</span>g</span>
+                <span class="macro-chip">L: <span id="total-l">0</span>g</span>
+                <span class="macro-chip">K: <span id="total-k">0</span>g</span>
+                <span class="macro-chip">Fe: <span id="total-fe">0</span>mg</span>
             </div>
         </div>
-        <a href="dashboard_warga.html" class="btn btn-sm btn-light rounded-circle fw-bold">✕</a>
+        <div class="text-center">
+            <div class="score-circle" id="score-val">--</div>
+            <small class="opacity-50 fw-bold">SKOR GIZI</small>
+        </div>
     </div>
 
-    <div class="ai-feedback" id="box-feedback">
-        <div id="status-judul" class="fw-bold text-warning mb-1">Menunggu Input...</div>
-        <div id="status-pesan" class="small opacity-75">Tambahkan menu makanan Anda di bawah untuk memulai analisis gizi otomatis.</div>
+    <div class="feedback-card" id="fb-card">
+        <h6 class="fw-bold mb-1" id="fb-status" style="color: var(--warning);">Mulai Menghitung...</h6>
+        <p class="small mb-0 opacity-75" id="fb-msg">Tambahkan menu makan warga di bawah untuk diagnosa medis otomatis.</p>
     </div>
 </div>
 
-<div class="bottom-inputs">
+<div class="bottom-scroll">
     <div class="card-input">
-        <label class="small fw-bold text-muted mb-2">Pilih & Cari Makanan</label>
-        <input type="text" id="input-cari" class="form-control input-custom mb-2" placeholder="Cari: Nasi, Ikan, Telur..." onkeyup="filterMenu()">
-        <select id="select-makanan" class="form-select input-custom mb-3"></select>
-        
+        <input type="text" id="input-cari" class="input-style" placeholder="Cari Bahan Makanan..." onkeyup="filterMenu()">
+        <select id="select-makanan" class="input-style"></select>
         <div class="row g-2">
-            <div class="col-7">
-                <input type="number" id="input-berat" class="form-control input-custom text-center fw-bold" value="100">
-            </div>
-            <div class="col-5">
-                <button class="btn btn-primary w-100 h-100 fw-bold" style="border-radius: 15px;" onclick="tambahItem()">TAMBAH</button>
-            </div>
+            <div class="col-7"><input type="number" id="input-berat" class="input-style text-center fw-bold" value="100"></div>
+            <div class="col-5"><button class="btn btn-primary w-100 fw-bold" style="border-radius: 15px; height: 48px;" onclick="tambahItem()">TAMBAH</button></div>
         </div>
     </div>
 
-    <div id="list-makan-container">
-        </div>
+    <div id="list-container"></div>
 </div>
 
 <script>
@@ -88,7 +82,7 @@
             const db = await res.json();
             databaseGizi = db.data.master_gizi;
             renderDropdown(databaseGizi);
-        } catch (e) { alert("Gagal muat data."); }
+        } catch (e) { console.log("Error loading data"); }
     }
 
     function renderDropdown(data) {
@@ -115,7 +109,7 @@
         const d = databaseGizi.find(r => r[0] === n);
         if(d && b > 0) {
             const f = b / 100;
-            pilihans.unshift({ // Paling baru di atas
+            pilihans.unshift({
                 nama: d[0], berat: b,
                 kkal: (parseFloat(d[1])*f), p: (parseFloat(d[2]||0)*f),
                 l: (parseFloat(d[3]||0)*f), k: (parseFloat(d[4]||0)*f), fe: (parseFloat(d[5]||0)*f)
@@ -126,16 +120,15 @@
 
     function updateUI() {
         let tk=0, tp=0, tl=0, tka=0, tfe=0;
-        const cont = document.getElementById('list-makan-container');
+        const cont = document.getElementById('list-container');
         cont.innerHTML = "";
 
         pilihans.forEach((item, idx) => {
             tk+=item.kkal; tp+=item.p; tl+=item.l; tka+=item.k; tfe+=item.fe;
-            cont.innerHTML += `
-                <div class="card-input d-flex justify-content-between align-items-center mb-2 p-3">
-                    <div><b class="small d-block">${item.nama}</b><small class="text-muted">${item.berat}g • ${item.kkal.toFixed(0)} kkal</small></div>
-                    <button class="btn btn-sm text-danger" onclick="hapus(${idx})">✕</button>
-                </div>`;
+            cont.innerHTML += `<div class="card-input d-flex justify-content-between align-items-center mb-2 p-3">
+                <div><b class="small d-block">${item.nama}</b><small class="text-muted">${item.berat}g • ${item.kkal.toFixed(0)} kkal</small></div>
+                <button class="btn btn-sm text-danger" onclick="hapus(${idx})">✕</button>
+            </div>`;
         });
 
         document.getElementById('total-kkal').innerText = tk.toFixed(0);
@@ -144,34 +137,43 @@
         document.getElementById('total-k').innerText = tka.toFixed(1);
         document.getElementById('total-fe').innerText = tfe.toFixed(1);
 
-        berikanPenilaian(tk, tp, tl, tka, tfe);
+        prosesAnalisisMedis(tk, tp, tl, tka, tfe);
     }
 
-    function berikanPenilaian(kkal, p, l, k, fe) {
-        let judul = "✅ Nutrisi Seimbang";
-        let pesan = "Komposisi makanan Anda terlihat baik. Pertahankan variasi menu.";
+    function prosesAnalisisMedis(kkal, p, l, k, fe) {
+        let skor = 100;
+        let status = "✅ Menu Sehat & Seimbang";
+        let pesan = "Komposisi nutrisi sudah sangat baik untuk menjaga stamina warga Bulo.";
         let warna = "#27ae60";
 
-        // LOGIKA PENILAIAN AI
-        if (k > 150) {
-            judul = "⚠️ Karbohidrat Tinggi!";
-            pesan = "Terlalu banyak karbohidrat berpotensi meningkatkan kadar gula darah dan risiko diabetes.";
-            warna = "#e67e22";
-        } else if (fe < 2 && kkal > 500) {
-            judul = "📉 Kurang Zat Besi";
-            pesan = "Makanan Anda rendah Zat Besi. Kurang Zat Besi berpotensi menyebabkan Anemia dan Stunting.";
-            warna = "#e74c3c";
-        } else if (l > (kkal * 0.4 / 9)) {
-            judul = "🍔 Lemak Berlebih";
-            pesan = "Kandungan lemak terlalu tinggi. Berpotensi meningkatkan kolesterol dan risiko jantung.";
-            warna = "#c0392b";
+        // LOGIKA PENILAIAN MEDIS
+        if (k > (kkal * 0.75 / 4)) { 
+            skor -= 30; status = "🍚 Karbo Terlalu Tinggi"; 
+            pesan = "Risiko lonjakan gula darah (Diabetes). Kurangi nasi/tepung, tambah sayuran."; warna = "#f39c12";
+        }
+        if (fe < 3 && kkal > 400) { 
+            skor -= 25; status = "🩸 Defisit Zat Besi"; 
+            pesan = "Risiko Anemia & Stunting. Tambahkan daging merah, hati, atau bayam."; warna = "#e74c3c";
+        }
+        if (l > (kkal * 0.4 / 9)) { 
+            skor -= 20; status = "🍟 Lemak Berlebih"; 
+            pesan = "Risiko Kolesterol & Jantung. Batasi gorengan dan santan kental."; warna = "#e67e22";
+        }
+        if (p < (kkal * 0.1 / 4) && kkal > 300) { 
+            skor -= 15; status = "🦴 Kurang Protein"; 
+            pesan = "Massa otot dan imun bisa menurun. Tambahkan ikan, telur, atau tahu tempe."; warna = "#d35400";
         }
 
-        const box = document.getElementById('box-feedback');
-        box.style.borderColor = warna;
-        document.getElementById('status-judul').innerText = judul;
-        document.getElementById('status-judul').style.color = warna;
-        document.getElementById('status-pesan').innerText = pesan;
+        if(skor < 0) skor = 10;
+        const scoreVal = document.getElementById('score-val');
+        scoreVal.innerText = skor;
+        scoreVal.style.borderColor = warna;
+        
+        const card = document.getElementById('fb-card');
+        card.style.borderLeftColor = warna;
+        document.getElementById('fb-status').innerText = status;
+        document.getElementById('fb-status').style.color = warna;
+        document.getElementById('fb-msg').innerText = pesan;
     }
 
     function hapus(idx) { pilihans.splice(idx,1); updateUI(); }
