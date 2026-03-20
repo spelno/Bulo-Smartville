@@ -3,116 +3,38 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Bulo SmartVille - UM Manado</title>
+    <title>Bulo SmartVille - Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        :root { --primary: #003d70; --secondary: #005fa3; --accent: #00b4d8; }
-        body { background: #f0f2f5; font-family: 'Inter', 'Segoe UI', sans-serif; margin: 0; overflow: hidden; }
-
-        /* --- SPLASH SCREEN --- */
-        #splash-screen {
-            position: fixed; top: 0; left: 0; width: 100%; height: 100%;
-            background: white; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; z-index: 9999;
-            transition: opacity 0.8s ease, visibility 0.8s;
-        }
-        .logo-splash { width: 200px; filter: drop-shadow(0 5px 15px rgba(0,0,0,0.1)); animation: pulse 2s infinite; }
-        .slogan-um { color: var(--primary); font-weight: 800; letter-spacing: 2px; font-size: 0.85rem; text-transform: uppercase; margin-top: 20px; }
-
-        /* --- LOGIN PAGE KEKINIAN --- */
-        .login-container {
-            height: 100vh; display: flex; align-items: center; justify-content: center;
-            background: radial-gradient(circle at top right, var(--secondary), var(--primary));
-        }
-        .login-card {
-            background: rgba(255, 255, 255, 0.95); padding: 50px 40px; border-radius: 40px;
-            box-shadow: 0 30px 60px rgba(0,0,0,0.4); width: 100%; max-width: 420px;
-            text-align: center; backdrop-filter: blur(10px); border: 1px solid rgba(255,255,255,0.2);
-        }
-        
-        /* LOGO SUPER BESAR & ESTETIK */
-        .logo-bulo-hero { 
-            width: 180px; height: 180px; 
-            margin: 0 auto 5px auto; 
-            display: flex; align-items: center; justify-content: center;
-            transition: transform 0.5s ease;
-        }
-        .logo-bulo-hero img { width: 100%; height: auto; object-fit: contain; }
-        .logo-bulo-hero:hover { transform: scale(1.05); }
-
-        .slogan-bulo { 
-            font-size: 0.9rem; color: #555; font-weight: 400; 
-            letter-spacing: 0.5px; margin-bottom: 40px; font-style: italic; 
-        }
-
-        /* INPUT STYLE */
-        .form-floating > .form-control { border-radius: 15px; border: 1px solid #eee; background: #fdfdfd; }
-        .form-floating > label { color: #888; padding-left: 15px; }
-
-        .btn-login { 
-            background: linear-gradient(45deg, var(--primary), var(--secondary));
-            color: white; border-radius: 15px; padding: 15px; width: 100%; 
-            font-weight: 700; border: none; margin-top: 10px; 
-            letter-spacing: 1px; transition: all 0.3s;
-        }
-        .btn-login:hover { transform: translateY(-3px); box-shadow: 0 10px 20px rgba(0,61,112,0.3); }
-
-        @keyframes pulse { 0%, 100% { transform: scale(1); opacity: 1; } 50% { transform: scale(1.05); opacity: 0.8; } }
+        body { background: linear-gradient(135deg, #003d70, #005fa3); font-family: 'Inter', sans-serif; height: 100vh; display: flex; align-items: center; justify-content: center; margin: 0; }
+        .login-card { background: white; padding: 40px; border-radius: 30px; box-shadow: 0 20px 50px rgba(0,0,0,0.3); width: 100%; max-width: 400px; text-align: center; }
+        .logo-bulo { width: 160px; margin-bottom: 10px; }
+        .slogan { font-size: 0.85rem; color: #666; font-style: italic; margin-bottom: 30px; }
+        .form-control { border-radius: 12px; padding: 12px; margin-bottom: 15px; background: #f8f9fa; border: 1px solid #ddd; }
+        .btn-login { background: #003d70; color: white; border-radius: 12px; padding: 12px; width: 100%; font-weight: bold; border: none; transition: 0.3s; }
+        .btn-login:hover { background: #00284d; transform: translateY(-2px); }
     </style>
 </head>
 <body>
-
-    <div id="splash-screen">
-        <img src="Logo_UMMAN.jpg" class="logo-splash" alt="Logo UM">
-        <div class="slogan-um">Hebat, Maju Dengan Pesat</div>
-    </div>
-
-    <div class="login-container">
-        <div class="login-card mx-3">
-            <div class="logo-bulo-hero">
-                <img src="Lobo_Bulo.png" alt="Bulo SmartVille">
-            </div>
-            
-            <div class="slogan-bulo">"Satu Data, Sejuta Manfaat"</div>
-
-            <div class="form-floating mb-3 text-start">
-                <input type="number" id="nik" class="form-control" placeholder="NIK" autocomplete="off">
-                <label for="nik">Nomor Induk Kependudukan (NIK)</label>
-            </div>
-            
-            <div class="form-floating mb-4 text-start">
-                <input type="password" id="pass" class="form-control" placeholder="Password">
-                <label for="pass">Password</label>
-            </div>
-
-            <button class="btn-login" onclick="prosesLogin()">LOG IN</button>
-            
-            <div class="mt-4">
-                <small style="color: #bbb; font-size: 0.7rem;">Digitalisasi Desa Bulo &copy; 2026</small>
-            </div>
-        </div>
+    <div class="login-card mx-3">
+        <img src="Lobo_Bulo.png" class="logo-bulo" alt="Bulo SmartVille">
+        <div class="slogan">"Satu Data, Sejuta Manfaat"</div>
+        <input type="number" id="nik" class="form-control" placeholder="Masukkan NIK">
+        <input type="password" id="pass" class="form-control" placeholder="Password">
+        <button class="btn-login" onclick="prosesLogin()">MASUK KE SISTEM</button>
     </div>
 
     <script>
-        // MASUKKAN URL WEB APP BAPAK DI SINI
         const API_URL = "https://script.google.com/macros/s/AKfycbzVXjDFywiipE5TYG-2fSDXPh3X1mG5O_t3fbccZkX_lHhlg-scq-Ats1LUcUnrDu9Yog/exec"; 
-
-        window.onload = () => {
-            setTimeout(() => {
-                const splash = document.getElementById('splash-screen');
-                splash.style.opacity = '0';
-                setTimeout(() => splash.style.display = 'none', 800);
-            }, 3000);
-        };
 
         async function prosesLogin() {
             const nikInput = document.getElementById('nik').value;
             const passInput = document.getElementById('pass').value;
 
-            if (!nikInput || !passInput) return Swal.fire('Oops!', 'NIK dan Password harus diisi.', 'warning');
+            if (!nikInput || !passInput) return Swal.fire('Oops!', 'NIK dan Password wajib diisi', 'warning');
 
-            Swal.fire({ title: 'Otentikasi...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
+            Swal.fire({ title: 'Memverifikasi...', didOpen: () => Swal.showLoading(), allowOutsideClick: false });
 
             try {
                 const response = await fetch(`${API_URL}?action=get_all_sheets_data`);
@@ -120,20 +42,22 @@
                 const user = result.data.Master_Data_Penduduk.find(r => r[0].toString() === nikInput && r[1].toString() === passInput);
 
                 if (user) {
+                    // --- SIMPAN TIKET (NIK & ROLE) ---
+                    const roleUser = user[9] ? user[9].toLowerCase() : 'warga';
                     localStorage.setItem('nik_login', user[0]);
-                    const role = user[9].toLowerCase();
+                    localStorage.setItem('role_login', roleUser);
 
-                    Swal.fire({ icon: 'success', title: 'Akses Diberikan', text: `Selamat datang, ${user[2]}`, timer: 1500, showConfirmButton: false }).then(() => {
-                        if (role.includes('admin')) window.location.href = "admin_panel.html";
-                        else if (role.includes('kesehatan')) window.location.href = "kader_kesehatan.html"; 
-                        else if (role.includes('sampah')) window.location.href = "kader_sampah.html";
+                    Swal.fire({ icon: 'success', title: 'Berhasil!', text: `Halo, ${user[2]}`, timer: 1500, showConfirmButton: false }).then(() => {
+                        if (roleUser.includes('admin')) window.location.href = "admin_panel.html";
+                        else if (roleUser.includes('kesehatan')) window.location.href = "kader_kesehatan.html"; 
+                        else if (roleUser.includes('sampah')) window.location.href = "kader_sampah.html";
                         else window.location.href = "dashboard_warga.html";
                     });
                 } else {
-                    Swal.fire('Gagal', 'NIK atau Password tidak ditemukan.', 'error');
+                    Swal.fire('Gagal', 'NIK atau Password salah!', 'error');
                 }
-            } catch (error) {
-                Swal.fire('Koneksi Gagal', 'Sistem tidak dapat menjangkau server.', 'error');
+            } catch (e) {
+                Swal.fire('Error', 'Koneksi ke database gagal.', 'error');
             }
         }
     </script>
