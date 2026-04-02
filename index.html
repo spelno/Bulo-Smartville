@@ -33,7 +33,7 @@
             const msg = document.getElementById('msg');
 
             // Ganti URL ini dengan Web App URL Apps Script Anda
-            const scriptURL = 'YOUR_APPS_SCRIPT_URL';
+            const scriptURL = 'https://script.google.com/macros/s/AKfycbxT-jSC-zIbi9oYlJkICPpJ6ZoLyjAWVzwLL9MSiZiw6_5nzlfp7DKIp1U3ovMJNdvMRg/exec';
 
             fetch(scriptURL + "?action=login&nik=" + nik + "&pass=" + pass)
                 .then(res => res.json())
