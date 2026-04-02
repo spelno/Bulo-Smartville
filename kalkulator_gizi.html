@@ -11,11 +11,12 @@
         body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; padding-bottom: 30px; }
         .card-main { border-radius: 25px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.08); background: white; padding: 25px; margin-top: 20px; }
         .food-row { background: #f9fbff; border-radius: 15px; padding: 12px; margin-bottom: 12px; border: 1px solid #edf2f7; position: relative; }
-        .suggestions { position: absolute; top: 100%; left: 0; right: 0; background: white; z-index: 1000; border-radius: 0 0 15px 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-height: 200px; overflow-y: auto; display: none; }
-        .suggestion-item { padding: 12px 15px; cursor: pointer; font-size: 0.9rem; border-bottom: 1px solid #f8fafd; }
+        .suggestions { position: absolute; top: 100%; left: 0; right: 0; background: white; z-index: 1000; border-radius: 0 0 15px 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-height: 200px; overflow-y: auto; display: none; border: 1px solid #eee; }
+        .suggestion-item { padding: 12px 15px; cursor: pointer; font-size: 0.9rem; border-bottom: 1px solid #f8fafd; text-align: left; }
         .suggestion-item:hover { background: #f0f7ff; color: var(--primary); font-weight: 800; }
         .nutri-box { background: #f1f5f9; padding: 15px; border-radius: 18px; text-align: center; }
         .analysis-box { background: #001f3f; color: white; border-radius: 20px; padding: 20px; margin-top: 20px; }
+        .status-badge { font-size: 0.7rem; padding: 5px 15px; font-weight: 800; }
     </style>
 </head>
 <body>
@@ -24,54 +25,62 @@
     <div class="card-main">
         <div class="text-center mb-4">
             <h5 class="fw-bold m-0">Smart Nutrisi Bulo</h5>
-            <span class="badge bg-danger rounded-pill" id="status-penyakit">MEMUAT DATA...</span>
+            <span class="badge rounded-pill status-badge bg-primary" id="status-penyakit">MENGHUBUNGKAN...</span>
         </div>
 
         <div id="food-container"></div>
         
         <div class="text-end mb-3">
-            <button class="btn btn-sm btn-outline-primary fw-bold rounded-pill" onclick="tambahBaris()">+ TAMBAH MENU</button>
+            <button class="btn btn-sm btn-primary fw-bold rounded-pill px-3 shadow-sm" onclick="tambahBaris()">+ TAMBAH MENU</button>
         </div>
 
         <div class="row g-2 mb-4">
             <div class="col-4"><div class="nutri-box"><small class="d-block text-muted fw-bold">KARBO</small><span class="fw-bold" id="t-kar">0</span>g</div></div>
             <div class="col-4"><div class="nutri-box"><small class="d-block text-muted fw-bold">PRO</small><span class="fw-bold" id="t-pro">0</span>g</div></div>
-            <div class="col-4"><div class="nutri-box"><small class="d-block text-muted fw-bold">ZAT BESI</small><span class="fw-bold" id="t-fe">0</span></div></div>
+            <div class="col-4"><div class="nutri-box"><small class="d-block text-muted fw-bold">BESI</small><span class="fw-bold" id="t-fe">0</span></div></div>
         </div>
 
-        <div class="analysis-box">
-            <small class="opacity-50">ANALISIS GIZI:</small>
+        <div class="analysis-box shadow">
+            <small class="opacity-50 fw-bold">ANALISIS GIZI:</small>
             <div class="h2 fw-bold"><span id="t-kal">0</span> <small style="font-size: 1rem">Kkal</small></div>
-            <p id="saran-od" class="small mt-2 mb-0 opacity-75">Silakan masukkan menu makanan...</p>
+            <p id="saran-od" class="small mt-2 mb-0 opacity-75" style="min-height: 40px;">Silakan masukkan menu makanan...</p>
         </div>
     </div>
 </div>
 
 <script>
-    // MASUKKAN URL DEPLOY BAPAK DI SINI
-    const API_URL = "https://script.google.com/macros/s/AKfycbwZbRq2B6HWh0FADT3gdBONMYFWjdg18fWClU2jDwk4nUDrdxwcd18QUwri440FGsKvvQ/exec"; 
+    // MASUKKAN URL WEB APP BAPAK DI SINI
+    const API_URL = "https://script.google.com/macros/s/AKfycbz3fk14fVMFsktXzGlDv0U6XZiBWAZsGPuqOfE8gc3jtvd09cG9uJr_Y5sQuTa4eL-lhQ/exec"; 
     let masterGizi = [];
     let riwayatWarga = "Normal";
 
     async function init() {
+        const statusEl = document.getElementById('status-penyakit');
         const nik = localStorage.getItem('nik_login');
+        
         try {
             const res = await fetch(`${API_URL}?action=get_all_sheets_data`);
             const json = await res.json();
             
             if(json.success) {
-                // Pastikan nama sheet sesuai gambar: master_gizi
+                // Sesuai nama sheet Bapak: master_gizi
                 masterGizi = json.data["master_gizi"] || [];
                 const penduduk = json.data["Master_Data_Penduduk"] || [];
                 const user = penduduk.find(r => r[0].toString().trim() === nik);
                 
                 riwayatWarga = user ? (user[6] || "Normal") : "Normal";
-                document.getElementById('status-penyakit').innerText = "RIWAYAT: " + riwayatWarga.toUpperCase();
+                statusEl.innerText = "RIWAYAT: " + riwayatWarga.toUpperCase();
+                statusEl.classList.replace('bg-primary', 'bg-danger');
                 
                 tambahBaris();
+            } else {
+                statusEl.innerText = "GAGAL MEMUAT DATA";
+                statusEl.className = "badge bg-warning text-dark";
             }
         } catch(e) {
-            document.getElementById('status-penyakit').innerText = "KONEKSI ERROR";
+            statusEl.innerText = "KONEKSI ERROR";
+            statusEl.className = "badge bg-warning text-dark";
+            console.error(e);
         }
     }
 
@@ -87,7 +96,7 @@
                     <div class="col-3">
                         <input type="number" class="form-control text-center border-0 shadow-sm" style="border-radius:10px" placeholder="Gr" oninput="hitung()">
                     </div>
-                    <div class="col-1 text-muted" onclick="document.getElementById('row-${id}').remove(); hitung();">×</div>
+                    <div class="col-1 text-muted" onclick="document.getElementById('row-${id}').remove(); hitung();" style="cursor:pointer">×</div>
                 </div>
                 <input type="hidden" class="nutri-data">
             </div>`;
@@ -95,14 +104,15 @@
     }
 
     function searchFood(input, id) {
-        const val = input.value.toLowerCase();
+        const val = input.value.toLowerCase().trim();
         const box = document.getElementById(`suggest-${id}`);
         box.innerHTML = "";
         if(val.length < 1) { box.style.display = "none"; return; }
 
-        // Filter: m[0] adalah Nama Bahan. Skip jika kolom Kalori m[1] kosong (berarti itu label kategori)
+        // FILTER KHUSUS: Pastikan m[1] (Kalori) adalah angka, bukan teks/kosong (skip label kategori)
         const matches = masterGizi.filter(m => 
-            m[0] && m[0].toString().toLowerCase().includes(val) && m[1] !== "" && typeof m[1] === 'number'
+            m[0] && m[0].toString().toLowerCase().includes(val) && 
+            !isNaN(parseFloat(m[1])) // Memastikan kolom Kalori adalah angka
         ).slice(0, 5);
 
         if(matches.length > 0) {
@@ -110,12 +120,12 @@
             matches.forEach(m => {
                 const div = document.createElement('div');
                 div.className = "suggestion-item";
-                div.innerHTML = `<b>${m[0]}</b> <small class="text-muted d-block">${m[6] || ''}</small>`;
+                div.innerHTML = `<b>${m[0]}</b> <small class="text-muted d-block" style="font-size:0.7rem">${m[6] || 'Menu'}</small>`;
                 div.onclick = () => {
                     input.value = m[0];
                     box.style.display = "none";
                     const row = document.getElementById(`row-${id}`);
-                    // Mapping: Kal(1), Pro(2), Karbo(4), Fe(5), Kat(6)
+                    // Mapping dari Sheet Bapak: Kal(1), Pro(2), Karbo(4), Besi(5), Kat(6)
                     row.querySelector('.nutri-data').value = JSON.stringify({
                         kal: m[1], pro: m[2], kar: m[4], fe: m[5], kat: m[6], nama: m[0]
                     });
@@ -128,7 +138,7 @@
 
     function hitung() {
         let tKal = 0, tKar = 0, tPro = 0, tFe = 0;
-        let info = [];
+        let warnings = [];
         
         document.querySelectorAll('.food-row').forEach(row => {
             const gr = parseFloat(row.querySelector('input[type="number"]').value) || 0;
@@ -137,12 +147,17 @@
             if(gr > 0 && dataStr) {
                 const d = JSON.parse(dataStr);
                 const f = gr / 100;
-                tKal += (d.kal * f); tKar += (d.kar * f); tPro += (d.pro * f); tFe += (d.fe * f);
+                tKal += (parseFloat(d.kal) * f); 
+                tKar += (parseFloat(d.kar) * f); 
+                tPro += (parseFloat(d.pro) * f); 
+                tFe += (parseFloat(d.fe) * f);
 
-                // Analisis Gizi
+                // LOGIKA ANALISIS PENYAKIT
                 const p = riwayatWarga.toLowerCase();
-                if(p.includes("asam urat") && d.nama.toLowerCase().includes("kangkung")) info.push("⚠️ Kangkung tinggi purin!");
-                if(p.includes("diabetes") && d.kal > 200) info.push(`⚠️ ${d.nama} tinggi kalori.`);
+                const n = d.nama.toLowerCase();
+                if(p.includes("asam urat") && n.includes("kangkung")) warnings.push("⚠️ <b>Waspada:</b> Kangkung tinggi purin.");
+                if(p.includes("diabetes") && d.kal > 200) warnings.push(`⚠️ <b>Waspada:</b> ${d.nama} tinggi kalori/gula.`);
+                if(p.includes("darah tinggi") && (n.includes("asin") || n.includes("telur"))) warnings.push("⚠️ <b>Waspada:</b> Batasi asupan garam/kolesterol.");
             }
         });
 
@@ -150,7 +165,9 @@
         document.getElementById('t-kar').innerText = tKar.toFixed(1);
         document.getElementById('t-pro').innerText = tPro.toFixed(1);
         document.getElementById('t-fe').innerText = tFe.toFixed(2);
-        document.getElementById('saran-od').innerHTML = info.length > 0 ? info.join("<br>") : "Porsi makan Anda terpantau seimbang.";
+        
+        const saranEl = document.getElementById('saran-od');
+        saranEl.innerHTML = warnings.length > 0 ? warnings.join("<br>") : "Porsi makan Anda terpantau seimbang.";
     }
 
     window.onload = init;
