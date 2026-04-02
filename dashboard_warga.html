@@ -4,54 +4,64 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard Warga</title>
+    <script>
+        if (!localStorage.getItem('USER_BULO')) { window.location.href = 'index.html'; }
+    </script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        .header-gizi { background: #003d70; color: white; border-radius: 0 0 40px 40px; padding: 40px 20px; }
-        .box-kecil { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 10px; border: 1px solid rgba(255,255,255,0.2); }
-        .saran-card { background: white; border-radius: 20px; box-shadow: 0 10px 30px rgba(0,0,0,0.1); border-left: 8px solid #ffc107; margin-top: -30px; padding: 25px; }
+        body { background: #fcfdfe; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; }
+        .header-blue { 
+            background: #003d70; color: white; padding: 40px 25px 90px; 
+            border-radius: 0 0 40px 40px; text-align: center;
+        }
+        .bmi-badge { background: #ffc107; color: #000; font-weight: 800; border-radius: 8px; padding: 4px 12px; font-size: 0.7rem; }
+        .calories-val { font-size: 4.5rem; font-weight: 800; letter-spacing: -2px; margin: 15px 0; }
+        
+        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
+        .stat-card { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); border-radius: 15px; padding: 12px 5px; }
+        .stat-card b { display: block; font-size: 1rem; }
+        .stat-card small { font-size: 0.6rem; opacity: 0.8; }
+
+        .container-main { padding: 0 20px; margin-top: -60px; }
+        .white-box { background: white; border-radius: 25px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
+        .label-title { font-weight: 700; color: #003d70; margin-bottom: 20px; font-size: 1rem; }
+        .saran-box { 
+            background: #f1f5f9; border-left: 6px solid #003d70; 
+            border-radius: 12px; padding: 20px; font-size: 0.9rem; line-height: 1.6;
+        }
     </style>
 </head>
-<body class="bg-light">
-    <div class="header-gizi text-center">
-        <p class="mb-1 small opacity-75" id="info-bmi">STATUS BMI: - | BMI: -</p>
-        <h1 class="display-3 fw-bold mb-4" id="total-kalori">0 <span class="h6">kkal</span></h1>
+<body>
+    <div class="header-blue">
+        <div class="d-flex justify-content-between align-items-center mb-4">
+            <span class="bmi-badge">GEMUK (BMI 28.7)</span>
+            <button class="btn btn-sm btn-link text-white text-decoration-none" onclick="logout()">Keluar</button>
+        </div>
+        <p class="small mb-0 opacity-75 uppercase">Kalori Harian</p>
+        <div class="calories-val">1.715 <span style="font-size: 1.2rem; font-weight: 400;">kkal</span></div>
         
-        <div class="row g-2 px-2">
-            <div class="col-3"><div class="box-kecil"><b id="prot">0g</b><br><small style="font-size: 10px;">PROT</small></div></div>
-            <div class="col-3"><div class="box-kecil"><h6 class="mb-0 fw-bold" id="lemak">0g</h6><small style="font-size: 10px;">LEMAK</small></div></div>
-            <div class="col-3"><div class="box-kecil"><b id="karbo">0g</b><br><small style="font-size: 10px;">KARBO</small></div></div>
-            <div class="col-3"><div class="box-kecil"><b id="besi">0mg</b><br><small style="font-size: 10px;">BESI</small></div></div>
+        <div class="stat-grid">
+            <div class="stat-card"><b>216g</b><small>PROT</small></div>
+            <div class="stat-card"><b>25g</b><small>LEMAK</small></div>
+            <div class="stat-card"><b>143g</b><small>KARBO</small></div>
+            <div class="stat-card"><b>50mg</b><small>BESI</small></div>
         </div>
     </div>
 
-    <div class="container mt-4">
-        <div class="saran-card">
-            <h6 class="fw-bold mb-3">💡 Ide Menu Sehat & Saran:</h6>
-            <p id="teks-saran" class="text-muted mb-0 small" style="line-height: 1.6;">
-                Memuat saran gizi terbaik untuk Anda...
-            </p>
+    <div class="container-main pb-5">
+        <div class="white-box">
+            <div class="label-title">Analisis & Ide Menu Sehat</div>
+            <div class="saran-box text-muted">
+                Berdasarkan status BMI Anda, disarankan untuk mengurangi porsi karbohidrat nasi putih. 
+                Ganti dengan karbohidrat kompleks seperti <b>Jagung atau Ubi</b>. 
+                Tingkatkan asupan sayuran hijau seperti <b>Kangkung atau Bayam</b> untuk mencukupi kebutuhan Zat Besi harian tanpa menambah lemak jenuh.
+            </div>
+            <button class="btn btn-primary w-100 mt-4 py-3 rounded-pill fw-bold" style="background: #003d70;">LIHAT DETAIL GIZI</button>
         </div>
     </div>
 
     <script>
-        document.addEventListener('DOMContentLoaded', () => {
-            const user = JSON.parse(localStorage.getItem('USER_BULO'));
-            if(!user) window.location.href = 'index.html';
-
-            // Contoh Logika Pengisian Data (Bisa dibuat dinamis berdasarkan BB/TB)
-            document.getElementById('total-kalori').innerHTML = `1.715 <span class="h6">kkal</span>`;
-            document.getElementById('info-bmi').innerText = `STATUS BMI: GEMUK | BMI: 28.7`;
-            document.getElementById('prot').innerText = "216g";
-            document.getElementById('lemak').innerText = "25g";
-            document.getElementById('karbo').innerText = "143g";
-            document.getElementById('besi').innerText = "50mg";
-            
-            document.getElementById('teks-saran').innerHTML = `
-                Berdasarkan status Anda, kami menyarankan untuk mengganti nasi putih dengan <b>Jagung atau Ubi</b>. 
-                Perbanyak konsumsi sayuran hijau seperti <b>Kangkung</b> untuk menyeimbangkan asupan zat besi 
-                tanpa menambah lemak berlebih.
-            `;
-        });
+        function logout() { localStorage.removeItem('USER_BULO'); window.location.href = 'index.html'; }
     </script>
 </body>
 </html>
