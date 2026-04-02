@@ -80,7 +80,7 @@
 
     <div class="feedback-area" id="fb-box">
         <div id="fb-title" style="font-size: 0.85rem; font-weight: 800;">Analisa Piring...</div>
-        <div id="fb-text" style="font-size: 0.7rem; opacity: 0.8; line-height: 1.2;">Memuat data warga...</div>
+        <div id="fb-text" style="font-size: 0.7rem; opacity: 0.8; line-height: 1.2;">Menyinkronkan data...</div>
         <div id="medis-alert" class="medis-notice"><b>⚠️ PANTANGAN:</b> <span id="medis-text"></span></div>
     </div>
 </div>
@@ -115,11 +115,11 @@
     const API_URL = "https://script.google.com/macros/s/AKfycbwsVCNphb1m3uM2DRxqgVDA5BL_T0oSgX4ebp6S0jWtqN0HuETPJzzFu31y2j6zAd0N8g/exec";
     let databaseGizi = [], isiPiring = [], riwayatPenyakit = "Normal", userBMI = 0;
 
-    // Fungsi Vital: Mengubah format koma (,) dari Google Sheets ke titik (.) agar bisa dihitung
-    function parseAngka(val) {
+    // Helper: Membersihkan format angka (koma ke titik)
+    function cleanNum(val) {
         if (!val) return 0;
-        let clean = val.toString().replace(/,/g, '.').replace(/[^0-9.-]/g, '');
-        return parseFloat(clean) || 0;
+        let s = val.toString().replace(/,/g, '.').replace(/[^0-9.-]/g, '');
+        return parseFloat(s) || 0;
     }
 
     async function init() {
@@ -128,13 +128,13 @@
             const res = await fetch(`${API_URL}?action=get_all_sheets_data`);
             const db = await res.json();
             
-            // 1. Data Warga (Kolom: M=12(TB), N=13(BB), O=14(Riwayat))
+            // 1. Ambil Data Warga (Kolom: M=12(TB), N=13(BB), O=14(Penyakit))
             const rowsPenduduk = db.data.Master_Data_Penduduk;
-            const user = rowsPenduduk.find(r => r[0].toString() === nik);
+            const user = rowsPenduduk.find(r => r[0].toString().trim() === nik.trim());
             
             if(user) {
-                const tb = parseAngka(user[12]); 
-                const bb = parseAngka(user[13]); 
+                const tb = cleanNum(user[12]); 
+                const bb = cleanNum(user[13]); 
                 riwayatPenyakit = (user[14] || "Normal").toLowerCase();
                 
                 if(bb > 0 && tb > 0) {
@@ -156,8 +156,8 @@
                 }
             }
 
-            // 2. Load Database Gizi (Indeks: A=Nama, B=Kal, C=Prot, D=Lemak, E=Karbo, F=Besi)
-            databaseGizi = db.data.master_gizi.filter(r => r[0] && !isNaN(parseAngka(r[1])));
+            // 2. Load Gizi (Filter baris yang punya nama dan kalori valid)
+            databaseGizi = db.data.master_gizi.filter(r => r[0] && !isNaN(cleanNum(r[1])));
             renderSelect(databaseGizi);
             document.getElementById('fb-text').innerText = "Siap menganalisa piring Anda.";
         } catch (e) { 
@@ -170,7 +170,7 @@
         const sel = document.getElementById('select-makanan'); sel.innerHTML = "";
         data.forEach(r => {
             let opt = document.createElement('option');
-            opt.value = r[0]; opt.text = `${r[0]} (${parseAngka(r[1]).toFixed(0)} kkal)`;
+            opt.value = r[0]; opt.text = `${r[0]} (${cleanNum(r[1]).toFixed(0)} kkal)`;
             sel.add(opt);
         });
     }
@@ -182,10 +182,9 @@
             { n: "Serat & Rendah Gula", p: ["Tahu Goreng", "Sayur Kangkung", "Jagung Rebus"], d: "Bagus untuk pencernaan." }
         ];
         
-        // Filter Rekomendasi Berdasarkan Penyakit
         if(riwayatPenyakit.includes("asam urat")) {
             menus = menus.filter(m => !m.p.includes("Sayur Bayam") && !m.p.includes("Sayur Kangkung"));
-            menus.push({ n: "Aman Asam Urat", p: ["Ikan Tongkol", "Wortel", "Nasi Putih"], d: "Bebas sayuran pemicu nyeri." });
+            menus.push({ n: "Aman Asam Urat", p: ["Ikan Tongkol", "Wortel", "Nasi Putih"], d: "Bebas pemicu nyeri sendi." });
         }
         
         list.innerHTML = menus.map(m => `
@@ -203,8 +202,8 @@
             if(d) {
                 isiPiring.push({ 
                     nama: d[0], berat: 100, 
-                    kkal: parseAngka(d[1]), p: parseAngka(d[2]), 
-                    l: parseAngka(d[3]), k: parseAngka(d[4]), fe: parseAngka(d[5]) 
+                    kkal: cleanNum(d[1]), p: cleanNum(d[2]), 
+                    l: cleanNum(d[3]), k: cleanNum(d[4]), fe: cleanNum(d[5]) 
                 });
             }
         });
@@ -225,8 +224,8 @@
             const f = b / 100;
             isiPiring.unshift({ 
                 nama: d[0], berat: b, 
-                kkal: (parseAngka(d[1])*f), p: (parseAngka(d[2])*f), 
-                l: (parseAngka(d[3])*f), k: (parseAngka(d[4])*f), fe: (parseAngka(d[5])*f) 
+                kkal: (cleanNum(d[1])*f), p: (cleanNum(d[2])*f), 
+                l: (cleanNum(d[3])*f), k: (cleanNum(d[4])*f), fe: (cleanNum(d[5])*f) 
             });
             updateUI();
         }
@@ -259,20 +258,17 @@
     function analisaAI(kkal, p, l, k, fe) {
         let skor = 100, title = "✅ Seimbang", msg = "Komposisi menu sudah ideal.", warna = "#27ae60", alertMedis = "";
         
-        // Aturan BMI & Karbo
         if (userBMI >= 25 && k > (kkal * 0.6 / 4)) { 
             skor -= 25; title = "⚠️ Karbo Tinggi"; warna = "#f39c12"; 
             msg = "Kurangi porsi karbohidrat karena BMI Anda tinggi."; 
         }
 
-        // Aturan Penyakit (Asam Urat)
         const menuStr = isiPiring.map(i => i.nama.toLowerCase()).join(" ");
         if (riwayatPenyakit.includes("asam urat") && (menuStr.includes("bayam") || menuStr.includes("kangkung") || menuStr.includes("jeroan"))) { 
-            alertMedis = "Bayam, Kangkung, atau Jeroan dapat memicu serangan asam urat."; 
+            alertMedis = "Hindari Bayam, Kangkung, atau Jeroan untuk mencegah nyeri sendi."; 
             skor -= 30; warna = "#e74c3c"; title = "❌ Bahaya Medis";
         }
 
-        // Update UI Analisa
         document.getElementById('score-val').innerText = skor < 10 ? 10 : skor;
         document.getElementById('circle-score').style.borderColor = warna;
         document.getElementById('fb-title').innerText = title; 
@@ -281,12 +277,8 @@
         document.getElementById('fb-box').style.borderLeftColor = warna;
         
         const box = document.getElementById('medis-alert');
-        if(alertMedis) { 
-            box.style.display = "block"; 
-            document.getElementById('medis-text').innerText = alertMedis; 
-        } else {
-            box.style.display = "none";
-        }
+        if(alertMedis) { box.style.display = "block"; document.getElementById('medis-text').innerText = alertMedis; }
+        else { box.style.display = "none"; }
     }
 
     function hapus(idx) { isiPiring.splice(idx,1); updateUI(); }
