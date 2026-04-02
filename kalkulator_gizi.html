@@ -3,7 +3,7 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Presisi - Bulo SmartVille</title>
+    <title>Kalkulator Bebas - Bulo SmartVille</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
@@ -13,160 +13,169 @@
         .header-section { padding: 30px 20px; background: white; border-radius: 0 0 30px 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); text-align: center; }
         .card-calc { border-radius: 25px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.05); background: white; padding: 25px; margin-top: -30px; }
         
-        /* Piring Visual Modern */
-        .plate-box {
-            width: 200px; height: 200px; border-radius: 50%; border: 10px solid #fff;
+        /* Piring Visual Dinamis */
+        .plate-container {
+            width: 180px; height: 180px; border-radius: 50%; border: 8px solid #fff;
             margin: 20px auto; position: relative; overflow: hidden; background: #eee;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: flex; flex-direction: column;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1); display: flex; flex-direction: column;
         }
-        .p-part { transition: 0.5s ease; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.6rem; font-weight: 800; }
-        #p-karbo { background: #f1c40f; height: 33.3%; }
-        #p-protein { background: #e74c3c; height: 33.3%; }
-        #p-sayur { background: #27ae60; height: 33.4%; }
-
-        .input-group-text { background: #f1f5f9; border: none; border-radius: 12px 0 0 12px; font-weight: 700; color: var(--primary); font-size: 0.8rem; }
-        .form-control, .form-select { border: 1px solid #eee; border-radius: 12px; padding: 12px; font-size: 0.9rem; }
+        .fill-bar { width: 100%; transition: 0.5s ease; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.6rem; font-weight: 800; }
         
-        .analysis-result { 
+        /* Input Row */
+        .food-row { background: #f9fbff; border-radius: 15px; padding: 10px; margin-bottom: 10px; border: 1px solid #edf2f7; }
+        .form-control { border: none; background: transparent; font-size: 0.9rem; font-weight: 600; padding: 5px; }
+        .form-control:focus { box-shadow: none; border-bottom: 2px solid var(--primary); border-radius: 0; }
+        
+        .analysis-box { 
             background: #001f3f; color: white; border-radius: 20px; padding: 20px; margin-top: 25px; 
-            box-shadow: 0 10px 20px rgba(0,31,63,0.2);
+            border-left: 8px solid #3498db;
         }
-        .badge-disease { background: #ff4757; padding: 5px 12px; border-radius: 50px; font-size: 0.65rem; font-weight: 800; }
+        .btn-add { color: var(--primary); font-weight: 800; font-size: 0.75rem; text-decoration: none; cursor: pointer; }
+        .badge-disease { background: #ff4757; padding: 5px 12px; border-radius: 50px; font-size: 0.65rem; font-weight: 800; text-transform: uppercase; }
     </style>
 </head>
 <body>
 
 <div class="header-section">
-    <img src="Logo_Bulo.png" width="50" class="mb-2">
-    <h5 class="fw-bold mb-0">Kalkulator Gizi Presisi</h5>
-    <p class="text-muted small">Berdasarkan Data Kesehatan Anda</p>
+    <img src="Logo_Bulo.png" width="45" class="mb-2">
+    <h5 class="fw-bold mb-0">Analisis Piring Bebas</h5>
+    <p class="text-muted small">Input apa saja yang Bapak/Ibu makan hari ini</p>
 </div>
 
 <div class="container">
     <div class="card-calc">
-        <div class="plate-box">
-            <div id="p-karbo" class="p-part">KARBO</div>
-            <div id="p-protein" class="p-part">PROTEIN</div>
-            <div id="p-sayur" class="p-part">SAYUR</div>
+        <div class="plate-container" id="visual-plate">
+            <div style="height: 100%; width: 100%; display: flex; align-items: center; justify-content: center; color: #bbb; font-size: 0.7rem;">Piring Kosong</div>
         </div>
 
-        <div class="mb-3">
-            <span class="badge-disease mb-2 d-inline-block">DATA PENYAKIT: <span id="user-disease">Memuat...</span></span>
-            
-            <div class="row g-2">
-                <div class="col-8">
-                    <select class="form-select" id="list-karbo">
-                        <option value="1.3">Nasi Putih</option>
-                        <option value="1.1">Ubi / Jagung</option>
-                        <option value="1.5">Mie Instan</option>
-                    </select>
-                </div>
-                <div class="col-4">
-                    <input type="number" class="form-control" id="berat-karbo" placeholder="Gram" oninput="hitungPresisi()">
-                </div>
+        <div class="mb-2 d-flex justify-content-between align-items-center">
+            <span class="badge-disease">Riwayat: <span id="user-disease">Memuat...</span></span>
+            <span class="btn-add" onclick="tambahBaris()">+ TAMBAH MENU</span>
+        </div>
 
-                <div class="col-8">
-                    <select class="form-select" id="list-protein">
-                        <option value="2.5">Daging Sapi</option>
-                        <option value="2.0">Ikan Laut</option>
-                        <option value="1.8">Ayam</option>
-                        <option value="3.0">Ikan Asin / Olahan</option>
-                    </select>
+        <div id="food-container">
+            <div class="food-row row g-0 align-items-center">
+                <div class="col-7">
+                    <input type="text" class="form-control food-name" placeholder="Nama Makanan (Contoh: Nasi Putih)" oninput="analisisOtomatis()">
                 </div>
                 <div class="col-4">
-                    <input type="number" class="form-control" id="berat-protein" placeholder="Gram" oninput="hitungPresisi()">
+                    <input type="number" class="form-control food-weight text-end" placeholder="Gram" oninput="analisisOtomatis()">
                 </div>
-
-                <div class="col-8">
-                    <select class="form-select" id="list-sayur">
-                        <option value="0.3">Sayuran Hijau</option>
-                        <option value="0.5">Buah-buahan</option>
-                    </select>
-                </div>
-                <div class="col-4">
-                    <input type="number" class="form-control" id="berat-sayur" placeholder="Gram" oninput="hitungPresisi()">
+                <div class="col-1 text-end">
+                    <span style="cursor:pointer; color:#ccc;" onclick="hapusBaris(this)">×</span>
                 </div>
             </div>
         </div>
 
-        <div class="analysis-result" id="hasil-box">
-            <div class="small opacity-75 fw-bold mb-1 text-uppercase">Analisis Nutrisi OD:</div>
-            <div class="h3 fw-bold mb-2"><span id="total-kalori">0</span> <small style="font-size: 0.8rem;">Kkal</small></div>
-            <p id="saran-presisi" class="small mb-0" style="line-height: 1.5; color: #cbd5e1;">Masukkan berat makanan untuk melihat saran gizi berdasarkan riwayat penyakit Anda.</p>
+        <div class="analysis-box">
+            <div class="small opacity-75 fw-bold mb-2 text-uppercase">Analisis "Notes of OD":</div>
+            <div class="h4 fw-bold mb-2"><span id="total-berat">0</span> <small style="font-size: 0.8rem;">Total Gram</small></div>
+            <p id="saran-bebas" class="small mb-0" style="line-height: 1.5; color: #cbd5e1;">Silakan ketik menu makanan Bapak/Ibu dan beratnya.</p>
         </div>
 
-        <button class="btn w-100 mt-4 py-3 fw-bold text-white rounded-pill" style="background: var(--primary);" onclick="window.location.href='dashboard_warga.html'">KEMBALI</button>
+        <button class="btn w-100 mt-4 py-3 fw-bold text-white rounded-pill shadow-sm" style="background: var(--primary);" onclick="window.location.href='dashboard_warga.html'">KEMBALI KE DASHBOARD</button>
     </div>
 </div>
 
 <script>
-    const API_URL = "ISI_URL_BAPAK";
-    let riwayatPenyakit = "Sehat";
+    const API_URL = "ISI_URL_DEPLOY_GS_BAPAK";
+    let riwayatPenyakit = "Normal";
 
-    // 1. Ambil Penyakit dari Database sesuai NIK Login
-    async function getHealthData() {
+    // Ambil penyakit warga secara otomatis
+    async function loadUserHealth() {
         const nik = localStorage.getItem('nik_login');
         try {
             const res = await fetch(`${API_URL}?action=get_all_sheets_data`);
             const db = await res.json();
-            const user = db.data.Master_Data_Penduduk.find(r => r[0].toString() === nik);
+            const user = db.data.Master_Data_Penduduk.find(r => r[0].toString().trim() === nik);
             if(user) {
-                // Asumsi Penyakit ada di Kolom G (Index 6)
-                riwayatPenyakit = user[6] || "Sehat";
-                document.getElementById('user-disease').innerText = riwayatPenyakit.toUpperCase();
+                riwayatPenyakit = user[6] || "Normal";
+                document.getElementById('user-disease').innerText = riwayatPenyakit;
             }
-        } catch(e) { 
-            document.getElementById('user-disease').innerText = "NORMAL";
-        }
+        } catch(e) { document.getElementById('user-disease').innerText = "Normal"; }
     }
 
-    function hitungPresisi() {
-        const bK = parseFloat(document.getElementById('berat-karbo').value) || 0;
-        const bP = parseFloat(document.getElementById('berat-protein').value) || 0;
-        const bS = parseFloat(document.getElementById('berat-sayur').value) || 0;
+    function tambahBaris() {
+        const container = document.getElementById('food-container');
+        const div = document.createElement('div');
+        div.className = "food-row row g-0 align-items-center";
+        div.innerHTML = `
+            <div class="col-7"><input type="text" class="form-control food-name" placeholder="Nama Makanan" oninput="analisisOtomatis()"></div>
+            <div class="col-4"><input type="number" class="form-control food-weight text-end" placeholder="Gram" oninput="analisisOtomatis()"></div>
+            <div class="col-1 text-end"><span style="cursor:pointer; color:#ccc;" onclick="hapusBaris(this)">×</span></div>
+        `;
+        container.appendChild(div);
+    }
+
+    function hapusBaris(el) {
+        el.closest('.food-row').remove();
+        analisisOtomatis();
+    }
+
+    function analisisOtomatis() {
+        const names = document.querySelectorAll('.food-name');
+        const weights = document.querySelectorAll('.food-weight');
+        const plate = document.getElementById('visual-plate');
+        const saran = document.getElementById('saran-bebas');
         
-        const kK = parseFloat(document.getElementById('list-karbo').value);
-        const kP = parseFloat(document.getElementById('list-protein').value);
-        const kS = parseFloat(document.getElementById('list-sayur').value);
+        let total = 0;
+        let dataInput = [];
 
-        // Hitung Kalori Sederhana (Hanya simulasi per gram)
-        const total = (bK * kK) + (bP * kP) + (bS * kS);
-        document.getElementById('total-kalori').innerText = Math.round(total);
+        weights.forEach((w, i) => {
+            const val = parseFloat(w.value) || 0;
+            const name = names[i].value.toLowerCase();
+            if(val > 0) {
+                total += val;
+                dataInput.push({ name, weight: val });
+            }
+        });
 
-        // Update Visual Piring (Berdasarkan Berat)
-        const totalBerat = bK + bP + bS;
-        if(totalBerat > 0) {
-            document.getElementById('p-karbo').style.height = (bK/totalBerat*100) + "%";
-            document.getElementById('p-protein').style.height = (bP/totalBerat*100) + "%";
-            document.getElementById('p-sayur').style.height = (bS/totalBerat*100) + "%";
-        }
+        document.getElementById('total-berat').innerText = total;
 
-        // LOGIKA SARAN BERDASARKAN PENYAKIT & BERAT
-        let saran = "";
+        // Visualisasi Piring (Warna dinamis)
+        plate.innerHTML = "";
+        const colors = ["#f1c40f", "#e74c3c", "#27ae60", "#3498db", "#9b59b6", "#e67e22"];
+        dataInput.forEach((item, index) => {
+            const height = (item.weight / total) * 100;
+            const bar = document.createElement('div');
+            bar.className = "fill-bar";
+            bar.style.height = height + "%";
+            bar.style.backgroundColor = colors[index % colors.length];
+            bar.innerText = item.name.substring(0, 10);
+            plate.appendChild(bar);
+        });
+
+        // LOGIKA ANALISIS "TRUTH OVER NOISE"
+        let pesan = "Komposisi makanan Anda sedang dianalisis...";
         const p = riwayatPenyakit.toLowerCase();
 
-        if(p.includes("diabetes")) {
-            if(bK > 150) saran = "⚠️ <b>Bahaya Gula:</b> Berat nasi/mie melebihi 150g sangat berisiko bagi penderita Diabetes. Kurangi nasi putih sekarang!";
-            else saran = "✅ Porsi karbohidrat sudah terkontrol. Pastikan sayur lebih banyak dari berat nasi.";
-        } 
-        else if(p.includes("hipertensi") || p.includes("darah tinggi")) {
-            const ikanAsin = document.getElementById('list-protein').options[document.getElementById('list-protein').selectedIndex].text;
-            if(ikanAsin === "Ikan Asin / Olahan" && bP > 50) saran = "⚠️ <b>Bahaya Garam:</b> Ikan asin tinggi natrium. Tekanan darah Anda bisa melonjak. Batasi maksimal 30g!";
-            else saran = "✅ Gunakan bumbu alami (bawang/tomat) sebagai pengganti garam pada protein Anda.";
-        }
-        else if(p.includes("asam urat")) {
-            if(bP > 200) saran = "⚠️ <b>Bahaya Purin:</b> Konsumsi daging sapi di atas 200g terlalu berat untuk sendi Anda. Ganti sebagian dengan protein nabati.";
-            else saran = "✅ Porsi protein aman. Imbangi dengan minum air putih 2 gelas setelah makan ini.";
-        }
-        else {
-            if(total > 800) saran = "Kalori satu porsi ini terlalu tinggi (>800 kkal). Kurangi berat nasi atau daging untuk menjaga berat badan.";
-            else saran = "Komposisi makanan cukup seimbang. Selamat makan, Pak/Bu!";
+        // Cari kata kunci makanan
+        const hasNasi = dataInput.some(d => d.name.includes('nasi') || d.name.includes('mie') || d.name.includes('tepung'));
+        const beratNasi = dataInput.filter(d => d.name.includes('nasi') || d.name.includes('mie')).reduce((a, b) => a + b.weight, 0);
+        const hasAsin = dataInput.some(d => d.name.includes('asin') || d.name.includes('garam') || d.name.includes('kaldu'));
+        const hasDaging = dataInput.some(d => d.name.includes('daging') || d.name.includes('sapi') || d.name.includes('babi'));
+        const beratDaging = dataInput.filter(d => d.name.includes('daging') || d.name.includes('sapi') || d.name.includes('babi')).reduce((a, b) => a + b.weight, 0);
+
+        if(total === 0) {
+            pesan = "Silakan masukkan menu makanan Bapak/Ibu untuk melihat analisis kesehatan.";
+        } else if(p.includes('diabetes')) {
+            if(beratNasi > 150) pesan = `⚠️ <b>Notes of OD:</b> Bapak/Ibu memiliki riwayat Diabetes. Nasi/Mie sebanyak ${beratNasi}g itu terlalu banyak. Kurangi setengahnya!`;
+            else pesan = "✅ Porsi karbohidrat sudah aman untuk penderita Diabetes. Pertahankan.";
+        } else if(p.includes('hipertensi') || p.includes('darah tinggi')) {
+            if(hasAsin) pesan = "⚠️ <b>Notes of OD:</b> Ada menu asin/olahan terdeteksi. Untuk Hipertensi, ini sangat berbahaya bagi tekanan darah. Batasi asupannya.";
+            else pesan = "✅ Pastikan menu ini tidak mengandung banyak penyedap rasa buatan.";
+        } else if(p.includes('asam urat')) {
+            if(beratDaging > 200) pesan = "⚠️ <b>Notes of OD:</b> Berat daging Anda ${beratDaging}g. Bagi penderita Asam Urat, ini akan memicu nyeri sendi besok pagi. Kurangi porsinya.";
+            else pesan = "✅ Porsi protein hewani aman. Jangan lupa minum air mineral yang cukup.";
+        } else {
+            if(total > 1000) pesan = "⚠️ Porsi makan Bapak/Ibu sangat besar (1 Kg lebih). Jika ingin tetap sehat, bagi porsi ini untuk dua kali makan.";
+            else pesan = "Menu Bapak/Ibu terlihat seimbang. Pastikan selalu ada sayuran hijau di setiap piring.";
         }
 
-        document.getElementById('saran-presisi').innerHTML = saran;
+        saran.innerHTML = pesan;
     }
 
-    window.onload = getHealthData;
+    window.onload = loadUserHealth;
 </script>
 </body>
 </html>
