@@ -155,4 +155,20 @@
         }
         else {
             if (porsi >= 0.5) {
-                statusHtml = '
+                statusHtml = '<span class="status-tag tag-warning">KELEBIHAN KARBOHIDRAT</span>';
+                rekomendasi = "Porsi karbohidrat Anda mendominasi piring. Untuk menjaga berat badan ideal, <b>tambahkan lebih banyak sayuran</b> dan kurangi nasi hingga tersisa 1/3 piring saja.";
+            } else {
+                statusHtml = '<span class="status-tag tag-success">GIZI SEIMBANG</span>';
+                rekomendasi = "Luar biasa! Piring Anda mencerminkan gizi seimbang. Pastikan lauk pauk bervariasi setiap harinya.";
+            }
+        }
+
+        statusArea.innerHTML = statusHtml;
+        saran.innerHTML = rekomendasi;
+    }
+
+    // Jalankan pertama kali
+    window.onload = updatePiring;
+</script>
+</body>
+</html>
