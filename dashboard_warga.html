@@ -3,60 +3,78 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard Warga</title>
-    <script>
-        if (!localStorage.getItem('USER_BULO')) { window.location.href = 'index.html'; }
-    </script>
+    <title>Dashboard | Bulo</title>
+    <script>if (!localStorage.getItem('USER_BULO')) { window.location.href = 'index.html'; }</script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: #fcfdfe; font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif; color: #333; }
-        .header-blue { 
-            background: #003d70; color: white; padding: 40px 25px 90px; 
-            border-radius: 0 0 40px 40px; text-align: center;
-        }
-        .bmi-badge { background: #ffc107; color: #000; font-weight: 800; border-radius: 8px; padding: 4px 12px; font-size: 0.7rem; }
-        .calories-val { font-size: 4.5rem; font-weight: 800; letter-spacing: -2px; margin: 15px 0; }
+        body { background: #f4f7fa; font-family: 'Inter', sans-serif; margin: 0; }
         
-        .stat-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; }
-        .stat-card { background: rgba(255,255,255,0.15); border: 1px solid rgba(255,255,255,0.2); border-radius: 15px; padding: 12px 5px; }
-        .stat-card b { display: block; font-size: 1rem; }
-        .stat-card small { font-size: 0.6rem; opacity: 0.8; }
-
-        .container-main { padding: 0 20px; margin-top: -60px; }
-        .white-box { background: white; border-radius: 25px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.05); }
-        .label-title { font-weight: 700; color: #003d70; margin-bottom: 20px; font-size: 1rem; }
-        .saran-box { 
-            background: #f1f5f9; border-left: 6px solid #003d70; 
-            border-radius: 12px; padding: 20px; font-size: 0.9rem; line-height: 1.6;
+        /* HEADER CINEMATIC BIRU PEKAT */
+        .header-cinematic { 
+            background: #001f3f; 
+            background: linear-gradient(135deg, #001f3f 0%, #003d70 100%);
+            height: 320px; padding: 40px 25px; color: white; text-align: center;
+            border-radius: 0 0 45px 45px; position: relative;
         }
+        
+        .status-badge { 
+            background: #ffc107; color: #000; font-weight: 800; font-size: 0.65rem; 
+            padding: 5px 15px; border-radius: 50px; text-transform: uppercase;
+        }
+        
+        .calories-display { 
+            font-size: 5rem; font-weight: 800; letter-spacing: -3px; margin: 10px 0; line-height: 1;
+        }
+
+        .nutrisi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 35px; }
+        .nutrisi-item { 
+            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.15);
+            border-radius: 18px; padding: 12px 5px; 
+        }
+        .nutrisi-item b { display: block; font-size: 1.1rem; }
+        .nutrisi-item small { font-size: 0.55rem; opacity: 0.6; text-transform: uppercase; }
+
+        /* FLOATING WHITE CARD (MYBCA STYLE) */
+        .content-wrapper { padding: 0 20px; margin-top: -65px; position: relative; z-index: 100; }
+        .floating-card { 
+            background: white; border-radius: 30px; padding: 30px; 
+            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
+        }
+        .card-label { font-weight: 800; color: #003d70; font-size: 1rem; margin-bottom: 20px; }
+        
+        .saran-text { 
+            background: #f8fafc; border-left: 6px solid #003d70; border-radius: 12px; 
+            padding: 22px; line-height: 1.8; font-size: 0.95rem; color: #475569;
+        }
+
+        .btn-full { 
+            background: #003d70; color: white; border-radius: 15px; padding: 16px; 
+            width: 100%; border: none; font-weight: 700; margin-top: 25px; transition: 0.3s;
+        }
+        .logout-link { position: absolute; top: 20px; right: 20px; color: white; font-size: 0.75rem; opacity: 0.6; text-decoration: none; }
     </style>
 </head>
 <body>
-    <div class="header-blue">
-        <div class="d-flex justify-content-between align-items-center mb-4">
-            <span class="bmi-badge">GEMUK (BMI 28.7)</span>
-            <button class="btn btn-sm btn-link text-white text-decoration-none" onclick="logout()">Keluar</button>
-        </div>
-        <p class="small mb-0 opacity-75 uppercase">Kalori Harian</p>
-        <div class="calories-val">1.715 <span style="font-size: 1.2rem; font-weight: 400;">kkal</span></div>
+    <div class="header-cinematic">
+        <a href="#" class="logout-link" onclick="logout()">LOGOUT SYSTEM</a>
+        <span class="status-badge">GEMUK (BMI 28.7)</span>
+        <div class="calories-display">1.715 <span style="font-size: 1.4rem; opacity: 0.5; font-weight: 400;">kkal</span></div>
         
-        <div class="stat-grid">
-            <div class="stat-card"><b>216g</b><small>PROT</small></div>
-            <div class="stat-card"><b>25g</b><small>LEMAK</small></div>
-            <div class="stat-card"><b>143g</b><small>KARBO</small></div>
-            <div class="stat-card"><b>50mg</b><small>BESI</small></div>
+        <div class="nutrisi-grid">
+            <div class="nutrisi-item"><b>216g</b><small>PROT</small></div>
+            <div class="nutrisi-item"><b>25g</b><small>LEMAK</small></div>
+            <div class="nutrisi-item"><b>143g</b><small>KARBO</small></div>
+            <div class="nutrisi-item"><b>50mg</b><small>BESI</small></div>
         </div>
     </div>
 
-    <div class="container-main pb-5">
-        <div class="white-box">
-            <div class="label-title">Analisis & Ide Menu Sehat</div>
-            <div class="saran-box text-muted">
-                Berdasarkan status BMI Anda, disarankan untuk mengurangi porsi karbohidrat nasi putih. 
-                Ganti dengan karbohidrat kompleks seperti <b>Jagung atau Ubi</b>. 
-                Tingkatkan asupan sayuran hijau seperti <b>Kangkung atau Bayam</b> untuk mencukupi kebutuhan Zat Besi harian tanpa menambah lemak jenuh.
+    <div class="content-wrapper pb-5">
+        <div class="floating-card">
+            <div class="card-label">ANALISIS & IDE MENU SEHAT</div>
+            <div class="saran-text">
+                Berdasarkan metabolisme Anda, disarankan untuk mengganti karbohidrat nasi putih dengan <b>Ubi atau Jagung</b>. Perbanyak konsumsi <b>Kangkung</b> untuk asupan Zat Besi harian tanpa menambah lemak jenuh secara berlebih.
             </div>
-            <button class="btn btn-primary w-100 mt-4 py-3 rounded-pill fw-bold" style="background: #003d70;">LIHAT DETAIL GIZI</button>
+            <button class="btn-full shadow-sm">UNDUH LAPORAN LENGKAP</button>
         </div>
     </div>
 
