@@ -11,10 +11,11 @@
         body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; padding: 15px; }
         .card-main { border-radius: 25px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.08); background: white; padding: 20px; max-width: 500px; margin: auto; }
         .plate-box { width: 100px; height: 100px; border-radius: 50%; border: 4px solid #fff; margin: 0 auto 15px; position: relative; overflow: hidden; background: #eef2f7; box-shadow: 0 5px 15px rgba(0,0,0,0.1); display: flex; flex-direction: column-reverse; }
-        .fill-item { width: 100%; transition: 0.5s; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.6rem; font-weight: 800; }
+        .fill-item { width: 100%; transition: 0.5s; }
         .food-row { background: #f9fbff; border-radius: 15px; padding: 10px; margin-bottom: 10px; border: 1px solid #edf2f7; position: relative; }
-        .suggestions { position: absolute; top: 100%; left: 0; right: 0; background: white; z-index: 1000; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: none; max-height: 150px; overflow-y: auto; }
+        .suggestions { position: absolute; top: 100%; left: 0; right: 0; background: white; z-index: 1000; border-radius: 10px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); display: none; max-height: 200px; overflow-y: auto; }
         .suggestion-item { padding: 10px; cursor: pointer; border-bottom: 1px solid #f8fafd; font-size: 0.8rem; }
+        .suggestion-item:hover { background: #f0f7ff; }
         .analysis-box { background: #001f3f; color: white; border-radius: 15px; padding: 15px; margin-top: 15px; }
         .btn-dashboard { background: var(--primary); color: white; border-radius: 12px; font-weight: 800; padding: 12px; margin-top: 15px; text-decoration: none; display: block; text-align: center; width: 100%; border: none; }
     </style>
@@ -24,7 +25,7 @@
 <div class="card-main">
     <div class="text-center mb-2">
         <h6 class="fw-bold m-0">Kalkulator Gizi</h6>
-        <span class="badge rounded-pill bg-secondary mt-1" id="status-tag" style="font-size: 0.7rem;">MENGHUBUNGKAN...</span>
+        <span class="badge rounded-pill bg-success mt-1" id="status-tag" style="font-size: 0.7rem;">MENGHUBUNGKAN...</span>
     </div>
 
     <div class="plate-box" id="visual-plate"></div>
@@ -43,14 +44,14 @@
 
     <div class="analysis-box">
         <div class="h4 fw-bold m-0"><span id="t-kal">0</span> <small style="font-size: 0.8rem">Kkal</small></div>
-        <p id="saran-gizi" class="small mb-0 opacity-75 mt-1" style="font-size: 0.75rem;">Siapkan menu...</p>
+        <p id="saran-gizi" class="small mb-0 opacity-75 mt-1" style="font-size: 0.75rem;">Pilih menu dan masukkan berat (Gr)...</p>
     </div>
 
     <a href="dashboard_warga.html" class="btn-dashboard">KEMBALI KE DASHBOARD</a>
 </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycby70qOsMg0dFULzD8cyUXTYSYuCXNH0hCgzshiaEJe1p-_P5aY-IRJsLY3-oIKImA9r2g/exec"; 
+    const API_URL = "URL_WEB_APP_ANDA"; 
     let masterGizi = [], riwayatPenyakit = "Normal", targetFe = 9;
 
     async function init() {
@@ -62,27 +63,20 @@
                 masterGizi = json.data["master_gizi"] || [];
                 const penduduk = json.data["Master_Data_Penduduk"] || [];
                 const akg = json.data["referensi_akg"] || [];
-                
                 const user = penduduk.find(r => r[0].trim() === nik);
                 if(user) {
                     riwayatPenyakit = user[13] || "Normal";
                     document.getElementById('status-tag').innerText = "RIWAYAT: " + riwayatPenyakit.toUpperCase();
-                    document.getElementById('status-tag').className = "badge rounded-pill bg-danger mt-1";
-                    
-                    // Cari Target Fe di referensi_akg kolom C (2)
                     const statusWarga = user[6].trim();
                     const akgUser = akg.find(r => r[2] && r[2].trim() === statusWarga);
-                    targetFe = akgUser ? parseFloat(akgUser[4]) : 9; // Kolom E (4)
+                    targetFe = akgUser ? parseFloat(akgUser[4]) : 9;
                     document.getElementById('target-label').innerText = "Target Fe: " + targetFe + "mg";
                 } else {
                     document.getElementById('status-tag').innerText = "DATA TERHUBUNG";
-                    document.getElementById('status-tag').className = "badge rounded-pill bg-success mt-1";
                 }
                 tambahBaris();
             }
-        } catch(e) {
-            document.getElementById('status-tag').innerText = "KONEKSI ERROR";
-        }
+        } catch(e) { document.getElementById('status-tag').innerText = "KONEKSI ERROR"; }
     }
 
     function tambahBaris() {
@@ -96,7 +90,10 @@
         const box = document.getElementById(`suggest-${id}`);
         box.innerHTML = "";
         if(val.length < 1) { box.style.display = "none"; return; }
-        const matches = masterGizi.filter(m => m[0] && m[0].toString().toLowerCase().includes(val) && !isNaN(parseFloat(m[1]))).slice(0, 5);
+        
+        // Filter: Hanya baris yang punya angka kalori di kolom B (indeks 1)
+        const matches = masterGizi.filter(m => m[0] && m[0].toLowerCase().includes(val) && !isNaN(parseFloat(m[1].replace(',','.')))).slice(0, 5);
+        
         if(matches.length > 0) {
             box.style.display = "block";
             matches.forEach(m => {
@@ -107,8 +104,11 @@
                     input.value = m[0];
                     box.style.display = "none";
                     const row = document.getElementById(`row-${id}`);
-                    // Mapping: B=1 (Energi), C=2 (Pro), E=4 (Karbo), F=5 (Fe), G=6 (Kat)
-                    row.querySelector('.nutri-data').value = JSON.stringify({ kal: m[1], pro: m[2], kar: m[4], fe: m[5], kat: m[6], nama: m[0] });
+                    // Parsing angka yang mungkin mengandung koma
+                    const parseVal = (v) => parseFloat(v.toString().replace(',', '.')) || 0;
+                    row.querySelector('.nutri-data').value = JSON.stringify({
+                        kal: parseVal(m[1]), pro: parseVal(m[2]), kar: parseVal(m[4]), fe: parseVal(m[5]), kat: m[6], nama: m[0]
+                    });
                     hitung();
                 };
                 box.appendChild(div);
@@ -120,26 +120,32 @@
         let tKal = 0, tKar = 0, tPro = 0, tFe = 0, warnings = [];
         const plate = document.getElementById('visual-plate');
         plate.innerHTML = "";
+        
         document.querySelectorAll('.food-row').forEach(row => {
             const gr = parseFloat(row.querySelector('input[type="number"]').value) || 0;
             const dataStr = row.querySelector('.nutri-data').value;
             if(gr > 0 && dataStr) {
-                const d = JSON.parse(dataStr); const f = gr / 100;
-                tKal += (parseFloat(d.kal) * f); tKar += (parseFloat(d.kar) * f); tPro += (parseFloat(d.pro) * f); tFe += (parseFloat(d.fe) * f);
+                const d = JSON.parse(dataStr);
+                const f = gr / 100;
+                tKal += (d.kal * f); tKar += (d.kar * f); tPro += (d.pro * f); tFe += (d.fe * f);
+                
                 const item = document.createElement('div');
-                item.className = "fill-item"; item.style.height = Math.min((gr/4), 30) + "px";
+                item.className = "fill-item"; 
+                item.style.height = Math.min((gr/5), 30) + "px";
                 const kat = (d.kat || "").toLowerCase();
                 item.style.backgroundColor = kat.includes("lauk") ? "#e74c3c" : (kat.includes("sayur") ? "#2ecc71" : "#f1c40f");
                 plate.appendChild(item);
-                if(riwayatPenyakit.toLowerCase().includes("asam urat") && d.nama.toLowerCase().includes("kangkung")) warnings.push("⚠️ Kangkung tinggi purin.");
+                
+                if(riwayatPenyakit.toLowerCase().includes("asam urat") && d.nama.toLowerCase().includes("kangkung")) warnings.push("⚠️ Batasi kangkung.");
             }
         });
         document.getElementById('t-kal').innerText = Math.round(tKal);
         document.getElementById('t-kar').innerText = tKar.toFixed(1);
         document.getElementById('t-pro').innerText = tPro.toFixed(1);
         document.getElementById('t-fe').innerText = tFe.toFixed(2);
-        if(tFe > 0 && tFe < targetFe) warnings.push(`💡 Kurang ${(targetFe - tFe).toFixed(1)}mg Zat Besi.`);
-        document.getElementById('saran-gizi').innerHTML = warnings.length > 0 ? warnings.join("<br>") : "Menu seimbang.";
+        
+        if(tFe > 0 && tFe < targetFe) warnings.push(`💡 Butuh ${(targetFe - tFe).toFixed(1)}mg Zat Besi lagi.`);
+        document.getElementById('saran-gizi').innerHTML = warnings.length > 0 ? warnings.join("<br>") : "Menu terpantau seimbang.";
     }
     window.onload = init;
 </script>
