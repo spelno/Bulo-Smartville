@@ -3,83 +3,91 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Gizi - Bulo SmartVille</title>
+    <title>Smart Nutrisi Bulo</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
         :root { --primary: #003d70; --bg: #f8fafd; }
-        body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; padding-bottom: 30px; }
+        body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; }
         .card-main { border-radius: 25px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.08); background: white; padding: 25px; margin-top: 20px; }
         .food-row { background: #f9fbff; border-radius: 15px; padding: 12px; margin-bottom: 12px; border: 1px solid #edf2f7; position: relative; }
-        .suggestions { position: absolute; top: 100%; left: 0; right: 0; background: white; z-index: 1000; border-radius: 0 0 15px 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-height: 200px; overflow-y: auto; display: none; border: 1px solid #eee; }
-        .suggestion-item { padding: 12px 15px; cursor: pointer; font-size: 0.9rem; border-bottom: 1px solid #f8fafd; text-align: left; }
-        .suggestion-item:hover { background: #f0f7ff; color: var(--primary); font-weight: 800; }
+        .suggestions { position: absolute; top: 100%; left: 0; right: 0; background: white; z-index: 1000; border-radius: 12px; box-shadow: 0 10px 25px rgba(0,0,0,0.1); max-height: 200px; overflow-y: auto; display: none; }
+        .suggestion-item { padding: 12px; cursor: pointer; font-size: 0.9rem; border-bottom: 1px solid #f8fafd; }
         .nutri-box { background: #f1f5f9; padding: 15px; border-radius: 18px; text-align: center; }
         .analysis-box { background: #001f3f; color: white; border-radius: 20px; padding: 20px; margin-top: 20px; }
-        .status-badge { font-size: 0.7rem; padding: 5px 15px; font-weight: 800; }
+        .status-badge { font-size: 0.7rem; padding: 5px 12px; font-weight: 800; }
     </style>
 </head>
 <body>
 
-<div class="container">
+<div class="container pb-5">
     <div class="card-main">
         <div class="text-center mb-4">
             <h5 class="fw-bold m-0">Smart Nutrisi Bulo</h5>
-            <span class="badge rounded-pill status-badge bg-primary" id="status-penyakit">MENGHUBUNGKAN...</span>
+            <div id="status-container" class="mt-2">
+                <span class="badge rounded-pill status-badge bg-warning text-dark" id="status-penyakit">MENGHUBUNGKAN...</span>
+            </div>
         </div>
 
         <div id="food-container"></div>
         
         <div class="text-end mb-3">
-            <button class="btn btn-sm btn-primary fw-bold rounded-pill px-3 shadow-sm" onclick="tambahBaris()">+ TAMBAH MENU</button>
+            <button class="btn btn-sm btn-primary fw-bold rounded-pill" onclick="tambahBaris()">+ TAMBAH MENU</button>
         </div>
 
         <div class="row g-2 mb-4">
             <div class="col-4"><div class="nutri-box"><small class="d-block text-muted fw-bold">KARBO</small><span class="fw-bold" id="t-kar">0</span>g</div></div>
             <div class="col-4"><div class="nutri-box"><small class="d-block text-muted fw-bold">PRO</small><span class="fw-bold" id="t-pro">0</span>g</div></div>
-            <div class="col-4"><div class="nutri-box"><small class="d-block text-muted fw-bold">BESI</small><span class="fw-bold" id="t-fe">0</span></div></div>
+            <div class="col-4"><div class="nutri-box"><small class="d-block text-muted fw-bold">BESI (Fe)</small><span class="fw-bold" id="t-fe">0</span></div></div>
         </div>
 
         <div class="analysis-box shadow">
-            <small class="opacity-50 fw-bold">ANALISIS GIZI:</small>
-            <div class="h2 fw-bold"><span id="t-kal">0</span> <small style="font-size: 1rem">Kkal</small></div>
-            <p id="saran-od" class="small mt-2 mb-0 opacity-75" style="min-height: 40px;">Silakan masukkan menu makanan...</p>
+            <div class="d-flex justify-content-between align-items-center">
+                <small class="opacity-50 fw-bold">ANALISIS GIZI:</small>
+                <small id="target-fe-info" class="badge bg-primary"></small>
+            </div>
+            <div class="h2 fw-bold my-2"><span id="t-kal">0</span> <small style="font-size: 1rem">Kkal</small></div>
+            <p id="saran-od" class="small mb-0 opacity-75">Silakan pilih menu...</p>
         </div>
     </div>
 </div>
 
 <script>
-    // MASUKKAN URL WEB APP BAPAK DI SINI
-    const API_URL = "https://script.google.com/macros/s/AKfycbz3fk14fVMFsktXzGlDv0U6XZiBWAZsGPuqOfE8gc3jtvd09cG9uJr_Y5sQuTa4eL-lhQ/exec"; 
+    const API_URL = "https://script.google.com/macros/s/AKfycbw7WxMKceAtGDj7JvDu0G1nHqw5RaT-DYKFRpO51j0yQwCC_geeXhnlumApH30xPTBdTQ/exec"; 
     let masterGizi = [];
     let riwayatWarga = "Normal";
+    let targetFe = 0;
 
     async function init() {
-        const statusEl = document.getElementById('status-penyakit');
         const nik = localStorage.getItem('nik_login');
-        
         try {
             const res = await fetch(`${API_URL}?action=get_all_sheets_data`);
             const json = await res.json();
             
             if(json.success) {
-                // Sesuai nama sheet Bapak: master_gizi
                 masterGizi = json.data["master_gizi"] || [];
                 const penduduk = json.data["Master_Data_Penduduk"] || [];
+                const akg = json.data["referensi_akg"] || [];
+                
                 const user = penduduk.find(r => r[0].toString().trim() === nik);
                 
-                riwayatWarga = user ? (user[6] || "Normal") : "Normal";
-                statusEl.innerText = "RIWAYAT: " + riwayatWarga.toUpperCase();
-                statusEl.classList.replace('bg-primary', 'bg-danger');
+                if(user) {
+                    riwayatWarga = user[13] || "Normal"; // Kolom N
+                    const statusKeluarga = user[6] || ""; // Kolom G
+                    
+                    // Cari Target Fe dari referensi_akg (image_373821)
+                    const akgMatch = akg.find(r => r[0].includes(statusKeluarga) || r[2].includes(statusKeluarga));
+                    targetFe = akgMatch ? parseFloat(akgMatch[4]) : 9;
+
+                    document.getElementById('status-penyakit').innerText = "RIWAYAT: " + riwayatWarga.toUpperCase();
+                    document.getElementById('status-penyakit').className = "badge rounded-pill status-badge bg-danger";
+                    document.getElementById('target-fe-info').innerText = "Target Fe: " + targetFe + "mg";
+                }
                 
                 tambahBaris();
-            } else {
-                statusEl.innerText = "GAGAL MEMUAT DATA";
-                statusEl.className = "badge bg-warning text-dark";
             }
         } catch(e) {
-            statusEl.innerText = "KONEKSI ERROR";
-            statusEl.className = "badge bg-warning text-dark";
+            document.getElementById('status-penyakit').innerText = "KONEKSI ERROR";
             console.error(e);
         }
     }
@@ -96,7 +104,7 @@
                     <div class="col-3">
                         <input type="number" class="form-control text-center border-0 shadow-sm" style="border-radius:10px" placeholder="Gr" oninput="hitung()">
                     </div>
-                    <div class="col-1 text-muted" onclick="document.getElementById('row-${id}').remove(); hitung();" style="cursor:pointer">×</div>
+                    <div class="col-1 text-muted" onclick="document.getElementById('row-${id}').remove(); hitung();">×</div>
                 </div>
                 <input type="hidden" class="nutri-data">
             </div>`;
@@ -109,10 +117,8 @@
         box.innerHTML = "";
         if(val.length < 1) { box.style.display = "none"; return; }
 
-        // FILTER KHUSUS: Pastikan m[1] (Kalori) adalah angka, bukan teks/kosong (skip label kategori)
         const matches = masterGizi.filter(m => 
-            m[0] && m[0].toString().toLowerCase().includes(val) && 
-            !isNaN(parseFloat(m[1])) // Memastikan kolom Kalori adalah angka
+            m[0] && m[0].toString().toLowerCase().includes(val) && !isNaN(parseFloat(m[1]))
         ).slice(0, 5);
 
         if(matches.length > 0) {
@@ -120,14 +126,14 @@
             matches.forEach(m => {
                 const div = document.createElement('div');
                 div.className = "suggestion-item";
-                div.innerHTML = `<b>${m[0]}</b> <small class="text-muted d-block" style="font-size:0.7rem">${m[6] || 'Menu'}</small>`;
+                div.innerHTML = `<b>${m[0]}</b> <small class="text-muted d-block">${m[6] || 'Menu'}</small>`;
                 div.onclick = () => {
                     input.value = m[0];
                     box.style.display = "none";
                     const row = document.getElementById(`row-${id}`);
-                    // Mapping dari Sheet Bapak: Kal(1), Pro(2), Karbo(4), Besi(5), Kat(6)
+                    // Kal(1), Pro(2), Karbo(4), Fe(5), Kat(6)
                     row.querySelector('.nutri-data').value = JSON.stringify({
-                        kal: m[1], pro: m[2], kar: m[4], fe: m[5], kat: m[6], nama: m[0]
+                        kal: m[1], pro: m[2], kar: m[4], fe: m[5], nama: m[0]
                     });
                     hitung();
                 };
@@ -138,26 +144,18 @@
 
     function hitung() {
         let tKal = 0, tKar = 0, tPro = 0, tFe = 0;
-        let warnings = [];
+        let info = [];
         
         document.querySelectorAll('.food-row').forEach(row => {
             const gr = parseFloat(row.querySelector('input[type="number"]').value) || 0;
             const dataStr = row.querySelector('.nutri-data').value;
-            
             if(gr > 0 && dataStr) {
                 const d = JSON.parse(dataStr);
                 const f = gr / 100;
-                tKal += (parseFloat(d.kal) * f); 
-                tKar += (parseFloat(d.kar) * f); 
-                tPro += (parseFloat(d.pro) * f); 
-                tFe += (parseFloat(d.fe) * f);
-
-                // LOGIKA ANALISIS PENYAKIT
+                tKal += (d.kal * f); tKar += (d.kar * f); tPro += (d.pro * f); tFe += (d.fe * f);
+                
                 const p = riwayatWarga.toLowerCase();
-                const n = d.nama.toLowerCase();
-                if(p.includes("asam urat") && n.includes("kangkung")) warnings.push("⚠️ <b>Waspada:</b> Kangkung tinggi purin.");
-                if(p.includes("diabetes") && d.kal > 200) warnings.push(`⚠️ <b>Waspada:</b> ${d.nama} tinggi kalori/gula.`);
-                if(p.includes("darah tinggi") && (n.includes("asin") || n.includes("telur"))) warnings.push("⚠️ <b>Waspada:</b> Batasi asupan garam/kolesterol.");
+                if(p.includes("asam urat") && d.nama.toLowerCase().includes("kangkung")) info.push("⚠️ Kangkung tinggi purin!");
             }
         });
 
@@ -166,8 +164,9 @@
         document.getElementById('t-pro').innerText = tPro.toFixed(1);
         document.getElementById('t-fe').innerText = tFe.toFixed(2);
         
-        const saranEl = document.getElementById('saran-od');
-        saranEl.innerHTML = warnings.length > 0 ? warnings.join("<br>") : "Porsi makan Anda terpantau seimbang.";
+        if(tFe < targetFe && tFe > 0) info.push(`💡 Kurang ${ (targetFe - tFe).toFixed(1) }mg Zat Besi lagi.`);
+        
+        document.getElementById('saran-od').innerHTML = info.length > 0 ? info.join("<br>") : "Menu terpantau aman.";
     }
 
     window.onload = init;
