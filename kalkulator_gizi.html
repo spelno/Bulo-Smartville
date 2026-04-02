@@ -3,78 +3,80 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Cerdas - Bulo SmartVille</title>
+    <title>Kalkulator Gizi Cerdas - Bulo SmartVille</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
     <style>
-        :root { --primary: #003d70; --bg: #f8fafd; --accent: #3498db; }
-        body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; padding-bottom: 50px; }
+        :root { --primary: #003d70; --bg: #f8fafd; }
+        body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; padding-bottom: 40px; }
         
-        .header-section { padding: 30px 20px; background: white; border-radius: 0 0 30px 30px; box-shadow: 0 4px 20px rgba(0,0,0,0.02); text-align: center; }
-        .card-calc { border-radius: 25px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.05); background: white; padding: 20px; margin-top: -30px; }
+        .header-section { padding: 25px; background: white; border-radius: 0 0 30px 30px; text-align: center; box-shadow: 0 4px 15px rgba(0,0,0,0.03); }
+        .card-main { border-radius: 25px; border: none; box-shadow: 0 10px 30px rgba(0,0,0,0.05); background: white; padding: 20px; margin-top: -25px; }
         
+        /* Piring Visual */
         .plate-box {
-            width: 150px; height: 150px; border-radius: 50%; border: 6px solid #fff;
+            width: 140px; height: 140px; border-radius: 50%; border: 6px solid #fff;
             margin: 15px auto; position: relative; overflow: hidden; background: #eee;
-            box-shadow: 0 8px 20px rgba(0,0,0,0.1); display: flex; flex-direction: column;
+            box-shadow: 0 8px 20px rgba(0,0,0,0.1); display: flex; flex-direction: column-reverse;
         }
-        .fill-bar { width: 100%; transition: 0.5s; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.5rem; font-weight: 800; }
+        .fill-item { width: 100%; transition: 0.5s; display: flex; align-items: center; justify-content: center; color: white; font-size: 0.5rem; font-weight: 800; border-top: 1px solid rgba(255,255,255,0.2); }
 
-        .food-row { position: relative; background: #f9fbff; border-radius: 15px; padding: 12px; margin-bottom: 12px; border: 1px solid #edf2f7; }
+        /* Input Rows */
+        .food-row { position: relative; background: #f9fbff; border-radius: 15px; padding: 10px; margin-bottom: 10px; border: 1px solid #edf2f7; }
         .suggestions { 
             position: absolute; top: 100%; left: 0; right: 0; background: white; 
-            z-index: 1000; border-radius: 0 0 15px 15px; box-shadow: 0 10px 20px rgba(0,0,0,0.1);
-            max-height: 200px; overflow-y: auto; display: none;
+            z-index: 1000; border-radius: 0 0 15px 15px; box-shadow: 0 10px 25px rgba(0,0,0,0.1);
+            max-height: 180px; overflow-y: auto; display: none;
         }
         .suggestion-item { padding: 10px 15px; cursor: pointer; font-size: 0.85rem; border-bottom: 1px solid #f1f1f1; }
-        .suggestion-item:hover { background: #f8fafd; font-weight: bold; color: var(--primary); }
+        .suggestion-item:hover { background: #f8fafd; color: var(--primary); font-weight: bold; }
 
-        .nutri-grid { display: grid; grid-template-columns: repeat(3, 1fr); gap: 10px; margin-top: 15px; }
-        .nutri-item { background: #f1f5f9; padding: 10px; border-radius: 12px; text-align: center; }
+        .nutri-box { background: #f1f5f9; padding: 12px; border-radius: 15px; text-align: center; }
         .nutri-val { display: block; font-weight: 800; color: var(--primary); font-size: 0.9rem; }
         .nutri-label { font-size: 0.55rem; text-transform: uppercase; color: #888; font-weight: 700; }
 
-        .analysis-dark { background: #001f3f; color: white; border-radius: 20px; padding: 20px; margin-top: 20px; }
-        .btn-add { color: var(--primary); font-weight: 800; font-size: 0.75rem; text-decoration: none; cursor: pointer; }
+        .od-analysis { background: #001f3f; color: white; border-radius: 20px; padding: 20px; margin-top: 20px; }
+        .btn-add { color: var(--primary); font-weight: 800; font-size: 0.75rem; cursor: pointer; text-decoration: none; }
     </style>
 </head>
 <body>
 
 <div class="header-section">
-    <img src="Logo_Bulo.png" width="40" class="mb-2">
+    <img src="Logo_Bulo.png" width="40" class="mb-1">
     <h5 class="fw-bold mb-0">Smart Nutrisi Bulo</h5>
-    <p class="text-muted small">Truth over Noise - The Essence</p>
+    <p class="text-muted small">Berdasarkan Data Gizi & Kesehatan Warga</p>
 </div>
 
 <div class="container">
-    <div class="card-calc shadow">
+    <div class="card-main">
         <div class="plate-box" id="visual-plate"></div>
 
-        <div class="mb-2 d-flex justify-content-between align-items-center">
-            <span class="badge bg-danger rounded-pill shadow-sm" id="user-disease" style="font-size: 0.65rem;">RIWAYAT: LOADING...</span>
+        <div class="d-flex justify-content-between align-items-center mb-2">
+            <span class="badge bg-danger rounded-pill px-3" id="user-disease">RIWAYAT: LOADING...</span>
             <span class="btn-add" onclick="tambahBaris()">+ TAMBAH MENU</span>
         </div>
 
-        <div id="food-container"></div>
+        <div id="food-container">
+            </div>
 
-        <div class="nutri-grid">
-            <div class="nutri-item"><span class="nutri-val" id="total-karbo">0</span><span class="nutri-label">Karbo (g)</span></div>
-            <div class="nutri-item"><span class="nutri-val" id="total-pro">0</span><span class="nutri-label">Protein (g)</span></div>
-            <div class="nutri-item"><span class="nutri-val" id="total-fe">0</span><span class="nutri-label">Zat Besi</span></div>
+        <div class="row g-2 mt-2">
+            <div class="col-4"><div class="nutri-box"><span class="nutri-val" id="t-kar">0</span><span class="nutri-label">Karbo</span></div></div>
+            <div class="col-4"><div class="nutri-box"><span class="nutri-val" id="t-pro">0</span><span class="nutri-label">Protein</span></div></div>
+            <div class="col-4"><div class="nutri-box"><span class="nutri-val" id="t-fe">0</span><span class="nutri-label">Zat Besi</span></div></div>
         </div>
 
-        <div class="analysis-dark">
-            <div class="small opacity-75 fw-bold mb-1 text-uppercase">Analisis "Notes of OD":</div>
-            <div class="h3 fw-bold mb-2"><span id="total-kal">0</span> <small style="font-size: 0.8rem;">Kkal</small></div>
-            <p id="saran-text" class="small mb-0" style="line-height: 1.5; color: #cbd5e1;">Pilih menu makanan Anda...</p>
+        <div class="od-analysis">
+            <div class="small opacity-75 fw-bold mb-1 text-uppercase">Analisis Gizi:</div>
+            <div class="h3 fw-bold mb-1"><span id="t-kal">0</span> <small style="font-size: 0.8rem;">Kkal</small></div>
+            <p id="saran-text" class="small mb-0" style="line-height: 1.4; color: #cbd5e1;">Pilih menu makanan...</p>
         </div>
 
-        <button class="btn w-100 mt-4 py-3 fw-bold text-white rounded-pill shadow" style="background: var(--primary);" onclick="window.location.href='dashboard_warga.html'">KEMBALI KE DASHBOARD</button>
+        <button class="btn w-100 mt-4 py-3 fw-bold text-white rounded-pill shadow" style="background: var(--primary);" onclick="window.location.href='dashboard_warga.html'">KEMBALI</button>
     </div>
 </div>
 
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbwcS8kH-iuUQmmsCpS_dIzHgyU9tHaH2giLFTLoFh22vxThl5fpwT63FK-zFag-dj1uNw/exec";
+    const API_URL = "URL_WEB_APP_BAPAK"; // <--- GANTI INI DENGAN URL DEPLOY
     let masterGizi = [];
     let riwayatPenyakit = "Normal";
 
@@ -83,21 +85,20 @@
         try {
             const res = await fetch(`${API_URL}?action=get_all_sheets_data`);
             const result = await res.json();
-            
             if (result.success) {
-                // Cari sheet Master_Gizi (Banyak baris)
-                masterGizi = result.data["Master_Gizi"] || [];
+                // Sesuai gambar Bapak: master_gizi (huruf kecil)
+                masterGizi = result.data["master_gizi"] || [];
                 
-                // Cari Penyakit User
                 const dataPenduduk = result.data["Master_Data_Penduduk"] || [];
                 const user = dataPenduduk.find(r => r[0].toString().trim() === nik);
                 riwayatPenyakit = user ? (user[6] || "Normal") : "Normal";
-                
                 document.getElementById('user-disease').innerText = "RIWAYAT: " + riwayatPenyakit.toUpperCase();
+                
                 tambahBaris(); 
             }
         } catch(e) { 
-            document.getElementById('user-disease').innerText = "Koneksi Bermasalah";
+            console.error(e);
+            document.getElementById('user-disease').innerText = "DATA TIDAK TERBACA";
         }
     }
 
@@ -106,15 +107,14 @@
         const rowId = Date.now();
         const div = document.createElement('div');
         div.className = "food-row";
-        div.id = `row-${rowId}`;
         div.innerHTML = `
             <div class="row g-2 align-items-center">
                 <div class="col-8">
-                    <input type="text" class="form-control food-input" placeholder="Ketik nama makanan..." oninput="showSuggestions(this, ${rowId})">
+                    <input type="text" class="form-control food-input border-0 bg-transparent fw-bold" placeholder="Cari menu..." oninput="showSuggestions(this, ${rowId})">
                     <div class="suggestions" id="suggest-${rowId}"></div>
                 </div>
                 <div class="col-3">
-                    <input type="number" class="form-control food-weight text-center" placeholder="Gram" oninput="kalkulasiTotal()">
+                    <input type="number" class="form-control food-weight text-center border-0 bg-white shadow-sm" style="border-radius:10px" placeholder="Gr" oninput="kalkulasiTotal()">
                 </div>
                 <div class="col-1 text-end" onclick="this.closest('.food-row').remove(); kalkulasiTotal();" style="cursor:pointer; color:#ccc;">×</div>
             </div>
@@ -127,23 +127,24 @@
         const val = input.value.toLowerCase().trim();
         const box = document.getElementById(`suggest-${id}`);
         box.innerHTML = "";
-        if(val.length < 2) { box.style.display = "none"; return; }
+        if(val.length < 1) { box.style.display = "none"; return; }
 
-        // Kolom B = Nama Makanan (Index 1)
-        const matches = masterGizi.slice(1).filter(r => r[1] && r[1].toString().toLowerCase().includes(val)).slice(0, 6);
-        
+        // Kolom A (Index 0) adalah NAMA BAHAN sesuai gambar Bapak
+        const matches = masterGizi.filter(r => r[0] && r[0].toString().toLowerCase().includes(val)).slice(0, 6);
+
         if(matches.length > 0) {
             box.style.display = "block";
             matches.forEach(m => {
                 const item = document.createElement('div');
                 item.className = "suggestion-item";
-                item.innerHTML = `<b>${m[1]}</b> <small class="text-muted d-block" style="font-size:0.65rem">${m[6] || ''}</small>`;
+                item.innerHTML = `<b>${m[0]}</b> <small class="text-muted d-block" style="font-size:0.7rem">${m[6] || ''}</small>`;
                 item.onclick = () => {
-                    input.value = m[1];
+                    input.value = m[0];
                     box.style.display = "none";
                     const row = input.closest('.food-row');
+                    // Data dari Sheet Bapak: Kal(1), Pro(2), Kar(4), Fe(5), Kat(6)
                     row.querySelector('.hidden-nutri').value = JSON.stringify({
-                        kal: m[2]||0, kar: m[3]||0, pro: m[4]||0, fe: m[5]||0, jenis: m[6]||""
+                        kal: m[1]||0, pro: m[2]||0, kar: m[4]||0, fe: m[5]||0, kat: m[6]||""
                     });
                     kalkulasiTotal();
                 };
@@ -168,29 +169,29 @@
                 const factor = w / 100;
                 tKal += n.kal * factor; tKar += n.kar * factor; tPro += n.pro * factor; tFe += n.fe * factor; tBerat += w;
 
-                // Visual Piring Dinamis
+                // Visual Piring
                 const bar = document.createElement('div');
-                bar.className = "fill-bar";
-                bar.style.height = (w/100 * 50) + "px"; // Visual stack
-                bar.style.backgroundColor = n.jenis.includes("Hijau") ? "#27ae60" : "#f1c40f";
-                bar.title = name;
+                bar.className = "fill-item";
+                bar.style.height = (w/10) + "px"; // Visual proporsional
+                bar.style.backgroundColor = n.kat.toLowerCase().includes("lauk") ? "#e74c3c" : "#f1c40f";
+                if(n.kat.toLowerCase().includes("sayur")) bar.style.backgroundColor = "#27ae60";
+                bar.innerText = name.substring(0, 8);
                 plate.appendChild(bar);
 
-                // LOGIKA ANALISIS
+                // LOGIKA 
                 const p = riwayatPenyakit.toLowerCase();
-                const j = n.jenis.toLowerCase();
-                if(p.includes("asam urat") && j.includes("hijau")) saranList.push(`⚠️ <b>${name}</b> tinggi purin.`);
-                if(p.includes("diabetes") && n.kal > 200) saranList.push(`⚠️ <b>${name}</b> tinggi gula.`);
+                if(p.includes("asam urat") && name.toLowerCase().includes("kangkung")) saranList.push("⚠️ Kangkung tinggi purin!");
+                if(p.includes("diabetes") && n.kal > 200) saranList.push(`⚠️ ${name} tinggi kalori.`);
+                if(p.includes("darah tinggi") && name.toLowerCase().includes("asin")) saranList.push("⚠️ Batasi menu asin/garam.");
             }
         });
 
-        document.getElementById('total-kal').innerText = Math.round(tKal);
-        document.getElementById('total-karbo').innerText = tKar.toFixed(1);
-        document.getElementById('total-pro').innerText = tPro.toFixed(1);
-        document.getElementById('total-fe').innerText = tFe.toFixed(2);
+        document.getElementById('t-kal').innerText = Math.round(tKal);
+        document.getElementById('t-kar').innerText = tKar.toFixed(1);
+        document.getElementById('t-pro').innerText = tPro.toFixed(1);
+        document.getElementById('t-fe').innerText = tFe.toFixed(2);
 
-        let finalSaran = saranList.length > 0 ? saranList.join("<br>") : (tBerat > 0 ? "Menu Bapak/Ibu terlihat aman dan seimbang." : "Silakan masukkan menu makanan.");
-        document.getElementById('saran-text').innerHTML = finalSaran;
+        document.getElementById('saran-text').innerHTML = saranList.length > 0 ? saranList.join("<br>") : (tBerat > 0 ? "Komposisi menu terpantau aman." : "Pilih menu makanan Anda.");
     }
 
     window.onload = initData;
