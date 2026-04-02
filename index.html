@@ -6,61 +6,54 @@
     <title>Bulo SmartVille | Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: #f0f4f8; height: 100vh; display: flex; align-items: center; font-family: 'Inter', sans-serif; }
-        .login-card { 
-            background: white; border-radius: 30px; padding: 45px 35px; 
-            box-shadow: 0 15px 40px rgba(0, 61, 112, 0.08); width: 100%; max-width: 380px; margin: auto;
-        }
-        .brand-logo { color: #003d70; font-weight: 800; letter-spacing: 2px; margin-bottom: 30px; }
+        body { background: #ffffff; height: 100vh; display: flex; align-items: center; font-family: 'Inter', sans-serif; }
+        .login-wrapper { width: 100%; max-width: 350px; margin: auto; padding: 20px; text-align: center; }
+        .brand-name { font-weight: 800; font-size: 2.2rem; letter-spacing: 10px; color: #003d70; margin-bottom: 0; }
+        .brand-tag { font-size: 0.65rem; letter-spacing: 4px; opacity: 0.5; text-transform: uppercase; margin-bottom: 50px; }
         .form-control { 
-            background: #f8fafc; border: 1px solid #e2e8f0; border-radius: 12px; 
-            padding: 12px; text-align: center; color: #334155;
+            border: none; border-bottom: 2px solid #f0f0f0; border-radius: 0; 
+            padding: 15px 5px; font-size: 1rem; margin-bottom: 25px; transition: 0.3s;
         }
-        .form-control:focus { border-color: #003d70; box-shadow: none; background: white; }
-        .btn-primary { 
-            background: #003d70; border: none; border-radius: 12px; padding: 12px; 
-            font-weight: 700; transition: 0.3s; margin-top: 10px;
+        .form-control:focus { box-shadow: none; border-bottom-color: #003d70; }
+        .btn-login { 
+            background: #003d70; color: white; border-radius: 50px; padding: 14px; 
+            font-weight: 700; width: 100%; border: none; letter-spacing: 1px;
+            box-shadow: 0 10px 20px rgba(0, 61, 112, 0.15); margin-top: 20px;
         }
-        .btn-primary:hover { background: #00569d; transform: translateY(-2px); }
-        #msg { font-size: 0.8rem; margin-top: 15px; color: #dc3545; font-weight: 600; }
+        #msg { color: #e74c3c; font-size: 0.75rem; margin-top: 20px; font-weight: 600; }
     </style>
 </head>
 <body>
-    <div class="login-card text-center">
-        <h4 class="brand-logo">BULO SMARTVILLE</h4>
-        <div class="mb-3"><input type="number" id="nik" class="form-control" placeholder="NIK"></div>
-        <div class="mb-4"><input type="password" id="pass" class="form-control" placeholder="Password"></div>
-        <button id="btnLogin" class="btn btn-primary w-100" onclick="prosesLogin()">MASUK</button>
+    <div class="login-wrapper">
+        <h1 class="brand-name">BULO</h1>
+        <p class="brand-tag">The Essence</p>
+        <input type="number" id="nik" class="form-control text-center" placeholder="NIK">
+        <input type="password" id="pass" class="form-control text-center" placeholder="PASSWORD">
+        <button id="btnLogin" class="btn-login" onclick="prosesLogin()">AUTHENTICATE</button>
         <div id="msg"></div>
     </div>
 
     <script>
-        const API_URL = 'https://script.google.com/macros/s/AKfycbwy0qP30r6mC25wxU7TwJ2x_V71lq6Dxr6kKXc86S15he8v8i4ta1XnJCLOalq5kEnAbg/exec'; 
-
+        const API_URL = 'https://script.google.com/macros/s/AKfycbwy0qP30r6mC25wxU7TwJ2x_V71lq6Dxr6kKXc86S15he8v8i4ta1XnJCLOalq5kEnAbg/exec'; // Ganti dengan URL Apps Script baru
         async function prosesLogin() {
             const nik = document.getElementById('nik').value;
             const pass = document.getElementById('pass').value;
             const btn = document.getElementById('btnLogin');
             if(!nik || !pass) return;
-
-            btn.disabled = true; btn.innerText = "Memproses...";
+            btn.disabled = true; btn.innerText = "VERIFYING...";
             try {
                 const response = await fetch(`${API_URL}?action=login&nik=${nik}&pass=${pass}`);
                 const res = await response.json();
                 if (res.success) {
                     localStorage.setItem('USER_BULO', JSON.stringify(res.data));
-                    const role = res.data.role;
-                    if (role.includes('admin') || role === 'kades') window.location.href = 'admin_panel.html';
-                    else if (role === 'kesehatan') window.location.href = 'kader_kesehatan.html';
-                    else if (role === 'sampah') window.location.href = 'kader_sampah.html';
-                    else window.location.href = 'dashboard_warga.html';
+                    window.location.href = (res.data.role.includes('admin') || res.data.role === 'kades') ? 'admin_panel.html' : 'dashboard_warga.html';
                 } else {
-                    document.getElementById('msg').innerText = "NIK atau Password Salah";
-                    btn.disabled = false; btn.innerText = "MASUK";
+                    document.getElementById('msg').innerText = "ACCESS DENIED";
+                    btn.disabled = false; btn.innerText = "AUTHENTICATE";
                 }
             } catch (e) {
-                document.getElementById('msg').innerText = "Gagal Terhubung ke Server";
-                btn.disabled = false; btn.innerText = "MASUK";
+                document.getElementById('msg').innerText = "NETWORK ERROR";
+                btn.disabled = false; btn.innerText = "AUTHENTICATE";
             }
         }
     </script>
