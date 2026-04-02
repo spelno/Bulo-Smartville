@@ -3,59 +3,66 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Login - Bulo SmartVille</title>
+    <title>Bulo SmartVille - Login</title>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <style>
-        body { background: #003d70; color: white; font-family: 'Segoe UI', sans-serif; }
-        .login-card { background: white; color: #333; border-radius: 25px; padding: 30px; box-shadow: 0 10px 30px rgba(0,0,0,0.3); }
-        .btn-login { background: #003d70; color: white; border-radius: 12px; font-weight: bold; }
+        body { background: #003d70; height: 100vh; display: flex; align-items: center; font-family: sans-serif; }
+        .login-box { background: white; border-radius: 25px; padding: 40px; box-shadow: 0 15px 35px rgba(0,0,0,0.3); width: 100%; max-width: 400px; margin: auto; }
+        .btn-bulo { background: #003d70; color: white; border-radius: 12px; padding: 12px; font-weight: bold; width: 100%; border: none; }
     </style>
 </head>
-<body class="d-flex align-items-center vh-100">
-    <div class="container">
-        <div class="row justify-content-center">
-            <div class="col-md-4">
-                <div class="login-card text-center">
-                    <h4 class="fw-bold mb-4">Bulo SmartVille</h4>
-                    <input type="number" id="nik" class="form-control mb-3 py-2" placeholder="Masukkan NIK">
-                    <input type="password" id="pass" class="form-control mb-4 py-2" placeholder="Password">
-                    <button class="btn btn-login w-100 py-2" onclick="handleLogin()">MASUK</button>
-                    <div id="msg" class="small mt-3 text-danger"></div>
-                </div>
-            </div>
-        </div>
+<body>
+    <div class="login-box text-center">
+        <h3 class="fw-bold mb-4" style="color: #003d70;">BULO SMARTVILLE</h3>
+        <input type="number" id="nik" class="form-control mb-3 py-3" placeholder="Masukkan NIK">
+        <input type="password" id="pass" class="form-control mb-4 py-3" placeholder="Password">
+        <button id="btnLogin" class="btn-bulo" onclick="prosesLogin()">MASUK</button>
+        <p id="msg" class="text-danger small mt-3 fw-bold"></p>
     </div>
 
     <script>
-        function handleLogin() {
+        // GANTI DENGAN URL DEPLOYMENT BARU BAPAK
+        const API_URL = 'https://script.google.com/macros/s/AKfycbxVdX4uFlk42Rnr0PZSMp7ImBs_l_-RoqbRrPVt0AQPkMOspZE3aVltKyTYWew0frLHnw/exec'; 
+
+        async function prosesLogin() {
             const nik = document.getElementById('nik').value;
             const pass = document.getElementById('pass').value;
+            const btn = document.getElementById('btnLogin');
             const msg = document.getElementById('msg');
 
-            // Ganti URL ini dengan Web App URL Apps Script Anda
-            const scriptURL = 'https://script.google.com/macros/s/AKfycbxT-jSC-zIbi9oYlJkICPpJ6ZoLyjAWVzwLL9MSiZiw6_5nzlfp7DKIp1U3ovMJNdvMRg/exec';
+            if(!nik || !pass) return;
 
-            fetch(scriptURL + "?action=login&nik=" + nik + "&pass=" + pass)
-                .then(res => res.json())
-                .then(res => {
-                    if (res.success) {
-                        localStorage.setItem('USER_BULO', JSON.stringify(res.data));
-                        const role = res.data.role.toLowerCase();
+            btn.disabled = true;
+            btn.innerText = "Memverifikasi...";
 
-                        // Routing berdasarkan Role di Kolom J
-                        if (role === 'admin' || role === 'kades') {
-                            window.location.href = 'admin_panel.html';
-                        } else if (role === 'kesehatan') {
-                            window.location.href = 'kader_kesehatan.html';
-                        } else if (role === 'sampah') {
-                            window.location.href = 'kader_sampah.html';
-                        } else {
-                            window.location.href = 'dashboard_warga.html';
-                        }
+            try {
+                const response = await fetch(`${API_URL}?action=login&nik=${nik}&pass=${pass}`);
+                const res = await response.json();
+
+                if (res.success) {
+                    localStorage.setItem('USER_BULO', JSON.stringify(res.data));
+                    const role = res.data.role;
+
+                    // REDIRECT BERDASARKAN FILE DI REPOSITORY GITHUB
+                    if (role === 'admin' || role === 'kades' || role === 'super admin') {
+                        window.location.href = 'admin_panel.html';
+                    } else if (role === 'kesehatan') {
+                        window.location.href = 'kader_kesehatan.html';
+                    } else if (role === 'sampah') {
+                        window.location.href = 'kader_sampah.html';
                     } else {
-                        msg.innerText = "NIK atau Password salah!";
+                        window.location.href = 'dashboard_warga.html';
                     }
-                });
+                } else {
+                    msg.innerText = "NIK atau Password Salah!";
+                    btn.disabled = false;
+                    btn.innerText = "MASUK";
+                }
+            } catch (e) {
+                msg.innerText = "Koneksi Gagal!";
+                btn.disabled = false;
+                btn.innerText = "MASUK";
+            }
         }
     </script>
 </body>
