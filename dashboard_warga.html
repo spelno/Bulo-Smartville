@@ -3,83 +3,188 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Dashboard | Bulo</title>
-    <script>if (!localStorage.getItem('USER_BULO')) { window.location.href = 'index.html'; }</script>
+    <title>Dashboard Warga - Bulo SmartVille</title>
+    <script>
+        if (!localStorage.getItem('nik_login')) { window.location.href = "index.html"; }
+    </script>
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
     <style>
-        body { background: #f4f7fa; font-family: 'Inter', sans-serif; margin: 0; }
+        :root { --primary: #003d70; --success: #198754; --bg: #f8fafd; }
+        body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; padding-bottom: 40px; }
         
-        /* HEADER CINEMATIC BIRU PEKAT */
-        .header-cinematic { 
-            background: #001f3f; 
-            background: linear-gradient(135deg, #001f3f 0%, #003d70 100%);
-            height: 320px; padding: 40px 25px; color: white; text-align: center;
-            border-radius: 0 0 45px 45px; position: relative;
+        .floating-timer {
+            position: fixed; top: 15px; right: 15px; z-index: 1000;
+            background: white; padding: 10px 15px; border-radius: 20px;
+            box-shadow: 0 10px 20px rgba(0,0,0,0.1); border: 1px solid #eee;
+            text-align: right; min-width: 140px;
         }
-        
-        .status-badge { 
-            background: #ffc107; color: #000; font-weight: 800; font-size: 0.65rem; 
-            padding: 5px 15px; border-radius: 50px; text-transform: uppercase;
-        }
-        
-        .calories-display { 
-            font-size: 5rem; font-weight: 800; letter-spacing: -3px; margin: 10px 0; line-height: 1;
-        }
+        .timer-val { font-weight: 800; font-size: 1.1rem; color: var(--primary); display: block; line-height: 1; }
+        .timer-label { font-size: 0.6rem; text-transform: uppercase; color: #888; font-weight: 700; letter-spacing: 0.5px; }
 
-        .nutrisi-grid { display: grid; grid-template-columns: repeat(4, 1fr); gap: 10px; margin-top: 35px; }
-        .nutrisi-item { 
-            background: rgba(255, 255, 255, 0.1); border: 1px solid rgba(255, 255, 255, 0.15);
-            border-radius: 18px; padding: 12px 5px; 
-        }
-        .nutrisi-item b { display: block; font-size: 1.1rem; }
-        .nutrisi-item small { font-size: 0.55rem; opacity: 0.6; text-transform: uppercase; }
-
-        /* FLOATING WHITE CARD (MYBCA STYLE) */
-        .content-wrapper { padding: 0 20px; margin-top: -65px; position: relative; z-index: 100; }
-        .floating-card { 
-            background: white; border-radius: 30px; padding: 30px; 
-            box-shadow: 0 20px 40px rgba(0,0,0,0.08);
-        }
-        .card-label { font-weight: 800; color: #003d70; font-size: 1rem; margin-bottom: 20px; }
+        .header-profile { padding: 40px 20px 20px; }
+        .card-main { border-radius: 24px; border: none; box-shadow: 0 12px 30px rgba(0,0,0,0.04); background: white; margin-bottom: 20px; overflow: hidden; }
         
-        .saran-text { 
-            background: #f8fafc; border-left: 6px solid #003d70; border-radius: 12px; 
-            padding: 22px; line-height: 1.8; font-size: 0.95rem; color: #475569;
-        }
+        .bmi-box { background: linear-gradient(135deg, #ffffff 0%, #f0f7ff 100%); padding: 25px; border: 1px solid #eef2f7; }
+        .bmi-badge { padding: 6px 18px; border-radius: 50px; font-weight: 800; font-size: 0.75rem; text-transform: uppercase; }
 
-        .btn-full { 
-            background: #003d70; color: white; border-radius: 15px; padding: 16px; 
-            width: 100%; border: none; font-weight: 700; margin-top: 25px; transition: 0.3s;
+        .grid-menu { display: grid; grid-template-columns: 1fr 1fr; gap: 15px; margin-top: 10px; }
+        .menu-item { 
+            background: white; border-radius: 20px; padding: 20px; border: 1px solid #f0f0f0;
+            transition: 0.3s; cursor: pointer; text-align: left; position: relative;
         }
-        .logout-link { position: absolute; top: 20px; right: 20px; color: white; font-size: 0.75rem; opacity: 0.6; text-decoration: none; }
+        .menu-item:active { transform: scale(0.95); background: #f9f9f9; }
+        .menu-icon { font-size: 1.8rem; margin-bottom: 12px; display: block; }
+        .menu-item h6 { font-size: 0.85rem; font-weight: 800; margin-bottom: 4px; color: #333; }
+        .menu-item p { font-size: 0.65rem; color: #888; margin: 0; line-height: 1.2; }
     </style>
 </head>
 <body>
-    <div class="header-cinematic">
-        <a href="#" class="logout-link" onclick="logout()">LOGOUT SYSTEM</a>
-        <span class="status-badge">GEMUK (BMI 28.7)</span>
-        <div class="calories-display">1.715 <span style="font-size: 1.4rem; opacity: 0.5; font-weight: 400;">kkal</span></div>
-        
-        <div class="nutrisi-grid">
-            <div class="nutrisi-item"><b>216g</b><small>PROT</small></div>
-            <div class="nutrisi-item"><b>25g</b><small>LEMAK</small></div>
-            <div class="nutrisi-item"><b>143g</b><small>KARBO</small></div>
-            <div class="nutrisi-item"><b>50mg</b><small>BESI</small></div>
-        </div>
-    </div>
 
-    <div class="content-wrapper pb-5">
-        <div class="floating-card">
-            <div class="card-label">ANALISIS & IDE MENU SEHAT</div>
-            <div class="saran-text">
-                Berdasarkan metabolisme Anda, disarankan untuk mengganti karbohidrat nasi putih dengan <b>Ubi atau Jagung</b>. Perbanyak konsumsi <b>Kangkung</b> untuk asupan Zat Besi harian tanpa menambah lemak jenuh secara berlebih.
+<div class="floating-timer shadow-sm">
+    <span class="timer-label" id="timer-status">Waktu Buang</span>
+    <span class="timer-val" id="countdown-display">00:00:00</span>
+    <span style="font-size: 0.55rem; color: #bbb;">Jadwal: 18:00 - 06:00</span>
+</div>
+
+<div class="container header-profile">
+    <small class="text-muted fw-bold text-uppercase">Bulo SmartVille</small>
+    <h3 class="fw-bold mb-0">Halo, <span id="user-nama">Warga</span></h3>
+    <p class="text-muted small">NIK: <span id="user-nik">...</span></p>
+
+    <div class="card card-main bmi-box">
+        <div class="row align-items-center">
+            <div class="col-7">
+                <small class="text-muted fw-bold small text-uppercase">Kesehatan & BMI</small>
+                <h4 class="fw-bold mb-0 mt-1" id="val-fisik">0 / 0</h4>
+                <p class="small text-muted mb-3">Tinggi (cm) / Berat (kg)</p>
+                <span id="badge-bmi" class="bmi-badge bg-secondary text-white">Menghitung...</span>
             </div>
-            <button class="btn-full shadow-sm">UNDUH LAPORAN LENGKAP</button>
+            <div class="col-5 text-end">
+                <img src="https://cdn-icons-png.flaticon.com/512/2966/2966327.png" width="80" style="opacity: 0.2;">
+            </div>
+        </div>
+        <hr class="my-3 opacity-25">
+        <div class="saran-box">
+            <small class="fw-bold text-primary d-block">Saran Ahli Gizi:</small>
+            <p id="txt-saran" class="small text-muted mb-0 italic" style="line-height: 1.4;">Memuat data pemeriksaan...</p>
         </div>
     </div>
 
-    <script>
-        function logout() { localStorage.removeItem('USER_BULO'); window.location.href = 'index.html'; }
-    </script>
+    <div class="grid-menu">
+        <div class="menu-item" onclick="showSaldoDetail()">
+            <span class="menu-icon">💰</span>
+            <h6>Saldo Sampah</h6>
+            <p id="short-saldo">Cek Tabungan</p>
+        </div>
+        <div class="menu-item" onclick="window.location.href='kalkulator_gizi.html'">
+            <span class="menu-icon">🥗</span>
+            <h6>Kalkulator Gizi</h6>
+            <p>Hitung Nutrisi Harian</p>
+        </div>
+        <div class="menu-item" onclick="Swal.fire('Fitur Segera Hadir', 'Jadwal Posyandu & Imunisasi sedang disiapkan.', 'info')">
+            <span class="menu-icon">📅</span>
+            <h6>Jadwal Sehat</h6>
+            <p>Posyandu & Imunisasi</p>
+        </div>
+        <div class="menu-item" onclick="Swal.fire('Fitur Segera Hadir', 'Layanan pengaduan sampah liar.', 'info')">
+            <span class="menu-icon">📢</span>
+            <h6>Lapor Sampah</h6>
+            <p>Hubungi Petugas Desa</p>
+        </div>
+    </div>
+
+    <div class="text-center mt-4">
+        <button class="btn btn-sm btn-outline-danger px-4 rounded-pill" onclick="logout()">Logout</button>
+    </div>
+</div>
+
+<script>
+    const API_URL = "https://script.google.com/macros/s/AKfycbxhCEUv8Lwmmro8ssCZVPczZYyZs-5L7vZbmWZJ2Btxna3o4P1Gu131bBEGMUYcV2OyAg/exec";
+    let globalSaldo = "Rp 0";
+    let globalBerat = "0 Kg";
+
+    async function loadData() {
+        const nik = localStorage.getItem('nik_login');
+        if(!nik) return;
+        document.getElementById('user-nik').innerText = nik;
+
+        try {
+            const res = await fetch(`${API_URL}?action=get_all_sheets_data`);
+            const db = await res.json();
+
+            // 1. Data Penduduk
+            const user = db.data.Master_Data_Penduduk.find(r => r[0].toString().trim() === nik);
+            if(user) {
+                document.getElementById('user-nama').innerText = user[2];
+                const tb = parseFloat(user[12] || 0);
+                const bb = parseFloat(user[13] || 0);
+                document.getElementById('val-fisik').innerText = `${tb} / ${bb}`;
+                hitungBMI(tb, bb);
+            }
+
+            // 2. Data Sampah
+            const sld = db.data.sampah_saldo.find(r => r[0].toString().trim() === nik);
+            if(sld) {
+                globalSaldo = `Rp ${parseInt(sld[2] || 0).toLocaleString()}`;
+                globalBerat = `${sld[3] || 0} Kg`;
+                document.getElementById('short-saldo').innerText = globalSaldo;
+            }
+        } catch(e) { console.error("Database Error"); }
+    }
+
+    function hitungBMI(tb, bb) {
+        if(!tb || !bb) {
+            document.getElementById('txt-saran').innerText = "Data fisik belum lengkap.";
+            return;
+        }
+        const imt = bb / ((tb/100)**2);
+        let s = "", c = "", msg = "";
+        if(imt < 18.5) { s="Gizi Kurang"; c="#e74c3c"; msg="Fokus pada asupan protein tinggi dan karbohidrat kompleks."; }
+        else if(imt <= 25) { s="Normal"; c="#27ae60"; msg="Pertahankan pola makan gizi seimbang dan konsumsi air putih."; }
+        else { s="Overweight"; c="#f39c12"; msg="Kurangi konsumsi gorengan dan gula. Tingkatkan aktivitas fisik."; }
+        
+        const badge = document.getElementById('badge-bmi');
+        badge.innerText = s; badge.style.backgroundColor = c;
+        document.getElementById('txt-saran').innerText = msg;
+    }
+
+    function updateFloatingTimer() {
+        const now = new Date();
+        const hrs = now.getHours();
+        let target = new Date();
+        if(hrs >= 18 || hrs < 6) {
+            document.getElementById('timer-status').innerText = "Waktu Buang";
+            if(hrs >= 18) target.setDate(target.getDate() + 1);
+            target.setHours(6, 0, 0, 0);
+        } else {
+            document.getElementById('timer-status').innerText = "Tunggu Jam";
+            target.setHours(18, 0, 0, 0);
+        }
+        const diff = target - now;
+        const h = Math.floor(diff/3600000).toString().padStart(2,'0');
+        const m = Math.floor((diff%3600000)/60000).toString().padStart(2,'0');
+        const s = Math.floor((diff%60000)/1000).toString().padStart(2,'0');
+        document.getElementById('countdown-display').innerText = `${h}:${m}:${s}`;
+    }
+
+    function showSaldoDetail() {
+        Swal.fire({
+            title: 'Tabungan Sampah',
+            html: `<div class="p-3">
+                    <h2 class="text-success fw-bold">${globalSaldo}</h2>
+                    <p class="text-muted">Total Berat: <b>${globalBerat}</b></p>
+                    <hr><small>Tabungan terakumulasi otomatis di Bank Sampah Bulo.</small>
+                   </div>`,
+            icon: 'success',
+            confirmButtonText: 'Tutup',
+            confirmButtonColor: '#003d70'
+        });
+    }
+
+    function logout() { localStorage.clear(); window.location.href="index.html"; }
+    window.onload = () => { loadData(); setInterval(updateFloatingTimer, 1000); };
+</script>
 </body>
 </html>
