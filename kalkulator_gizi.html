@@ -3,43 +3,74 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Kalkulator Gizi Pro - Bulo SmartVille</title>
+    <title>Kalkulator Gizi - Bulo SmartVille</title>
+    
+    <script>
+        if (!localStorage.getItem('nik_login')) { window.location.href = "index.html"; }
+    </script>
+
     <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
     <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;600;700;800&display=swap" rel="stylesheet">
+    <script src="https://cdn.jsdelivr.net/npm/sweetalert2@11"></script>
+    
     <style>
         :root { --primary: #003d70; --bg: #f4f7fa; --danger: #e74c3c; --warning: #f1c40f; --success: #27ae60; }
-        body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; margin: 0; overflow-x: hidden; }
-        .top-result { height: 60vh; background: var(--primary); color: white; padding: 25px; border-radius: 0 0 40px 40px; display: flex; flex-direction: column; }
-        .kkal-main { font-size: 3.5rem; font-weight: 800; line-height: 1; margin: 15px 0; }
-        .bmi-mini { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 10px 15px; display: flex; justify-content: space-between; margin-bottom: 15px; }
+        body { background: var(--bg); font-family: 'Plus Jakarta Sans', sans-serif; height: 100vh; overflow: hidden; margin: 0; }
+        
+        /* Dashboard Atas */
+        .top-result {
+            height: 62vh; background: var(--primary); color: white;
+            padding: 25px; border-radius: 0 0 40px 40px; box-shadow: 0 10px 30px rgba(0,0,0,0.15);
+            display: flex; flex-direction: column; position: relative;
+        }
+        .nav-top { display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px; }
+        .btn-back { background: rgba(255,255,255,0.15); color: white; border: none; padding: 8px 15px; border-radius: 12px; font-weight: 700; font-size: 0.75rem; text-decoration: none; }
+        
+        .kkal-main { font-size: 3.8rem; font-weight: 800; line-height: 1; margin: 15px 0; text-align: center; }
+        .bmi-mini { background: rgba(255,255,255,0.1); border-radius: 15px; padding: 12px 18px; display: flex; justify-content: space-between; margin-bottom: 15px; border: 1px solid rgba(255,255,255,0.1); }
+        
         .macro-box { display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; }
-        .macro-item { background: rgba(255,255,255,0.1); padding: 10px; border-radius: 15px; text-align: center; }
-        .macro-item b { display: block; font-size: 0.85rem; }
-        .macro-item small { font-size: 0.55rem; opacity: 0.7; font-weight: 700; text-transform: uppercase; }
-        .feedback-card { background: white; color: #333; border-radius: 20px; padding: 15px; margin-top: auto; border-left: 6px solid var(--warning); box-shadow: 0 5px 15px rgba(0,0,0,0.1); }
-        .bottom-action { height: 40vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
-        .btn-main-calc { background: var(--primary); color: white; border: none; width: 100%; max-width: 300px; padding: 18px; border-radius: 20px; font-weight: 800; font-size: 1.1rem; box-shadow: 0 10px 20px rgba(0,61,112,0.2); }
-        .modal-content { border-radius: 30px; border: none; }
-        .custom-input { width: 100%; background: #f4f7fa; border: 2px solid #eee; border-radius: 15px; padding: 12px; margin-bottom: 12px; font-weight: 600; }
-        .piring-tag { background: #e8f4fd; padding: 6px 12px; border-radius: 10px; display: inline-flex; align-items: center; margin: 4px; font-size: 0.75rem; font-weight: 700; color: var(--primary); border: 1px solid #d1e9ff; }
+        .macro-item { background: rgba(255,255,255,0.1); padding: 10px; border-radius: 15px; text-align: center; border: 1px solid rgba(255,255,255,0.05); }
+        .macro-item b { display: block; font-size: 0.9rem; }
+        .macro-item small { font-size: 0.55rem; opacity: 0.7; font-weight: 800; text-transform: uppercase; }
+
+        .feedback-card { background: white; color: #333; border-radius: 20px; padding: 15px; margin-top: auto; border-left: 6px solid var(--warning); box-shadow: 0 5px 15px rgba(0,0,0,0.05); }
+
+        /* Bagian Tombol Bawah */
+        .bottom-action { height: 38vh; display: flex; flex-direction: column; align-items: center; justify-content: center; padding: 20px; }
+        .btn-main-calc { 
+            background: var(--primary); color: white; border: none; width: 100%; max-width: 320px;
+            padding: 20px; border-radius: 24px; font-weight: 800; font-size: 1.1rem;
+            box-shadow: 0 12px 25px rgba(0,61,112,0.25); transition: 0.3s;
+        }
+        .btn-main-calc:active { transform: scale(0.96); }
+
+        /* Styling Modal */
+        .modal-content { border-radius: 32px; border: none; padding: 10px; }
+        .custom-input { width: 100%; background: #f1f4f9; border: 2px solid #eee; border-radius: 16px; padding: 14px; margin-bottom: 12px; font-weight: 600; font-size: 0.9rem; }
+        .piring-tag { 
+            background: #eef6ff; padding: 6px 14px; border-radius: 12px; display: inline-flex; 
+            align-items: center; margin: 4px; font-size: 0.8rem; font-weight: 700; color: var(--primary);
+            border: 1px solid #ddecff;
+        }
     </style>
 </head>
 <body>
 
 <div class="top-result">
-    <div class="d-flex justify-content-between align-items-center">
-        <a href="dashboard_warga.html" class="btn btn-sm btn-light rounded-3 fw-bold" style="font-size: 0.7rem;">← KEMBALI</a>
+    <div class="nav-top">
+        <a href="dashboard_warga.html" class="btn-back">← KEMBALI</a>
         <div class="text-end">
-            <small class="d-block opacity-75" style="font-size: 0.6rem; font-weight: 800;">TARGET ZAT BESI (Fe)</small>
-            <b id="target-fe-val" style="font-size: 1.1rem;">0</b> <small>mg</small>
+            <small class="d-block" style="font-size: 0.55rem; font-weight: 800; opacity: 0.7;">TARGET Fe (AKG)</small>
+            <b id="target-fe-label" style="font-size: 1.2rem;">--</b> <small>mg</small>
         </div>
     </div>
 
-    <div class="kkal-main text-center"><span id="total-kkal">0</span> <small style="font-size: 1.2rem; opacity: 0.6;">kkal</small></div>
+    <div class="kkal-main"><span id="total-kkal">0</span> <small style="font-size: 1.4rem; opacity: 0.5;">kkal</small></div>
 
     <div class="bmi-mini">
-        <div><small class="d-block opacity-75" style="font-size: 0.6rem; font-weight: 800;">STATUS GIZI</small><b id="bmi-status">Memuat...</b></div>
-        <div class="text-end"><small class="d-block opacity-75" style="font-size: 0.6rem; font-weight: 800;">BMI</small><b id="bmi-val">0.0</b></div>
+        <div><small class="d-block" style="font-size: 0.6rem; opacity: 0.7; font-weight: 800;">STATUS GIZI</small><b id="bmi-status">Memuat...</b></div>
+        <div class="text-end"><small class="d-block" style="font-size: 0.6rem; opacity: 0.7; font-weight: 800;">ANGKA BMI</small><b id="bmi-val">0.0</b></div>
     </div>
 
     <div class="macro-box">
@@ -50,28 +81,45 @@
     </div>
 
     <div class="feedback-card" id="fb-card">
-        <b id="fb-title" style="color: var(--primary); font-size: 0.9rem;">Analisa Piring</b>
-        <p id="fb-text" class="small mb-0 mt-1" style="line-height: 1.3; color: #666;">Data belum dihitung.</p>
+        <b id="fb-title" style="color: var(--primary); font-size: 0.9rem;">Analisa Nutrisi</b>
+        <p id="fb-text" class="small mb-0 mt-1" style="line-height: 1.3; color: #555;">Ketuk tombol di bawah untuk mulai menganalisa makanan Anda.</p>
     </div>
 </div>
 
 <div class="bottom-action">
     <button class="btn-main-calc" data-bs-toggle="modal" data-bs-target="#modalHitung">🥗 HITUNG PIRINGKU</button>
+    <p class="small text-muted mt-3" style="font-size: 0.7rem;">Data disinkronkan dengan Master Data Penduduk</p>
 </div>
 
 <div class="modal fade" id="modalHitung" tabindex="-1" aria-hidden="true">
     <div class="modal-dialog modal-dialog-centered">
-        <div class="modal-content">
+        <div class="modal-content shadow-lg">
             <div class="modal-body p-4">
-                <h5 class="fw-bold mb-3">Apa yang Anda makan?</h5>
+                <div class="d-flex justify-content-between align-items-center mb-3">
+                    <h5 class="fw-bold mb-0">Isi Piringku</h5>
+                    <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                </div>
+
                 <input type="text" id="cari-makan" class="custom-input" placeholder="Cari nama makanan..." onkeyup="filterMenu()">
                 <select id="select-makan" class="custom-input"></select>
-                <div class="row g-2">
-                    <div class="col-7"><input type="number" id="berat-makan" class="custom-input" value="100"></div>
-                    <div class="col-5"><button class="btn btn-primary w-100 py-2 rounded-4 fw-bold" onclick="tambahKePiring()">+ Tambah</button></div>
+
+                <div class="row g-2 mb-2">
+                    <div class="col-7">
+                        <div class="input-group">
+                            <input type="number" id="berat-makan" class="custom-input mb-0" value="100">
+                            <span class="input-group-text mb-0 border-0 bg-transparent fw-bold text-muted">gram</span>
+                        </div>
+                    </div>
+                    <div class="col-5">
+                        <button class="btn btn-primary w-100 py-3 rounded-4 fw-bold" onclick="tambahKePiring()">+ Tambah</button>
+                    </div>
                 </div>
-                <div id="list-piring-modal" class="mt-3" style="max-height: 150px; overflow-y: auto;"></div>
-                <button class="btn btn-success w-100 py-3 mt-3 rounded-4 fw-bold" onclick="selesaiHitung()">ANALISA SEKARANG</button>
+
+                <div id="list-piring-modal" class="py-2" style="max-height: 150px; overflow-y: auto;">
+                    </div>
+
+                <hr class="my-3 opacity-50">
+                <button class="btn btn-success w-100 py-3 rounded-4 fw-bold shadow-sm" onclick="selesaiHitung()">LIHAT HASIL ANALISA</button>
             </div>
         </div>
     </div>
@@ -79,94 +127,154 @@
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 <script>
-    const API_URL = "https://script.google.com/macros/s/AKfycbzUWAjXXsZmCcsZ5fWIdetO7MIg5rIqQnFi9iWr9zGjSC3S8uZCAoO-WmrteceUv5v9AA/exec";
-    let databaseGizi = [], isiPiring = [], riwayatPenyakit = "Normal", targetFeUser = 9, userBMI = 0;
+    // URL WEB APP APPS SCRIPT ANDA
+    const API_URL = "https://script.google.com/macros/s/AKfycbxlTqFUorDhyTCZ_7HaYomB0_j92MQV-1IorymZ0mJnfIjNFhfn7sSV_MKMIi14rrU2Cg/exec";
+    
+    let databaseGizi = [], isiPiring = [], riwayatPenyakit = "Normal", userBMI = 0, targetFeWarga = 9;
 
-    function cleanNum(val) { return parseFloat(val.toString().replace(/,/g, '.')) || 0; }
+    function cleanNum(val) {
+        if (!val) return 0;
+        let s = val.toString().replace(/,/g, '.').replace(/[^0-9.-]/g, '');
+        return parseFloat(s) || 0;
+    }
 
     async function init() {
         const nik = localStorage.getItem('nik_login');
         if(!nik) return;
+
         try {
             const res = await fetch(`${API_URL}?action=get_all_sheets_data`);
             const db = await res.json();
             
-            // 1. Logika Data Penduduk & Target Fe (AKG)
+            // 1. Sinkronisasi Data Penduduk & Target Besi (Fe)
             const user = db.data.Master_Data_Penduduk.find(r => r[0].toString().trim() === nik.trim());
             if(user) {
-                const tb = cleanNum(user[12]), bb = cleanNum(user[13]);
+                const tb = cleanNum(user[12]); 
+                const bb = cleanNum(user[13]); 
                 const statusKeluarga = (user[6] || "").toLowerCase();
                 const jkel = (user[3] || "L").toUpperCase();
                 riwayatPenyakit = (user[14] || "Normal").toLowerCase();
-
-                // Cari target Fe di sheet referensi_akg
-                let akg = db.data.referensi_akg.find(r => statusKeluarga.includes(r[2].toString().toLowerCase()) && r[2].toString().length > 2);
+                
+                // Cari Target Fe di sheet referensi_akg
+                let akg = db.data.referensi_akg.find(r => 
+                    r[2] && statusKeluarga.includes(r[2].toString().toLowerCase()) && r[2].toString().length > 3
+                );
                 if(!akg) akg = db.data.referensi_akg.find(r => r[1] === jkel);
                 
-                targetFeUser = akg ? cleanNum(akg[4]) : 9;
-                document.getElementById('target-fe-val').innerText = targetFeUser;
+                targetFeWarga = akg ? cleanNum(akg[4]) : 9;
+                document.getElementById('target-fe-label').innerText = targetFeWarga;
 
                 if(bb > 0 && tb > 0) {
                     userBMI = (bb / ((tb/100)**2)).toFixed(1);
                     document.getElementById('bmi-val').innerText = userBMI;
-                    let st = "Normal", cl = "#27ae60";
-                    if(userBMI < 18.5) { st = "Kurus"; cl = "#3498db"; }
-                    else if(userBMI >= 30) { st = "Obesitas"; cl = "#e74c3c"; }
-                    else if(userBMI >= 25) { st = "Gemuk"; cl = "#f1c40f"; }
-                    document.getElementById('bmi-status').innerText = st;
-                    document.getElementById('bmi-status').style.color = cl;
+                    updateBMIUI(userBMI);
                 }
             }
 
-            // 2. Logika Database Gizi (Pembersihan Baris Judul)
-            databaseGizi = db.data.master_gizi.filter(r => r[0] && !r[0].includes("SUMBER") && !r[0].includes("LAUK") && r[0] !== "Nama Bahan");
+            // 2. Load Master Gizi (Filter baris judul/kategori)
+            databaseGizi = db.data.master_gizi.filter(r => cleanNum(r[1]) > 0 && r[0] !== "Nama Bahan");
             renderSelect(databaseGizi);
-            document.getElementById('fb-text').innerText = "Database Siap.";
-        } catch (e) { document.getElementById('fb-text').innerText = "Gagal memuat data."; }
+            
+            document.getElementById('fb-text').innerText = "Database gizi berhasil dimuat. Piring Anda siap dianalisa.";
+
+        } catch (e) { 
+            console.error(e);
+            document.getElementById('fb-text').innerText = "Gagal menyambungkan ke database.";
+        }
+    }
+
+    function updateBMIUI(bmi) {
+        let st = "Normal", cl = "#2ecc71";
+        if(bmi < 18.5) { st = "Kurus"; cl = "#3498db"; }
+        else if(bmi >= 25 && bmi < 30) { st = "Gemuk"; cl = "#f1c40f"; }
+        else if(bmi >= 30) { st = "Obesitas"; cl = "#e74c3c"; }
+        document.getElementById('bmi-status').innerText = st;
+        document.getElementById('bmi-status').style.color = cl;
     }
 
     function renderSelect(data) {
-        document.getElementById('select-makan').innerHTML = data.map(r => `<option value="${r[0]}">${r[0]} (${cleanNum(r[1])} kkal)</option>`).join("");
+        document.getElementById('select-makan').innerHTML = data.map(r => 
+            `<option value="${r[0]}">${r[0]} (${cleanNum(r[1])} kkal/100g)</option>`
+        ).join("");
     }
 
     function filterMenu() {
         const key = document.getElementById('cari-makan').value.toLowerCase();
-        renderSelect(databaseGizi.filter(r => r[0].toLowerCase().includes(key)));
+        renderSelect(databaseGizi.filter(r => r[0].toString().toLowerCase().includes(key)));
     }
 
     function tambahKePiring() {
-        const n = document.getElementById('select-makan').value, b = cleanNum(document.getElementById('berat-makan').value);
-        const d = databaseGizi.find(r => r[0] === n);
-        if(d && b > 0) {
-            const f = b / 100;
-            isiPiring.push({ nama: d[0], berat: b, kkal: cleanNum(d[1])*f, p: cleanNum(d[2])*f, l: cleanNum(d[3])*f, k: cleanNum(d[4])*f, fe: cleanNum(d[5])*f });
-            document.getElementById('list-piring-modal').innerHTML = isiPiring.map((it, i) => `<span class="piring-tag">${it.nama} ${it.berat}g <b class="ms-1 text-danger" onclick="isiPiring.splice(${i},1);tambahKePiring()">×</b></span>`).join("");
+        const nama = document.getElementById('select-makan').value;
+        const berat = cleanNum(document.getElementById('berat-makan').value);
+        const data = databaseGizi.find(r => r[0] === nama);
+        
+        if(data && berat > 0) {
+            const f = berat / 100;
+            isiPiring.push({
+                nama: data[0], berat: berat,
+                kkal: cleanNum(data[1])*f, p: cleanNum(data[2])*f,
+                l: cleanNum(data[3])*f, k: cleanNum(data[4])*f, fe: cleanNum(data[5])*f
+            });
+            renderPiringTags();
         }
     }
 
-    function selesaiHitung() {
-        let tk=0, tp=0, tl=0, tka=0, tfe=0;
-        isiPiring.forEach(it => { tk+=it.kkal; tp+=it.p; tl+=it.l; tka+=it.k; tfe+=it.fe; });
-        
-        document.getElementById('total-kkal').innerText = tk.toFixed(0);
-        document.getElementById('total-p').innerText = tp.toFixed(1);
-        document.getElementById('total-l').innerText = tl.toFixed(1);
-        document.getElementById('total-k').innerText = tka.toFixed(1);
-        document.getElementById('total-fe').innerText = tfe.toFixed(1);
+    function renderPiringTags() {
+        const div = document.getElementById('list-piring-modal');
+        div.innerHTML = isiPiring.map((it, i) => `
+            <span class="piring-tag">
+                ${it.nama} (${it.berat}g) 
+                <b class="ms-2 text-danger" style="cursor:pointer" onclick="hapusItem(${i})">✕</b>
+            </span>
+        `).join("");
+    }
 
-        // Analisa AI
-        let msg = "Komposisi cukup baik.", warna = "#27ae60", title = "✅ Seimbang";
-        if (tfe < targetFeUser) { msg = `Kurang Zat Besi (Butuh ${targetFeUser}mg). `; warna = "#f1c40f"; title = "⚠️ Kurang Mineral"; }
-        
+    function hapusItem(i) {
+        isiPiring.splice(i, 1);
+        renderPiringTags();
+    }
+
+    function selesaiHitung() {
+        if(isiPiring.length === 0) {
+            Swal.fire('Kosong', 'Tambahkan minimal satu jenis makanan ke piring.', 'warning');
+            return;
+        }
+
+        let total = { kkal:0, p:0, l:0, k:0, fe:0 };
+        isiPiring.forEach(it => {
+            total.kkal += it.kkal; total.p += it.p; total.l += it.l; total.k += it.k; total.fe += it.fe;
+        });
+
+        document.getElementById('total-kkal').innerText = total.kkal.toFixed(0);
+        document.getElementById('total-p').innerText = total.p.toFixed(1);
+        document.getElementById('total-l').innerText = total.l.toFixed(1);
+        document.getElementById('total-k').innerText = total.k.toFixed(1);
+        document.getElementById('total-fe').innerText = total.fe.toFixed(1);
+
+        analisaHasil(total);
+
+        // Tutup Modal
+        bootstrap.Modal.getInstance(document.getElementById('modalHitung')).hide();
+    }
+
+    function analisaHasil(t) {
+        let title = "✅ Gizi Seimbang", warna = "#27ae60", msg = "Komposisi piring Anda sangat baik.";
+
+        if(t.fe < targetFeWarga) {
+            title = "⚠️ Kurang Mineral"; warna = "#f1c40f";
+            msg = `Kandungan Zat Besi baru terpenuhi ${((t.fe/targetFeWarga)*100).toFixed(0)}% dari target harian Anda.`;
+        }
+
         const menuStr = isiPiring.map(i => i.nama.toLowerCase()).join(" ");
         if(riwayatPenyakit.includes("asam urat") && (menuStr.includes("bayam") || menuStr.includes("kangkung"))) {
-            msg = "Ada pantangan asam urat di piring!"; warna = "#e74c3c"; title = "❌ Bahaya";
+            title = "❌ Bahaya Pantangan"; warna = "#e74c3c";
+            msg = "Piring mengandung Bayam/Kangkung yang dilarang untuk riwayat Asam Urat Anda.";
         }
 
         document.getElementById('fb-card').style.borderLeftColor = warna;
-        document.getElementById('fb-title').innerText = title; document.getElementById('fb-title').style.color = warna;
+        document.getElementById('fb-title').innerText = title;
+        document.getElementById('fb-title').style.color = warna;
         document.getElementById('fb-text').innerText = msg;
-        bootstrap.Modal.getInstance(document.getElementById('modalHitung')).hide();
     }
 
     window.onload = init;
